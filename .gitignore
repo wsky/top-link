@@ -4,3 +4,17 @@
 *.jar
 *.war
 *.ear
+
+.DS_Store
+.project
+.classpath
+.settings
+
+target
+*.com
+
+# csharp
+packages
+bin
+obj
+*.user
