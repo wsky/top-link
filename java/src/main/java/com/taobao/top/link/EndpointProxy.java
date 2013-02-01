@@ -5,10 +5,10 @@ import com.taobao.top.link.handler.ReceiveHandler;
 public class EndpointProxy {
 
 	private Identity identity;
-	private Connection connection;
+	private ClientChannel channel;
 
-	protected void using(Connection connection) {
-		this.connection = connection;
+	protected void using(ClientChannel channel) {
+		this.channel = channel;
 	}
 
 	public Identity getIdentity() {
@@ -16,10 +16,11 @@ public class EndpointProxy {
 	}
 
 	public void send(byte[] data, int offset, int length) {
-		this.connection.send(data, offset, length);
+		this.channel.send(data, offset, length);
 	}
 
+	// special once-handle
 	public void send(byte[] data, int offset, int length, ReceiveHandler handler) {
-
+		
 	}
 }

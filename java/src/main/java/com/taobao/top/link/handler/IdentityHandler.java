@@ -4,7 +4,8 @@ import com.taobao.top.link.Identity;
 
 public interface IdentityHandler {
 	// for income conn
-	public Identity receiveHandshake();
+	public Identity receiveHandshake(byte[] data, int offset, int length);
+
 	// for outcome
-	public void sendHandshake(Identity identity);
+	public byte[] sendHandshake(Identity identity);
 }
