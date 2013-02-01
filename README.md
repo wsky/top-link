@@ -5,3 +5,4 @@ design draft: embedded duplex multi-channel endpoint and connection management f
 
 https://gist.github.com/4680940
 
+## Build-in RPC
