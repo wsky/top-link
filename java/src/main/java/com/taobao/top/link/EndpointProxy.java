@@ -1,6 +1,6 @@
 package com.taobao.top.link;
 
-import com.taobao.top.link.handler.ReceiveHandler;
+import com.taobao.top.link.handler.ChannelHandler;
 
 public class EndpointProxy {
 
@@ -20,7 +20,7 @@ public class EndpointProxy {
 	}
 
 	// special once-handle
-	public void send(byte[] data, int offset, int length, ReceiveHandler handler) {
+	public void send(byte[] data, int offset, int length, ChannelHandler handler) {
 		
 	}
 }

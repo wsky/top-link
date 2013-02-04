@@ -1,9 +1,7 @@
 package com.taobao.top.link;
 
-import com.taobao.top.link.handler.ReceiveHandler;
+import com.taobao.top.link.handler.ChannelHandler;
 
 public abstract class ServerChannel {
-	protected void run(ReceiveHandler handler) {
-
-	}
+	protected abstract void run(ChannelHandler handler);
 }

@@ -2,32 +2,35 @@ package com.taobao.top.link;
 
 import java.net.URI;
 
+import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.handler.ChannelSelectHandler;
-import com.taobao.top.link.handler.ReceiveHandler;
 
 public class Endpoint {
-	private ReceiveHandler receiveHandler;
 	private EndpointProxyHolder endpointProxyHolder;
 
+	private Identity identity;
 	private ServerChannel serverChannel;
 	private ChannelSelectHandler channelSelectHandler;
+	private ChannelHandler channelHandler;
 
 	public Endpoint(Identity identity) {
-
+		this.identity = identity;
 	}
 
-	public void setReceiveHandler(ReceiveHandler handler) {
-		this.receiveHandler = handler;
+	public void setChannelHandler(ChannelHandler handler) {
+		this.channelHandler = handler;
 	}
 
 	public void bind(ServerChannel channel) {
 		this.serverChannel = channel;
-		this.serverChannel.run(this.receiveHandler);
+		this.serverChannel.run(this.channelHandler);
 	}
 
 	public EndpointProxy getEndpoint(URI uri) {
 		EndpointProxy proxy = this.endpointProxyHolder.get(uri);
-		proxy.using(this.channelSelectHandler.getClientChannel(uri));
+		ClientChannel channel = this.channelSelectHandler.getClientChannel(uri);
+		channel.setChannelHandler(this.channelHandler);
+		proxy.using(channel);
 		return proxy;
 	}
 }
