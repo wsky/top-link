@@ -4,6 +4,10 @@ import java.net.URI;
 
 public class EndpointProxyHolder {
 	public EndpointProxy get(URI uri) {
-		return new EndpointProxy();
+		return null;
+	}
+	
+	public void put(URI uri, EndpointProxy proxy) {
+		
 	}
 }

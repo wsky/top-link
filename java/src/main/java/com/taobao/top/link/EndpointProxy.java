@@ -7,6 +7,11 @@ public class EndpointProxy {
 	private Identity identity;
 	private ClientChannel channel;
 
+	protected EndpointProxy(Identity identity)
+	{
+		this.identity=identity;
+	}
+	
 	protected void using(ClientChannel channel) {
 		this.channel = channel;
 	}

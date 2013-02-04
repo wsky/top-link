@@ -23,12 +23,27 @@ public class Endpoint {
 
 	public void bind(ServerChannel channel) {
 		this.serverChannel = channel;
-		this.serverChannel.run(this.channelHandler);
+		this.serverChannel.run(this);
 	}
 
-	public EndpointProxy getEndpoint(URI uri) {
-		EndpointProxy proxy = this.endpointProxyHolder.get(uri);
-		ClientChannel channel = this.channelSelectHandler.getClientChannel(uri);
+	public EndpointProxy getEndpoint(URI uri) throws ChannelException {
+		return this.getEndpoint(this.channelSelectHandler.getClientChannel(uri));
+	}
+
+	protected ChannelHandler getChannelHandler() {
+		return this.channelHandler;
+	}
+
+	protected Identity getIdentity() {
+		return this.identity;
+	}
+
+	protected EndpointProxyHolder getEndpointProxyHolder() {
+		return this.endpointProxyHolder;
+	}
+
+	protected EndpointProxy getEndpoint(ClientChannel channel) {
+		EndpointProxy proxy = this.endpointProxyHolder.get(channel.getUri());
 		channel.setChannelHandler(this.channelHandler);
 		proxy.using(channel);
 		return proxy;
