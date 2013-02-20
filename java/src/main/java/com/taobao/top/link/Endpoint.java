@@ -4,6 +4,7 @@ import java.net.URI;
 
 import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.handler.ChannelSelectHandler;
+import com.taobao.top.link.websocket.WebSocketChannelSelectHandler;
 
 public class Endpoint {
 	private EndpointProxyHolder endpointProxyHolder;
@@ -15,6 +16,7 @@ public class Endpoint {
 
 	public Endpoint(Identity identity) {
 		this.identity = identity;
+		this.channelSelectHandler = new WebSocketChannelSelectHandler();
 	}
 
 	public void setChannelHandler(ChannelHandler handler) {
@@ -43,7 +45,7 @@ public class Endpoint {
 	}
 
 	protected EndpointProxy getEndpoint(ClientChannel channel) {
-		EndpointProxy proxy = this.endpointProxyHolder.get(channel.getUri());
+		EndpointProxy proxy = new EndpointProxy(null);// this.endpointProxyHolder.get(channel.getUri());
 		channel.setChannelHandler(this.channelHandler);
 		proxy.using(channel);
 		return proxy;

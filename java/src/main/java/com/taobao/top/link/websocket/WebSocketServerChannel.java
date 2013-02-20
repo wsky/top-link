@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -49,16 +50,16 @@ public class WebSocketServerChannel extends ServerChannel {
 	}
 
 	public String getUrl() {
-		return String.format("ws://%s:%s", ip, port);
+		return String.format("ws://%s:%s/ws", this.ip, this.port);
 	}
 
 	@Override
 	protected void run() {
-		ServerBootstrap bootstrap_back = new ServerBootstrap(
+		ServerBootstrap bootstrap = new ServerBootstrap(
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(),
 						Executors.newCachedThreadPool()));
-		bootstrap_back.setPipelineFactory(new ChannelPipelineFactory() {
+		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
@@ -69,7 +70,8 @@ public class WebSocketServerChannel extends ServerChannel {
 				return pipeline;
 			}
 		});
-		bootstrap_back.bind(new InetSocketAddress(this.port));
+		//bootstrap.setOption("child.tcpNoDelay", true);
+		bootstrap.bind(new InetSocketAddress(this.port));
 	}
 
 	// one handler per connection
@@ -88,6 +90,7 @@ public class WebSocketServerChannel extends ServerChannel {
 		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 				throws Exception {
 			Object msg = e.getMessage();
+			System.out.println("--server:" + msg);
 			if (msg instanceof HttpRequest) {
 				this.handleHttpRequest(ctx, (HttpRequest) msg);
 			} else if (msg instanceof WebSocketFrame) {
@@ -99,6 +102,7 @@ public class WebSocketServerChannel extends ServerChannel {
 		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 				throws Exception {
 			// Throwable error = e.getCause();
+			e.getChannel().close();
 		}
 
 		private void handleHttpRequest(ChannelHandlerContext ctx,
@@ -109,7 +113,7 @@ public class WebSocketServerChannel extends ServerChannel {
 				return;
 			}
 
-			String subprotocols = null;
+			String subprotocols = "mqtt";
 			WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 					this.url, subprotocols, false);
 			handshaker = wsFactory.newHandshaker(req);
@@ -121,7 +125,7 @@ public class WebSocketServerChannel extends ServerChannel {
 			}
 		}
 
-		private void handleWebSocketFrame(final ChannelHandlerContext ctx,
+		private void handleWebSocketFrame(ChannelHandlerContext ctx,
 				WebSocketFrame frame) {
 			if (frame instanceof CloseWebSocketFrame) {
 				handshaker.close(ctx.getChannel(), (CloseWebSocketFrame) frame);
@@ -132,7 +136,10 @@ public class WebSocketServerChannel extends ServerChannel {
 				if (this.identity == null) {
 					this.identity = this.handler.receiveHandshake(
 							buffer.array(), buffer.arrayOffset(), buffer.capacity());
+					if (this.identity == null)
+						this.handshaker.close(ctx.getChannel(), new CloseWebSocketFrame(401, "unauthorized"));
 				} else {
+					final Channel channel = ctx.getChannel();
 					this.handler.onReceive(buffer.array(),
 							buffer.arrayOffset(),
 							buffer.capacity(),
@@ -141,7 +148,13 @@ public class WebSocketServerChannel extends ServerChannel {
 								public void reply(byte[] data, int offset, int length) {
 									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 									BinaryWebSocketFrame dataBinaryWebSocketFrame = new BinaryWebSocketFrame(buffer);
-									ctx.getChannel().write(dataBinaryWebSocketFrame);
+									dataBinaryWebSocketFrame.setFinalFragment(true);
+									try {
+										channel.write(dataBinaryWebSocketFrame).sync();
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
 								}
 							});
 				}
