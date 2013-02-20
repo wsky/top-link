@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -27,15 +28,15 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.jboss.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
-import org.jboss.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import org.jboss.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.jboss.netty.util.CharsetUtil;
 
+import com.taobao.top.link.EndpointContext;
+import com.taobao.top.link.Identity;
 import com.taobao.top.link.ServerChannel;
+import com.taobao.top.link.handler.ChannelHandler;
 
 public class WebSocketServerChannel extends ServerChannel {
 
@@ -57,34 +58,30 @@ public class WebSocketServerChannel extends ServerChannel {
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(),
 						Executors.newCachedThreadPool()));
-		bootstrap_back.setPipelineFactory(new WebSocketServerPipelineFactory(this.getUrl()));
+		bootstrap_back.setPipelineFactory(new ChannelPipelineFactory() {
+			@Override
+			public ChannelPipeline getPipeline() throws Exception {
+				ChannelPipeline pipeline = Channels.pipeline();
+				pipeline.addLast("decoder", new HttpRequestDecoder());
+				pipeline.addLast("aggregator", new HttpChunkAggregator(65536));
+				pipeline.addLast("encoder", new HttpResponseEncoder());
+				pipeline.addLast("handler", new WebSocketServerHandler(getUrl(), getChannelHandler()));
+				return pipeline;
+			}
+		});
 		bootstrap_back.bind(new InetSocketAddress(this.port));
 	}
 
-	public class WebSocketServerPipelineFactory implements
-			ChannelPipelineFactory {
-		private String url;
-
-		public WebSocketServerPipelineFactory(String url) {
-			this.url = url;
-		}
-
-		public ChannelPipeline getPipeline() throws Exception {
-			ChannelPipeline pipeline = Channels.pipeline();
-			pipeline.addLast("decoder", new HttpRequestDecoder());
-			pipeline.addLast("aggregator", new HttpChunkAggregator(65536));
-			pipeline.addLast("encoder", new HttpResponseEncoder());
-			pipeline.addLast("handler", new WebSocketServerHandler(this.url));
-			return pipeline;
-		}
-	}
-
+	// one handler per connection
 	public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 		private String url;
+		private ChannelHandler handler;
+		private Identity identity;
 		private WebSocketServerHandshaker handshaker;
 
-		public WebSocketServerHandler(String url) {
+		public WebSocketServerHandler(String url, ChannelHandler handler) {
 			this.url = url;
+			this.handler = handler;
 		}
 
 		@Override
@@ -92,9 +89,9 @@ public class WebSocketServerChannel extends ServerChannel {
 				throws Exception {
 			Object msg = e.getMessage();
 			if (msg instanceof HttpRequest) {
-				handleHttpRequest(ctx, (HttpRequest) msg);
+				this.handleHttpRequest(ctx, (HttpRequest) msg);
 			} else if (msg instanceof WebSocketFrame) {
-				handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+				this.handleWebSocketFrame(ctx, (WebSocketFrame) msg);
 			}
 		}
 
@@ -112,9 +109,6 @@ public class WebSocketServerChannel extends ServerChannel {
 				return;
 			}
 
-			// TODO: get identity info from req
-			// origin
-
 			String subprotocols = null;
 			WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 					this.url, subprotocols, false);
@@ -127,22 +121,32 @@ public class WebSocketServerChannel extends ServerChannel {
 			}
 		}
 
-		private void handleWebSocketFrame(ChannelHandlerContext ctx,
+		private void handleWebSocketFrame(final ChannelHandlerContext ctx,
 				WebSocketFrame frame) {
 			if (frame instanceof CloseWebSocketFrame) {
 				handshaker.close(ctx.getChannel(), (CloseWebSocketFrame) frame);
 				ctx.getChannel().close();
 				return;
-			} else if (frame instanceof PingWebSocketFrame) {
-				return;
-			} else if (frame instanceof TextWebSocketFrame) {
-				return;
 			} else if (frame instanceof BinaryWebSocketFrame) {
-				// ((BinaryWebSocketFrame)frame).getBinaryData().
-				// TODO: channel uri identity mapping
-			} else if (frame instanceof ContinuationWebSocketFrame) {
-				return;
+				ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
+				if (this.identity == null) {
+					this.identity = this.handler.receiveHandshake(
+							buffer.array(), buffer.arrayOffset(), buffer.capacity());
+				} else {
+					this.handler.onReceive(buffer.array(),
+							buffer.arrayOffset(),
+							buffer.capacity(),
+							new EndpointContext() {
+								@Override
+								public void reply(byte[] data, int offset, int length) {
+									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
+									BinaryWebSocketFrame dataBinaryWebSocketFrame = new BinaryWebSocketFrame(buffer);
+									ctx.getChannel().write(dataBinaryWebSocketFrame);
+								}
+							});
+				}
 			}
+
 		}
 
 		private void sendHttpResponse(ChannelHandlerContext ctx,
@@ -159,5 +163,4 @@ public class WebSocketServerChannel extends ServerChannel {
 			}
 		}
 	}
-
 }

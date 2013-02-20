@@ -26,4 +26,10 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		return null;
 	}
 
+	@Override
+	public void putClientChannel(URI uri, ClientChannel channel) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

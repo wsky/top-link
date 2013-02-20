@@ -25,10 +25,10 @@ public class EndpointTest {
 			}
 
 			@Override
-			public void onReceive(byte[] data, int offset, int length, EndpointProxy messageFrom) {
+			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				String dataString = new String(data, offset, length);
 				assertEquals("hello", dataString);
-				messageFrom.send("ok".getBytes(), 0, 2);
+				context.reply("ok".getBytes(), 0, 2);
 			}
 		});
 		endpoint.bind(serverChannel);
