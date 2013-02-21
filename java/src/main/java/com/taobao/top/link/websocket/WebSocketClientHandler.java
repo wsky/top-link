@@ -24,6 +24,19 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 	protected ChannelHandler channelHandler;
 	protected WebSocketClientHandshaker handshaker;
 	protected ChannelFuture handshakeFuture;
+	protected ClearHandler clearHandler;
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+			throws Exception {
+		if (this.handshakeFuture != null && !this.handshakeFuture.isDone()) {
+			this.handshakeFuture.setFailure(e.getCause());
+			synchronized (this.handshaker) {
+				this.handshaker.notify();
+			}
+		}
+		this.clear(ctx);
+	}
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
@@ -55,20 +68,9 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 		}
 	}
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-			throws Exception {
-		if (this.handshakeFuture != null && !this.handshakeFuture.isDone()) {
-			this.handshakeFuture.setFailure(e.getCause());
-			synchronized (this.handshaker) {
-				this.handshaker.notify();
-			}
-		}
-	}
-
 	private void handleWebSocketFrame(final ChannelHandlerContext ctx, WebSocketFrame frame) {
 		if (frame instanceof CloseWebSocketFrame) {
-			ctx.getChannel().close();
+			this.clear(ctx);
 		} else if (frame instanceof BinaryWebSocketFrame) {
 			ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
 			if (this.channelHandler != null) {
@@ -88,5 +90,15 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 
 		}
 
+	}
+
+	private void clear(ChannelHandlerContext ctx) {
+		ctx.getChannel().close();
+		if (this.clearHandler != null)
+			this.clearHandler.clear();
+	}
+
+	public interface ClearHandler {
+		public void clear();
 	}
 }
