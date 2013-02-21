@@ -12,9 +12,10 @@ import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 public class EndpointTest {
 	@Test
-	public void bind_test() throws InterruptedException, URISyntaxException {
-
-		URI uri = new URI("ws://localhost:8001/ws");
+	public void request_reply_test() throws InterruptedException, URISyntaxException {
+		URI uri = new URI("ws://localhost:8001/");
+		final String request = "hello";
+		final String reply = "ok";
 
 		// init channel
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
@@ -30,27 +31,55 @@ public class EndpointTest {
 			@Override
 			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				String dataString = new String(data, offset, length);
-				System.out.println("receive:" + dataString);
-				assertEquals("hello", dataString);
-				context.reply("ok".getBytes(), 0, 2);
+				if (request.equals(dataString)) {
+					System.out.println("request:" + dataString);
+					synchronized (request) {
+						request.notify();
+					}
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					context.reply(reply.getBytes(), 0, reply.length());
+				}
+				if (reply.equals(dataString)) {
+					System.out.println("reply:" + dataString);
+					synchronized (reply) {
+						reply.notify();
+					}
+				}
 			}
 		});
 		endpoint.bind(serverChannel);
 
-		Thread.sleep(1000);
-
 		// get and send
 		try {
 			EndpointProxy target = endpoint.getEndpoint(uri);
-			//Thread.sleep(5000);
-			target.send("hello".getBytes(), 0, 5);
-			//Thread.sleep(2000);
-			target.send("hello".getBytes(), 0, 5);
+			target.send(request.getBytes(), 0, request.length());
+			target.send(request.getBytes(), 0, request.length());
 		} catch (ChannelException e) {
 			e.printStackTrace();
 		}
 
-		Thread.sleep(10000);
+		synchronized (request) {
+			request.wait();
+		}
+		synchronized (reply) {
+			reply.wait();
+		}
+	}
+
+	@Test(expected = ChannelException.class)
+	public void connect_error_test() throws ChannelException {
+		try {
+			new Endpoint(new TopIdentity()).getEndpoint(new URI("ws://localhost:8002/"));
+		} catch (ChannelException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public class TopIdentity implements Identity {
@@ -61,16 +90,5 @@ public class EndpointTest {
 		public byte[] getData() {
 			return this.AppKey.getBytes();
 		}
-
-		@Override
-		public URI getUri() {
-			try {
-				return new URI("ws://localhost:8080");
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-
 	}
 }

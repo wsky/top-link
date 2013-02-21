@@ -45,7 +45,8 @@ public class Endpoint {
 	}
 
 	protected EndpointProxy getEndpoint(ClientChannel channel) {
-		EndpointProxy proxy = new EndpointProxy(null);// this.endpointProxyHolder.get(channel.getUri());
+		EndpointProxy proxy = new EndpointProxy();
+		// this.endpointProxyHolder.get(channel.getUri());
 		channel.setChannelHandler(this.channelHandler);
 		proxy.using(channel);
 		return proxy;

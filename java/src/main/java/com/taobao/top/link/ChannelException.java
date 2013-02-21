@@ -11,5 +11,9 @@ public class ChannelException extends Exception {
 	public ChannelException(String message, Exception innerException) {
 		super(message, innerException);
 	}
+	
+	public ChannelException(String message, Throwable innerException) {
+		super(message, innerException);
+	}
 
 }
