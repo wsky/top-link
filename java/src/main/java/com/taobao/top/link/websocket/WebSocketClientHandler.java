@@ -17,14 +17,17 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import com.taobao.top.link.EndpointContext;
+import com.taobao.top.link.Identity;
 import com.taobao.top.link.handler.ChannelHandler;
 
 // one handler per connection
 public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
-	protected ChannelHandler channelHandler;
 	protected WebSocketClientHandshaker handshaker;
 	protected ChannelFuture handshakeFuture;
+
+	protected ChannelHandler channelHandler;
 	protected ClearHandler clearHandler;
+	protected Identity identity;
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
@@ -34,6 +37,9 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			synchronized (this.handshaker) {
 				this.handshaker.notify();
 			}
+		} else {
+			System.out.println(String.format(
+					"connection exception and closed: %s", e.getCause()));
 		}
 		this.clear(ctx);
 	}
@@ -56,6 +62,15 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 				this.handshakeFuture.setSuccess();
 			}
 
+			// send identity
+			if (this.identity != null) {
+				byte[] data = this.identity.getData();
+				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, 0, data.length);
+				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
+				frame.setFinalFragment(true);
+				ctx.getChannel().write(frame);
+			}
+
 			synchronized (this.handshaker) {
 				this.handshaker.notify();
 			}
@@ -70,7 +85,10 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 
 	private void handleWebSocketFrame(final ChannelHandlerContext ctx, WebSocketFrame frame) {
 		if (frame instanceof CloseWebSocketFrame) {
+			CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
 			this.clear(ctx);
+			System.out.println(String.format(
+					"connection closed: %s|%s", closeFrame.getStatusCode(), closeFrame.getReasonText()));
 		} else if (frame instanceof BinaryWebSocketFrame) {
 			ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
 			if (this.channelHandler != null) {

@@ -16,9 +16,13 @@ public class Endpoint {
 
 	public Endpoint(Identity identity) {
 		this.identity = identity;
-		this.channelSelectHandler = new WebSocketChannelSelectHandler();
+		this.channelSelectHandler = new WebSocketChannelSelectHandler(this);
 	}
 
+	public Identity getIdentity() {
+		return this.identity;
+	}
+	
 	public void setChannelHandler(ChannelHandler handler) {
 		this.channelHandler = handler;
 	}
@@ -34,10 +38,6 @@ public class Endpoint {
 
 	protected ChannelHandler getChannelHandler() {
 		return this.channelHandler;
-	}
-
-	protected Identity getIdentity() {
-		return this.identity;
 	}
 
 	protected EndpointProxyHolder getEndpointProxyHolder() {

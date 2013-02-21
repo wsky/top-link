@@ -23,15 +23,18 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
+import com.taobao.top.link.Endpoint;
 import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.handler.ChannelSelectHandler;
 import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
 public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
+	private Endpoint endpoint;
 	private Hashtable<String, ClientChannel> channels;
 	private WebSocketClientHandshakerFactory wsFactory;
 
-	public WebSocketChannelSelectHandler() {
+	public WebSocketChannelSelectHandler(Endpoint endpoint) {
+		this.endpoint = endpoint;
 		this.channels = new Hashtable<String, ClientChannel>();
 		this.wsFactory = new WebSocketClientHandshakerFactory();
 	}
@@ -60,6 +63,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 				Executors.newCachedThreadPool()));
 		final WebSocketClientHandler clientHandler = new WebSocketClientHandler();
 		clientHandler.clearHandler = clearHandler;
+		clientHandler.identity = this.endpoint.getIdentity();
 
 		final ChannelPipeline pipeline = Channels.pipeline();
 		pipeline.addLast("decoder", new HttpResponseDecoder());

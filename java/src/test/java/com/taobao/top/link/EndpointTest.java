@@ -57,16 +57,15 @@ public class EndpointTest {
 		try {
 			EndpointProxy target = endpoint.getEndpoint(uri);
 			target.send(request.getBytes(), 0, request.length());
-			target.send(request.getBytes(), 0, request.length());
 		} catch (ChannelException e) {
 			e.printStackTrace();
 		}
 
 		synchronized (request) {
-			request.wait();
+			request.wait(2000);
 		}
 		synchronized (reply) {
-			reply.wait();
+			reply.wait(2000);
 		}
 	}
 
@@ -84,7 +83,7 @@ public class EndpointTest {
 
 	public class TopIdentity implements Identity {
 
-		public String AppKey;
+		public String AppKey = "top-link";
 
 		@Override
 		public byte[] getData() {
