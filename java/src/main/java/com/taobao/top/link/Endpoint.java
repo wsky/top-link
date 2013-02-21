@@ -7,8 +7,6 @@ import com.taobao.top.link.handler.ChannelSelectHandler;
 import com.taobao.top.link.websocket.WebSocketChannelSelectHandler;
 
 public class Endpoint {
-	private EndpointProxyHolder endpointProxyHolder;
-
 	private Identity identity;
 	private ServerChannel serverChannel;
 	private ChannelSelectHandler channelSelectHandler;
@@ -16,13 +14,14 @@ public class Endpoint {
 
 	public Endpoint(Identity identity) {
 		this.identity = identity;
+		// default select handler
 		this.channelSelectHandler = new WebSocketChannelSelectHandler(this);
 	}
 
 	public Identity getIdentity() {
 		return this.identity;
 	}
-	
+
 	public void setChannelHandler(ChannelHandler handler) {
 		this.channelHandler = handler;
 	}
@@ -40,13 +39,8 @@ public class Endpoint {
 		return this.channelHandler;
 	}
 
-	protected EndpointProxyHolder getEndpointProxyHolder() {
-		return this.endpointProxyHolder;
-	}
-
 	protected EndpointProxy getEndpoint(ClientChannel channel) {
 		EndpointProxy proxy = new EndpointProxy();
-		// this.endpointProxyHolder.get(channel.getUri());
 		channel.setChannelHandler(this.channelHandler);
 		proxy.using(channel);
 		return proxy;

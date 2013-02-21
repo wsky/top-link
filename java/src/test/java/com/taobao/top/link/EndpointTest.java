@@ -17,9 +17,8 @@ public class EndpointTest {
 		final String request = "hello";
 		final String reply = "ok";
 
-		// init channel
+		// init server channel
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
-
 		// init endpoint
 		Endpoint endpoint = new Endpoint(new TopIdentity());
 		endpoint.setChannelHandler(new ChannelHandler() {
@@ -53,7 +52,7 @@ public class EndpointTest {
 		});
 		endpoint.bind(serverChannel);
 
-		// get and send
+		// sender, get and send
 		try {
 			EndpointProxy target = endpoint.getEndpoint(uri);
 			target.send(request.getBytes(), 0, request.length());
