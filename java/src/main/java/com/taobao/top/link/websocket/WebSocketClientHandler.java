@@ -32,14 +32,12 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 			throws Exception {
-		if (this.handshakeFuture != null && !this.handshakeFuture.isDone()) {
+		if (this.handshakeFuture != null && !this.handshakeFuture.isSuccess()) {
 			this.handshakeFuture.setFailure(e.getCause());
-			synchronized (this.handshaker) {
-				this.handshaker.notify();
-			}
+			this.notifyHandshake();
 		} else {
-			System.out.println(String.format(
-					"client connection exception and closed: %s", e.getCause()));
+			System.err.println(String.format(
+					"exceptionCaught: %s", e.getCause()));
 		}
 		this.clear(ctx);
 	}
@@ -71,9 +69,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 				ctx.getChannel().write(frame);
 			}
 
-			synchronized (this.handshaker) {
-				this.handshaker.notify();
-			}
+			this.notifyHandshake();
 
 			return;
 		}
@@ -87,7 +83,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 		if (frame instanceof CloseWebSocketFrame) {
 			CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
 			this.clear(ctx);
-			System.out.println(String.format(
+			System.err.println(String.format(
 					"connection closed: %s|%s", closeFrame.getStatusCode(), closeFrame.getReasonText()));
 		} else if (frame instanceof BinaryWebSocketFrame) {
 			ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
@@ -114,6 +110,12 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 		ctx.getChannel().close();
 		if (this.clearHandler != null)
 			this.clearHandler.clear();
+	}
+
+	private void notifyHandshake() {
+		synchronized (this.handshaker) {
+			this.handshaker.notify();
+		}
 	}
 
 	public interface ClearHandler {

@@ -57,7 +57,7 @@ public class EndpointTest {
 			EndpointProxy target = endpoint.getEndpoint(uri);
 			target.send(request.getBytes(), 0, request.length());
 		} catch (ChannelException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 
 		synchronized (request) {
@@ -73,7 +73,7 @@ public class EndpointTest {
 		try {
 			new Endpoint(new TopIdentity()).getEndpoint(new URI("ws://localhost:8002/"));
 		} catch (ChannelException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			throw e;
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
@@ -81,12 +81,28 @@ public class EndpointTest {
 	}
 
 	@Test
-	public void identity_error_test() {
+	public void identity_error_test() throws URISyntaxException, ChannelException {
+		URI uri = new URI("ws://localhost:8003/");
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		Endpoint endpoint = new Endpoint(new TopIdentity());
+		endpoint.setChannelHandler(new ChannelHandler() {
+			@Override
+			public Identity receiveHandshake(byte[] data, int offset, int length) {
+				return null;
+			}
+
+			@Override
+			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
+			}
+		});
+		endpoint.bind(serverChannel);
+
+		endpoint.getEndpoint(uri);
 	}
 
 	@Test(expected = ChannelException.class)
 	public void maxIdle_reach_test() throws ChannelException, URISyntaxException, InterruptedException {
-		URI uri = new URI("ws://localhost:8003/");
+		URI uri = new URI("ws://localhost:8004/");
 		Endpoint endpoint = run(uri.getPort(), 1);
 
 		EndpointProxy target = endpoint.getEndpoint(uri);
@@ -97,7 +113,7 @@ public class EndpointTest {
 
 	@Test
 	public void send_error_and_reget_test() throws URISyntaxException, InterruptedException, ChannelException {
-		URI uri = new URI("ws://localhost:8004/");
+		URI uri = new URI("ws://localhost:8005/");
 		Endpoint endpoint = run(uri.getPort(), 2);
 
 		EndpointProxy target = endpoint.getEndpoint(uri);

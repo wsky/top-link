@@ -81,6 +81,7 @@ public class WebSocketServerChannel extends ServerChannel {
 			}
 		});
 		bootstrap.bind(new InetSocketAddress(this.port));
+		System.out.println(String.format("server channel bind at %s", this.port));
 	}
 
 	private static void closeChannel(ChannelHandlerContext ctx, int statusCode, String reason) throws InterruptedException {
@@ -131,6 +132,8 @@ public class WebSocketServerChannel extends ServerChannel {
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 				throws Exception {
+			// TODO:when to send close frame?
+			// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
 			e.getCause().printStackTrace();
 			e.getChannel().close();
 		}
@@ -146,12 +149,12 @@ public class WebSocketServerChannel extends ServerChannel {
 			String subprotocols = "mqtt";
 			WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 					this.url, subprotocols, false);
-			handshaker = wsFactory.newHandshaker(req);
+			this.handshaker = wsFactory.newHandshaker(req);
 
-			if (handshaker == null) {
+			if (this.handshaker == null) {
 				wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
 			} else {
-				handshaker.handshake(ctx.getChannel(),
+				this.handshaker.handshake(ctx.getChannel(),
 						req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
 			}
 		}
@@ -159,7 +162,6 @@ public class WebSocketServerChannel extends ServerChannel {
 		private void handleWebSocketFrame(final ChannelHandlerContext ctx,
 				WebSocketFrame frame) {
 			if (frame instanceof CloseWebSocketFrame) {
-				handshaker.close(ctx.getChannel(), (CloseWebSocketFrame) frame);
 				ctx.getChannel().close();
 				return;
 			} else if (frame instanceof BinaryWebSocketFrame) {
@@ -168,7 +170,7 @@ public class WebSocketServerChannel extends ServerChannel {
 					this.identity = this.handler.receiveHandshake(
 							buffer.array(), buffer.arrayOffset(), buffer.capacity());
 					if (this.identity == null)
-						this.handshaker.close(ctx.getChannel(), new CloseWebSocketFrame(401, "unauthorized"));
+						this.handshaker.close(ctx.getChannel(), new CloseWebSocketFrame(1003, "unauthorized"));
 				} else if (this.handler != null) {
 					this.handler.onReceive(buffer.array(),
 							buffer.arrayOffset(),

@@ -77,15 +77,20 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		});
 
 		// connect
-		ChannelFuture future = bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort()));
+		ChannelFuture future = null;
+		try {
+			future = bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort())).sync();
+		} catch (Exception e) {
+			throw new ChannelException("connect error", e);
+		}
 		final Channel channel = future.getChannel();
+
 		// handshake
 		try {
 			WebSocketClientHandshaker handshaker = this.wsFactory.newHandshaker(uri, WebSocketVersion.V13, "mqtt", true, null);
 			clientHandler.handshaker = handshaker;
-			clientHandler.handshakeFuture = handshaker.handshake(channel);
-			// bootstrap.connect().sync() must be first before
-			// clientHandler.handshakeFuture.sync();
+			// TODO:send identity?
+			clientHandler.handshakeFuture = handshaker.handshake(channel).sync();
 			synchronized (handshaker) {
 				handshaker.wait(timeout);
 			}
@@ -93,7 +98,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 			throw new ChannelException("handshake error", e);
 		}
 		if (!clientHandler.handshakeFuture.isSuccess()) {
-			throw new ChannelException("handshake error", clientHandler.handshakeFuture.getCause());
+			throw new ChannelException("handshake fail", clientHandler.handshakeFuture.getCause());
 		}
 
 		return new ClientChannel() {
