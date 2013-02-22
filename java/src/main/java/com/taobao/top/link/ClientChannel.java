@@ -6,5 +6,5 @@ public abstract class ClientChannel {
 
 	protected abstract void setChannelHandler(ChannelHandler handler);
 
-	public abstract void send(byte[] data, int offset, int length);
+	public abstract void send(byte[] data, int offset, int length) throws ChannelException;
 }

@@ -39,7 +39,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			}
 		} else {
 			System.out.println(String.format(
-					"connection exception and closed: %s", e.getCause()));
+					"client connection exception and closed: %s", e.getCause()));
 		}
 		this.clear(ctx);
 	}

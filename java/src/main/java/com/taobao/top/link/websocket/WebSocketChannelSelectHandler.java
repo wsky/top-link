@@ -57,7 +57,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		return channel;
 	}
 
-	private ClientChannel connect(URI uri, int timeout, ClearHandler clearHandler) throws ChannelException {
+	private ClientChannel connect(URI uri, int timeout, final ClearHandler clearHandler) throws ChannelException {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
@@ -83,7 +83,9 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		try {
 			WebSocketClientHandshaker handshaker = this.wsFactory.newHandshaker(uri, WebSocketVersion.V13, "mqtt", true, null);
 			clientHandler.handshaker = handshaker;
-			clientHandler.handshakeFuture = handshaker.handshake(channel).sync();
+			clientHandler.handshakeFuture = handshaker.handshake(channel);
+			// bootstrap.connect().sync() must be first before
+			// clientHandler.handshakeFuture.sync();
 			synchronized (handshaker) {
 				handshaker.wait(timeout);
 			}
@@ -101,7 +103,13 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 			}
 
 			@Override
-			public void send(byte[] data, int offset, int length) {
+			public void send(byte[] data, int offset, int length) throws ChannelException {
+				// prevent unknown exception after connected and get channel
+				// channel.write is async default
+				if (!channel.isConnected()) {
+					clearHandler.clear();
+					throw new ChannelException("channel closed");
+				}
 				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 				frame.setFinalFragment(true);

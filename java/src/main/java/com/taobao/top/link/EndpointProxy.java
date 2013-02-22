@@ -9,7 +9,7 @@ public class EndpointProxy {
 		this.channel = channel;
 	}
 
-	public void send(byte[] data, int offset, int length) {
+	public void send(byte[] data, int offset, int length) throws ChannelException {
 		this.channel.send(data, offset, length);
 	}
 

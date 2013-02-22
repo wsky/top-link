@@ -30,7 +30,13 @@ import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import org.jboss.netty.handler.timeout.IdleState;
+import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
+import org.jboss.netty.handler.timeout.IdleStateEvent;
+import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.util.CharsetUtil;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 
 import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.Identity;
@@ -41,11 +47,16 @@ public class WebSocketServerChannel extends ServerChannel {
 	private String ip;
 	private int port;
 	private String url;
+	private int maxIdleTimeSeconds = 60;
 
 	public WebSocketServerChannel(String ip, int port) {
 		this.ip = ip;
 		this.port = port;
 		this.url = String.format("ws://%s:%s/", this.ip, this.port);
+	}
+
+	public void setMaxIdleTimeSeconds(int value) {
+		this.maxIdleTimeSeconds = value;
 	}
 
 	@Override
@@ -54,10 +65,15 @@ public class WebSocketServerChannel extends ServerChannel {
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(),
 						Executors.newCachedThreadPool()));
+		// IdleStateHandler.
+		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/handler/timeout/IdleStateHandler.html
+		final Timer timer = new HashedWheelTimer();
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
+				pipeline.addLast("idleStateHandler", new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
+				pipeline.addLast("maxIdleHandler", new MaxIdleHandler(maxIdleTimeSeconds));
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("encoder", new HttpResponseEncoder());
 				pipeline.addLast("handler", new WebSocketServerHandler(url, getChannelHandler()));
@@ -65,6 +81,28 @@ public class WebSocketServerChannel extends ServerChannel {
 			}
 		});
 		bootstrap.bind(new InetSocketAddress(this.port));
+	}
+
+	private static void closeChannel(ChannelHandlerContext ctx, int statusCode, String reason) throws InterruptedException {
+		ctx.getChannel().write(new CloseWebSocketFrame(statusCode, reason)).sync();
+		ctx.getChannel().close();
+	}
+
+	public class MaxIdleHandler extends IdleStateAwareChannelHandler {
+		private int maxIdleTimeSeconds;
+
+		public MaxIdleHandler(int maxIdleTimeSeconds) {
+			this.maxIdleTimeSeconds = maxIdleTimeSeconds;
+		}
+
+		@Override
+		public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws InterruptedException {
+			if (e.getState() == IdleState.ALL_IDLE) {
+				closeChannel(ctx, 1011, "reach max idle time");
+				System.out.println(String.format(
+						"reach maxIdleTimeSeconds=%s, close client channel", this.maxIdleTimeSeconds));
+			}
+		}
 	}
 
 	// one handler per connection
@@ -113,7 +151,8 @@ public class WebSocketServerChannel extends ServerChannel {
 			if (handshaker == null) {
 				wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
 			} else {
-				handshaker.handshake(ctx.getChannel(), req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
+				handshaker.handshake(ctx.getChannel(),
+						req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
 			}
 		}
 
