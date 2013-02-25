@@ -35,4 +35,17 @@ try {
 }
 ```
 
+Identity
+
+```java
+public class TopIdentity implements Identity {
+	public String AppKey = "top-link";
+
+	@Override
+	public byte[] getData() {
+		return this.AppKey.getBytes();
+	}
+}
+```
+
 ## Build-in RPC
