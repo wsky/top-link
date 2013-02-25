@@ -13,7 +13,7 @@ import com.taobao.top.link.websocket.WebSocketServerChannel;
 public class EndpointTest {
 	@Test
 	public void request_reply_test() throws InterruptedException, URISyntaxException {
-		URI uri = new URI("ws://localhost:8001/");
+		URI uri = new URI("ws://localhost:8001/link");
 		final String request = "hello";
 		final String reply = "ok";
 
@@ -24,6 +24,7 @@ public class EndpointTest {
 		endpoint.setChannelHandler(new ChannelHandler() {
 			@Override
 			public Identity receiveHandshake(byte[] data, int offset, int length) {
+				// resolve identity
 				return new TopIdentity();
 			}
 
@@ -57,12 +58,13 @@ public class EndpointTest {
 			EndpointProxy target = endpoint.getEndpoint(uri);
 			target.send(request.getBytes(), 0, request.length());
 		} catch (ChannelException e) {
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 		}
-
+		// wait, receive request
 		synchronized (request) {
 			request.wait(2000);
 		}
+		// wait, receive reply
 		synchronized (reply) {
 			reply.wait(2000);
 		}
@@ -71,7 +73,7 @@ public class EndpointTest {
 	@Test(expected = ChannelException.class)
 	public void connect_error_test() throws ChannelException {
 		try {
-			new Endpoint(new TopIdentity()).getEndpoint(new URI("ws://localhost:8002/"));
+			new Endpoint(new TopIdentity()).getEndpoint(new URI("ws://localhost:8002/link"));
 		} catch (ChannelException e) {
 			System.out.println(e.getMessage());
 			throw e;
@@ -82,7 +84,7 @@ public class EndpointTest {
 
 	@Test
 	public void identity_error_test() throws URISyntaxException, ChannelException {
-		URI uri = new URI("ws://localhost:8003/");
+		URI uri = new URI("ws://localhost:8003/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		Endpoint endpoint = new Endpoint(new TopIdentity());
 		endpoint.setChannelHandler(new ChannelHandler() {
@@ -102,7 +104,7 @@ public class EndpointTest {
 
 	@Test(expected = ChannelException.class)
 	public void maxIdle_reach_test() throws ChannelException, URISyntaxException, InterruptedException {
-		URI uri = new URI("ws://localhost:8004/");
+		URI uri = new URI("ws://localhost:8004/link");
 		Endpoint endpoint = run(uri.getPort(), 1);
 
 		EndpointProxy target = endpoint.getEndpoint(uri);
@@ -113,7 +115,7 @@ public class EndpointTest {
 
 	@Test
 	public void send_error_and_reget_test() throws URISyntaxException, InterruptedException, ChannelException {
-		URI uri = new URI("ws://localhost:8005/");
+		URI uri = new URI("ws://localhost:8005/link");
 		Endpoint endpoint = run(uri.getPort(), 2);
 
 		EndpointProxy target = endpoint.getEndpoint(uri);

@@ -28,7 +28,7 @@ endpoint.bind(serverChannel);
 ```java
 Endpoint endpoint = new Endpoint(new YourIdentity());
 try {
-	EndpointProxy target = endpoint.getEndpoint(new URI("ws://localhost:8080/"));
+	EndpointProxy target = endpoint.getEndpoint(new URI("ws://localhost:8080/link"));
 	target.send("Hi".getBytes(), 0, 2);
 } catch (ChannelException e) {
 	e.printStackTrace();

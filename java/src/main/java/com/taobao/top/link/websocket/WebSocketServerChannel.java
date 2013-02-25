@@ -52,9 +52,13 @@ public class WebSocketServerChannel extends ServerChannel {
 	public WebSocketServerChannel(String ip, int port) {
 		this.ip = ip;
 		this.port = port;
-		this.url = String.format("ws://%s:%s/", this.ip, this.port);
+		this.url = String.format("ws://%s:%s/link", this.ip, this.port);
 	}
 
+	public String getServerUrl() {
+		return this.url;
+	}
+	
 	public void setMaxIdleTimeSeconds(int value) {
 		this.maxIdleTimeSeconds = value;
 	}
