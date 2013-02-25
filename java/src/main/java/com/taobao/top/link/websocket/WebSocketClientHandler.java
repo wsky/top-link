@@ -18,16 +18,23 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.Identity;
+import com.taobao.top.link.Logger;
 import com.taobao.top.link.handler.ChannelHandler;
 
 // one handler per connection
 public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
+	protected Logger logger;
+
 	protected WebSocketClientHandshaker handshaker;
 	protected ChannelFuture handshakeFuture;
 
 	protected ChannelHandler channelHandler;
 	protected ClearHandler clearHandler;
 	protected Identity identity;
+
+	public WebSocketClientHandler(Logger logger) {
+		this.logger = logger;
+	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
@@ -36,8 +43,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			this.handshakeFuture.setFailure(e.getCause());
 			this.notifyHandshake();
 		} else {
-			System.err.println(String.format(
-					"exceptionCaught: %s", e.getCause()));
+			this.logger.error("exceptionCaught",e.getCause());
 		}
 		this.clear(ctx);
 	}
@@ -83,8 +89,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 		if (frame instanceof CloseWebSocketFrame) {
 			CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
 			this.clear(ctx);
-			System.err.println(String.format(
-					"connection closed: %s|%s", closeFrame.getStatusCode(), closeFrame.getReasonText()));
+			this.logger.warn("connection closed: %s|%s", closeFrame.getStatusCode(), closeFrame.getReasonText());
 		} else if (frame instanceof BinaryWebSocketFrame) {
 			ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
 			if (this.channelHandler != null) {

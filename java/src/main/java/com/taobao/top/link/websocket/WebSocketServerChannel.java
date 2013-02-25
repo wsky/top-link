@@ -38,18 +38,30 @@ import org.jboss.netty.util.CharsetUtil;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.Identity;
+import com.taobao.top.link.Logger;
+import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.ServerChannel;
 import com.taobao.top.link.handler.ChannelHandler;
 
 public class WebSocketServerChannel extends ServerChannel {
+	private LoggerFactory loggerFactory;
+	private Logger logger;
+
 	private String ip;
 	private int port;
 	private String url;
 	private int maxIdleTimeSeconds = 60;
 
 	public WebSocketServerChannel(String ip, int port) {
+		this(new DefaultLoggerFactory(), ip, port);
+	}
+
+	public WebSocketServerChannel(LoggerFactory factory, String ip, int port) {
+		this.loggerFactory = factory;
+		this.logger = factory.create(this);
 		this.ip = ip;
 		this.port = port;
 		this.url = String.format("ws://%s:%s/link", this.ip, this.port);
@@ -58,7 +70,7 @@ public class WebSocketServerChannel extends ServerChannel {
 	public String getServerUrl() {
 		return this.url;
 	}
-	
+
 	public void setMaxIdleTimeSeconds(int value) {
 		this.maxIdleTimeSeconds = value;
 	}
@@ -77,15 +89,15 @@ public class WebSocketServerChannel extends ServerChannel {
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
 				pipeline.addLast("idleStateHandler", new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
-				pipeline.addLast("maxIdleHandler", new MaxIdleHandler(maxIdleTimeSeconds));
+				pipeline.addLast("maxIdleHandler", new MaxIdleHandler(loggerFactory, maxIdleTimeSeconds));
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("encoder", new HttpResponseEncoder());
-				pipeline.addLast("handler", new WebSocketServerHandler(url, getChannelHandler()));
+				pipeline.addLast("handler", new WebSocketServerHandler(loggerFactory, url, getChannelHandler()));
 				return pipeline;
 			}
 		});
 		bootstrap.bind(new InetSocketAddress(this.port));
-		System.out.println(String.format("server channel bind at %s", this.port));
+		this.logger.info("server channel bind at %s", this.port);
 	}
 
 	private static void closeChannel(ChannelHandlerContext ctx, int statusCode, String reason) throws InterruptedException {
@@ -94,9 +106,11 @@ public class WebSocketServerChannel extends ServerChannel {
 	}
 
 	public class MaxIdleHandler extends IdleStateAwareChannelHandler {
+		private Logger logger;
 		private int maxIdleTimeSeconds;
 
-		public MaxIdleHandler(int maxIdleTimeSeconds) {
+		public MaxIdleHandler(LoggerFactory loggerFactory, int maxIdleTimeSeconds) {
+			this.logger = loggerFactory.create(this);
 			this.maxIdleTimeSeconds = maxIdleTimeSeconds;
 		}
 
@@ -104,20 +118,21 @@ public class WebSocketServerChannel extends ServerChannel {
 		public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws InterruptedException {
 			if (e.getState() == IdleState.ALL_IDLE) {
 				closeChannel(ctx, 1011, "reach max idle time");
-				System.out.println(String.format(
-						"reach maxIdleTimeSeconds=%s, close client channel", this.maxIdleTimeSeconds));
+				this.logger.info("reach maxIdleTimeSeconds=%s, close client channel", this.maxIdleTimeSeconds);
 			}
 		}
 	}
 
 	// one handler per connection
 	public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
+		private Logger logger;
 		private String url;
 		private ChannelHandler handler;
 		private Identity identity;
 		private WebSocketServerHandshaker handshaker;
 
-		public WebSocketServerHandler(String url, ChannelHandler handler) {
+		public WebSocketServerHandler(LoggerFactory loggerFactory, String url, ChannelHandler handler) {
+			this.logger = loggerFactory.create(this);
 			this.url = url;
 			this.handler = handler;
 		}
@@ -136,9 +151,9 @@ public class WebSocketServerChannel extends ServerChannel {
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 				throws Exception {
+			this.logger.error("exceptionCaught", e.getCause());
 			// TODO:when to send close frame?
 			// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
-			e.getCause().printStackTrace();
 			e.getChannel().close();
 		}
 

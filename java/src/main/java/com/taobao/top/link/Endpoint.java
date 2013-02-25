@@ -13,9 +13,13 @@ public class Endpoint {
 	private ChannelHandler channelHandler;
 
 	public Endpoint(Identity identity) {
+		this(identity, new DefaultLoggerFactory());
+	}
+
+	public Endpoint(Identity identity, LoggerFactory loggerFactory) {
 		this.identity = identity;
 		// default select handler
-		this.channelSelectHandler = new WebSocketChannelSelectHandler(this);
+		this.channelSelectHandler = new WebSocketChannelSelectHandler(this, loggerFactory);
 	}
 
 	public Identity getIdentity() {
