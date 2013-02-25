@@ -23,7 +23,6 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
-import com.taobao.top.link.Endpoint;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.handler.ChannelSelectHandler;
@@ -31,12 +30,10 @@ import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
 public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 	private LoggerFactory loggerFactory;
-	private Endpoint endpoint;
 	private Hashtable<String, ClientChannel> channels;
 	private WebSocketClientHandshakerFactory wsFactory;
 
-	public WebSocketChannelSelectHandler(Endpoint endpoint, LoggerFactory factory) {
-		this.endpoint = endpoint;
+	public WebSocketChannelSelectHandler(LoggerFactory factory) {
 		this.loggerFactory = factory;
 		this.channels = new Hashtable<String, ClientChannel>();
 		this.wsFactory = new WebSocketClientHandshakerFactory();
@@ -67,7 +64,6 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		final WebSocketClientHandler clientHandler = new WebSocketClientHandler(
 				this.loggerFactory.create(String.format("WebSocketClientHandler-%s", uri)));
 		clientHandler.clearHandler = clearHandler;
-		clientHandler.identity = this.endpoint.getIdentity();
 
 		final ChannelPipeline pipeline = Channels.pipeline();
 		pipeline.addLast("decoder", new HttpResponseDecoder());
@@ -93,8 +89,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		try {
 			WebSocketClientHandshaker handshaker = this.wsFactory.newHandshaker(uri, WebSocketVersion.V13, "mqtt", true, null);
 			clientHandler.handshaker = handshaker;
-			// TODO:send identity?
-			clientHandler.handshakeFuture = handshaker.handshake(channel).sync();
+			clientHandler.handshakeFuture = handshaker.handshake(channel);
 			synchronized (handshaker) {
 				handshaker.wait(timeout);
 			}

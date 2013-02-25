@@ -40,7 +40,6 @@ import org.jboss.netty.util.Timer;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.EndpointContext;
-import com.taobao.top.link.Identity;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.ServerChannel;
@@ -128,7 +127,6 @@ public class WebSocketServerChannel extends ServerChannel {
 		private Logger logger;
 		private String url;
 		private ChannelHandler handler;
-		private Identity identity;
 		private WebSocketServerHandshaker handshaker;
 
 		public WebSocketServerHandler(LoggerFactory loggerFactory, String url, ChannelHandler handler) {
@@ -184,13 +182,8 @@ public class WebSocketServerChannel extends ServerChannel {
 				ctx.getChannel().close();
 				return;
 			} else if (frame instanceof BinaryWebSocketFrame) {
-				ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
-				if (this.identity == null) {
-					this.identity = this.handler.receiveHandshake(
-							buffer.array(), buffer.arrayOffset(), buffer.capacity());
-					if (this.identity == null)
-						this.handshaker.close(ctx.getChannel(), new CloseWebSocketFrame(1003, "unauthorized"));
-				} else if (this.handler != null) {
+				if (this.handler != null) {
+					ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
 					this.handler.onReceive(buffer.array(),
 							buffer.arrayOffset(),
 							buffer.capacity(),

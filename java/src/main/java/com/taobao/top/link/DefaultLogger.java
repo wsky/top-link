@@ -35,7 +35,6 @@ public class DefaultLogger implements Logger {
 	@Override
 	public void info(Throwable exception) {
 		System.out.println(String.format("[INFO] [%s] - %s", this.type, exception));
-
 	}
 
 	@Override
@@ -77,11 +76,13 @@ public class DefaultLogger implements Logger {
 	@Override
 	public void error(Throwable exception) {
 		System.err.println(String.format("[ERROR] [%s] - %s", this.type, exception));
+		exception.printStackTrace();
 	}
 
 	@Override
 	public void error(String message, Throwable exception) {
 		System.err.println(String.format("[ERROR] [%s] - %s %s", this.type, message, exception));
+		exception.printStackTrace();
 	}
 
 	@Override
@@ -97,11 +98,13 @@ public class DefaultLogger implements Logger {
 	@Override
 	public void fatal(Throwable exception) {
 		System.err.println(String.format("[FATAL] [%s] - %s", this.type, exception));
+		exception.printStackTrace();
 	}
 
 	@Override
 	public void fatal(String message, Throwable exception) {
 		System.err.println(String.format("[FATAL] [%s] - %s %s", this.type, message, exception));
+		exception.printStackTrace();
 	}
 
 	@Override

@@ -7,23 +7,16 @@ import com.taobao.top.link.handler.ChannelSelectHandler;
 import com.taobao.top.link.websocket.WebSocketChannelSelectHandler;
 
 public class Endpoint {
-	private Identity identity;
 	private ServerChannel serverChannel;
 	private ChannelSelectHandler channelSelectHandler;
 	private ChannelHandler channelHandler;
 
-	public Endpoint(Identity identity) {
-		this(identity, new DefaultLoggerFactory());
+	public Endpoint() {
+		this(new DefaultLoggerFactory());
 	}
 
-	public Endpoint(Identity identity, LoggerFactory loggerFactory) {
-		this.identity = identity;
-		// default select handler
-		this.channelSelectHandler = new WebSocketChannelSelectHandler(this, loggerFactory);
-	}
-
-	public Identity getIdentity() {
-		return this.identity;
+	public Endpoint(LoggerFactory loggerFactory) {
+		this.channelSelectHandler = new WebSocketChannelSelectHandler(loggerFactory);
 	}
 
 	public void setChannelHandler(ChannelHandler handler) {

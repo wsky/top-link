@@ -20,14 +20,8 @@ public class EndpointTest {
 		// init server channel
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		// init endpoint
-		Endpoint endpoint = new Endpoint(new TopIdentity());
+		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new ChannelHandler() {
-			@Override
-			public Identity receiveHandshake(byte[] data, int offset, int length) {
-				// resolve identity
-				return new TopIdentity();
-			}
-
 			@Override
 			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				String dataString = new String(data, offset, length);
@@ -73,33 +67,13 @@ public class EndpointTest {
 	@Test(expected = ChannelException.class)
 	public void connect_error_test() throws ChannelException {
 		try {
-			new Endpoint(new TopIdentity()).getEndpoint(new URI("ws://localhost:8002/link"));
+			new Endpoint().getEndpoint(new URI("ws://localhost:8002/link"));
 		} catch (ChannelException e) {
 			System.out.println(e.getMessage());
 			throw e;
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Test
-	public void identity_error_test() throws URISyntaxException, ChannelException {
-		URI uri = new URI("ws://localhost:8003/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
-		Endpoint endpoint = new Endpoint(new TopIdentity());
-		endpoint.setChannelHandler(new ChannelHandler() {
-			@Override
-			public Identity receiveHandshake(byte[] data, int offset, int length) {
-				return null;
-			}
-
-			@Override
-			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
-			}
-		});
-		endpoint.bind(serverChannel);
-
-		endpoint.getEndpoint(uri);
 	}
 
 	@Test(expected = ChannelException.class)
@@ -125,7 +99,7 @@ public class EndpointTest {
 			target.send("hi".getBytes(), 0, 2);
 			assertTrue(false);
 		} catch (ChannelException e) {
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 		}
 
 		target = endpoint.getEndpoint(uri);
@@ -133,15 +107,11 @@ public class EndpointTest {
 		Thread.sleep(1000);
 	}
 
+
 	private Endpoint run(int port, int maxIdle) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", port);
-		Endpoint endpoint = new Endpoint(new TopIdentity());
+		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new ChannelHandler() {
-			@Override
-			public Identity receiveHandshake(byte[] data, int offset, int length) {
-				return new TopIdentity();
-			}
-
 			@Override
 			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				String dataString = new String(data, offset, length);
@@ -152,15 +122,5 @@ public class EndpointTest {
 		endpoint.bind(serverChannel);
 		Thread.sleep(1000);
 		return endpoint;
-	}
-
-	public class TopIdentity implements Identity {
-
-		public String AppKey = "top-link";
-
-		@Override
-		public byte[] getData() {
-			return this.AppKey.getBytes();
-		}
 	}
 }

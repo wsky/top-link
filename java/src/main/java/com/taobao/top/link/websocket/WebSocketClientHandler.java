@@ -17,7 +17,6 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import com.taobao.top.link.EndpointContext;
-import com.taobao.top.link.Identity;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.handler.ChannelHandler;
 
@@ -30,7 +29,6 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 
 	protected ChannelHandler channelHandler;
 	protected ClearHandler clearHandler;
-	protected Identity identity;
 
 	public WebSocketClientHandler(Logger logger) {
 		this.logger = logger;
@@ -43,7 +41,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			this.handshakeFuture.setFailure(e.getCause());
 			this.notifyHandshake();
 		} else {
-			this.logger.error("exceptionCaught",e.getCause());
+			this.logger.error("exceptionCaught", e.getCause());
 		}
 		this.clear(ctx);
 	}
@@ -63,16 +61,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 				this.handshakeFuture.setFailure(new Exception("Invalid handshake response"));
 			} else {
 				this.handshaker.finishHandshake(ctx.getChannel(), response);
-				this.handshakeFuture.setSuccess();
-			}
-
-			// send identity
-			if (this.identity != null) {
-				byte[] data = this.identity.getData();
-				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, 0, data.length);
-				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-				frame.setFinalFragment(true);
-				ctx.getChannel().write(frame);
+				this.handshakeFuture.setSuccess();// not necessary, always
 			}
 
 			this.notifyHandshake();
