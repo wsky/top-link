@@ -17,4 +17,10 @@ public class WebSocketOutcomeClientChannel extends OutcomeClientChannel {
 		
 	}
 
+	@Override
+	protected void addOnceChannelHandler(ChannelHandler handler) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

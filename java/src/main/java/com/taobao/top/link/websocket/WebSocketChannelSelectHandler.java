@@ -107,6 +107,11 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 			}
 
 			@Override
+			protected void addOnceChannelHandler(ChannelHandler handler) {
+				clientHandler.onceHandlers.add(handler);
+			}
+			
+			@Override
 			public void send(byte[] data, int offset, int length) throws ChannelException {
 				// prevent unknown exception after connected and get channel
 				// channel.write is async default

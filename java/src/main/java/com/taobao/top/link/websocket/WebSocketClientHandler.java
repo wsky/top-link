@@ -1,5 +1,8 @@
 package com.taobao.top.link.websocket;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelFuture;
@@ -27,11 +30,13 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 	protected WebSocketClientHandshaker handshaker;
 	protected ChannelFuture handshakeFuture;
 
+	protected Queue<ChannelHandler> onceHandlers;
 	protected ChannelHandler channelHandler;
 	protected ClearHandler clearHandler;
 
 	public WebSocketClientHandler(Logger logger) {
 		this.logger = logger;
+		this.onceHandlers = new ConcurrentLinkedQueue<ChannelHandler>();
 	}
 
 	@Override
@@ -77,11 +82,14 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 		if (frame instanceof CloseWebSocketFrame) {
 			CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
 			this.clear(ctx);
-			this.logger.warn("connection closed: %s|%s", closeFrame.getStatusCode(), closeFrame.getReasonText());
+			this.logger.warn("connection closed: %s|%s",
+					closeFrame.getStatusCode(), closeFrame.getReasonText());
 		} else if (frame instanceof BinaryWebSocketFrame) {
-			ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
-			if (this.channelHandler != null) {
-				this.channelHandler.onReceive(buffer.array(),
+			// TODO:oncehandler need broadcast?
+			ChannelHandler handler = this.onceHandlers.isEmpty() ? this.channelHandler : this.onceHandlers.poll();
+			if (handler != null) {
+				ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
+				handler.onReceive(buffer.array(),
 						buffer.arrayOffset(),
 						buffer.capacity(),
 						new EndpointContext() {

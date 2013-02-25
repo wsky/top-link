@@ -107,6 +107,23 @@ public class EndpointTest {
 		Thread.sleep(1000);
 	}
 
+	@Test
+	public void call_test() throws URISyntaxException, ChannelException {
+		URI uri = new URI("ws://localhost:8006/link");
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		Endpoint endpoint = new Endpoint();
+		endpoint.setChannelHandler(new ChannelHandler() {
+			@Override
+			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
+				String dataString = new String(data, offset, length);
+				System.out.println(dataString);
+				context.reply(data, offset, length);
+			}
+		});
+		endpoint.bind(serverChannel);
+		EndpointProxy target = new Endpoint().getEndpoint(uri);
+		assertEquals("hi", new String(target.call("hi".getBytes(), 0, 2)));
+	}
 
 	private Endpoint run(int port, int maxIdle) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", port);
