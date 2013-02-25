@@ -9,13 +9,8 @@ https://gist.github.com/4680940
 
 ```java
 WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", 8080);
-Endpoint endpoint = new Endpoint(new MyIdentity());
+Endpoint endpoint = new Endpoint();
 endpoint.setChannelHandler(new ChannelHandler() {
-	@Override
-	public Identity receiveHandshake(byte[] data, int offset, int length) {
-		return new YourIdentity();
-	}
-
 	@Override
 	public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 		String dataString = new String(data, offset, length);
@@ -26,7 +21,7 @@ endpoint.bind(serverChannel);
 ```
 
 ```java
-Endpoint endpoint = new Endpoint(new YourIdentity());
+Endpoint endpoint = new Endpoint();
 try {
 	EndpointProxy target = endpoint.getEndpoint(new URI("ws://localhost:8080/link"));
 	target.send("Hi".getBytes(), 0, 2);
@@ -35,16 +30,14 @@ try {
 }
 ```
 
-Identity
-
+sync call sample
 ```java
-public class TopIdentity implements Identity {
-	public String AppKey = "top-link";
-
-	@Override
-	public byte[] getData() {
-		return this.AppKey.getBytes();
-	}
+Endpoint endpoint = new Endpoint();
+try {
+	EndpointProxy target = endpoint.getEndpoint(new URI("ws://localhost:8080/link"));
+	assertEquals("ok", new String(target.call("Hi".getBytes(), 0, 2)));
+} catch (ChannelException e) {
+	e.printStackTrace();
 }
 ```
 
