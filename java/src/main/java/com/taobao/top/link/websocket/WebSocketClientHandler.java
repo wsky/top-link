@@ -61,7 +61,6 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 				this.handshakeFuture.setFailure(new Exception("Invalid handshake response"));
 			} else {
 				this.handshaker.finishHandshake(ctx.getChannel(), response);
-				this.handshakeFuture.setSuccess();// not necessary, always
 			}
 
 			this.notifyHandshake();
