@@ -42,3 +42,25 @@ try {
 ```
 
 ## Build-in RPC
+
+low-level implementation to support application extension.
+
+Server Bind
+```java
+URI uri = new URI("ws://localhost:9001/link");
+WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+Endpoint server = new Endpoint();
+server.setChannelHandler(new RemotingServerChannelHandler() {
+	@Override
+	public byte[] onRequest(ByteBuffer buffer) {
+		return "ok".getBytes();
+	}
+});
+server.bind(serverChannel);
+```
+
+Call
+```java
+ByteBuffer resultBuffer = RemotingService.connect(uri).call("hi".getBytes(), 0, 2);
+assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
+```
