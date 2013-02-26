@@ -3,6 +3,7 @@ package com.taobao.top.link;
 import java.nio.ByteBuffer;
 
 import com.taobao.top.link.handler.ChannelHandler;
+import com.taobao.top.link.handler.SimpleChannelHandler;
 
 public class EndpointProxy {
 	private ByteBuffer buffer = ByteBuffer.allocateDirect(1024 * 1024);
@@ -25,7 +26,7 @@ public class EndpointProxy {
 	public byte[] call(byte[] data, int offset, int length) throws ChannelException {
 		final String sync = new String("call");
 		// FIXME:if error, remove this once-handler
-		this.channel.addOnceChannelHandler(new ChannelHandler() {
+		this.channel.addOnceChannelHandler(new SimpleChannelHandler() {
 			@Override
 			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				buffer.position(0);

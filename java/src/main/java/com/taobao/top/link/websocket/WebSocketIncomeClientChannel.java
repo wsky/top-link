@@ -13,7 +13,7 @@ public class WebSocketIncomeClientChannel extends IncomeClientChannel {
 	}
 
 	@Override
-	protected void setChannelHandler(ChannelHandler handler) {
+	public void setChannelHandler(ChannelHandler handler) {
 		// TODO Auto-generated method stub
 		
 	}

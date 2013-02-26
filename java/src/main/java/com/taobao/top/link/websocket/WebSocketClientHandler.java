@@ -47,6 +47,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			this.notifyHandshake();
 		} else {
 			this.logger.error("exceptionCaught", e.getCause());
+			this.channelHandler.onException(e.getCause());
 		}
 		this.clear(ctx);
 	}

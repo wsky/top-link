@@ -102,7 +102,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 
 		return new ClientChannel() {
 			@Override
-			protected void setChannelHandler(ChannelHandler handler) {
+			public void setChannelHandler(ChannelHandler handler) {
 				clientHandler.channelHandler = handler;
 			}
 

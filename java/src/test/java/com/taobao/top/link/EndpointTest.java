@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import org.junit.Test;
 
 import com.taobao.top.link.handler.ChannelHandler;
+import com.taobao.top.link.handler.SimpleChannelHandler;
 import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 public class EndpointTest {
@@ -21,7 +22,7 @@ public class EndpointTest {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		// init endpoint
 		Endpoint endpoint = new Endpoint();
-		endpoint.setChannelHandler(new ChannelHandler() {
+		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override
 			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				String dataString = new String(data, offset, length);
@@ -112,7 +113,7 @@ public class EndpointTest {
 		URI uri = new URI("ws://localhost:8006/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		Endpoint endpoint = new Endpoint();
-		endpoint.setChannelHandler(new ChannelHandler() {
+		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override
 			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				String dataString = new String(data, offset, length);
@@ -128,7 +129,7 @@ public class EndpointTest {
 	private Endpoint run(int port, int maxIdle) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", port);
 		Endpoint endpoint = new Endpoint();
-		endpoint.setChannelHandler(new ChannelHandler() {
+		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override
 			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
 				String dataString = new String(data, offset, length);
