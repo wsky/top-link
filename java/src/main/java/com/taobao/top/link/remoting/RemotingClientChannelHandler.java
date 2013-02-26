@@ -15,9 +15,10 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 	private AtomicInteger integer = new AtomicInteger(0);
 	private HashMap<String, RemotingCallback> callbacks = new HashMap<String, RemotingCallback>();
 
-	// one-way
-	// two-way
-	// request-reply
+	// remoting message mode:
+	// - one-way
+	// - two-way
+	// - request
 	public void pending(ClientChannel channel,
 			byte[] data, int offset, int length, RemotingCallback handler) throws ChannelException {
 		int flag = this.integer.incrementAndGet();
@@ -52,6 +53,7 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 			try {
 				i.getValue().onException(exception);
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		this.callbacks = new HashMap<String, RemotingCallback>();

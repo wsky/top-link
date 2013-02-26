@@ -14,9 +14,13 @@ public class DynamicProxy {
 		this.channelHandler = handler;
 	}
 
+	public ByteBuffer call(byte[] data, int offset, int length) throws ChannelException {
+		return this.call(data, offset, length, 0);
+	}
+
 	public ByteBuffer call(byte[] data, int offset, int length, int timeoutMillisecond) throws ChannelException {
 		SynchronizedRemotingCallback syncHandler = new SynchronizedRemotingCallback();
-		//pending and sending
+		// pending and sending
 		this.channelHandler.pending(this.channel, data, offset, length, syncHandler);
 
 		synchronized (syncHandler.sync) {
