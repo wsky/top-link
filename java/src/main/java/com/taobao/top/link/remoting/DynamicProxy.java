@@ -24,14 +24,17 @@ public class DynamicProxy {
 		this.channelHandler.pending(this.channel, data, offset, length, syncHandler);
 
 		synchronized (syncHandler.sync) {
-			try {
-				if (timeoutMillisecond > 0)
-					syncHandler.sync.wait(timeoutMillisecond);
-				else
-					syncHandler.sync.wait();
-			} catch (InterruptedException e) {
-				this.channelHandler.cancel(syncHandler);
-				throw new ChannelException("waiting callback error", e);
+			// send fast maybe course it
+			if (!syncHandler.isSucess()) {
+				try {
+					if (timeoutMillisecond > 0)
+						syncHandler.sync.wait(timeoutMillisecond);
+					else
+						syncHandler.sync.wait();
+				} catch (InterruptedException e) {
+					this.channelHandler.cancel(syncHandler);
+					throw new ChannelException("waiting callback error", e);
+				}
 			}
 		}
 

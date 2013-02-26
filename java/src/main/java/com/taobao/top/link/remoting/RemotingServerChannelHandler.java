@@ -11,6 +11,8 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		ByteBuffer request = ByteBuffer.wrap(data, offset, length);
 		int flag = request.getInt();
 
+		//System.out.println(String.format("receive request of rpc-call#%s", flag));
+		
 		// upper-layer logic
 		byte[] result = this.onRequest(request);
 

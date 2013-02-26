@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.handler.SimpleChannelHandler;
 import com.taobao.top.link.websocket.WebSocketServerChannel;
 
