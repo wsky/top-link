@@ -122,8 +122,43 @@ public class RemotingTest {
 		proxy.call("hi".getBytes(), 0, 2, 500);
 	}
 
-	@Test
-	public void channel_broken_while_calling_test() {
+	@Test(expected = ChannelException.class)
+	public void channel_broken_while_calling_test() throws URISyntaxException, ChannelException {
+		URI uri = new URI("ws://localhost:9004/link");
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		final Endpoint server = new Endpoint();
+		server.setChannelHandler(new RemotingServerChannelHandler() {
+			@Override
+			public byte[] onRequest(ByteBuffer buffer) {
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				return "ok".getBytes();
+			}
+		});
+		server.bind(serverChannel);
 
+		DynamicProxy proxy = RemotingService.connect(uri);
+		
+		//make server broken
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				server.unbind();
+			}
+		}).start();
+		
+		try {
+		proxy.call("hi".getBytes(), 0, 2);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

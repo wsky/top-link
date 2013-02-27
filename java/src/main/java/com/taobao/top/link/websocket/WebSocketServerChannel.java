@@ -111,6 +111,7 @@ public class WebSocketServerChannel extends ServerChannel {
 	protected void stop() {
 		this.allChannels.close().awaitUninterruptibly();
 		this.bootstrap.releaseExternalResources();
+		this.logger.info("server channel shutdown");
 	}
 
 	private static void closeChannel(ChannelHandlerContext ctx, int statusCode, String reason) throws InterruptedException {
