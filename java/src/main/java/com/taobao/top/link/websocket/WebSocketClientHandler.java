@@ -46,8 +46,9 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			this.handshakeFuture.setFailure(e.getCause());
 			this.notifyHandshake();
 		} else {
-			this.logger.error("exceptionCaught", e.getCause());
-			this.channelHandler.onException(e.getCause());
+			this.logger.error("exceptionCaught at client", e.getCause());
+			if (this.channelHandler != null)
+				this.channelHandler.onException(e.getCause());
 		}
 		this.clear(ctx);
 	}
@@ -86,7 +87,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			this.logger.warn("connection closed: %s|%s",
 					closeFrame.getStatusCode(), closeFrame.getReasonText());
 		} else if (frame instanceof BinaryWebSocketFrame) {
-			if(!((BinaryWebSocketFrame) frame).isFinalFragment()){
+			if (!((BinaryWebSocketFrame) frame).isFinalFragment()) {
 				this.logger.warn("received a frame that not final fragment, not support!");
 				return;
 			}

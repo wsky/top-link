@@ -149,7 +149,9 @@ public class WebSocketServerChannel extends ServerChannel {
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 				throws Exception {
-			this.logger.error("exceptionCaught", e.getCause());
+			this.logger.error("exceptionCaught at server", e.getCause());
+			if (this.handler != null)
+				this.handler.onException(e.getCause());
 			// TODO:when to send close frame?
 			// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
 			e.getChannel().close();
@@ -182,7 +184,7 @@ public class WebSocketServerChannel extends ServerChannel {
 				ctx.getChannel().close();
 				return;
 			} else if (frame instanceof BinaryWebSocketFrame) {
-				if(!((BinaryWebSocketFrame) frame).isFinalFragment()){
+				if (!((BinaryWebSocketFrame) frame).isFinalFragment()) {
 					this.logger.warn("received a frame that not final fragment, not support!");
 					return;
 				}
