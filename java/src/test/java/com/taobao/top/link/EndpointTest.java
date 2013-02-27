@@ -107,6 +107,7 @@ public class EndpointTest {
 		Thread.sleep(1000);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void call_test() throws URISyntaxException, ChannelException {
 		URI uri = new URI("ws://localhost:8006/link");

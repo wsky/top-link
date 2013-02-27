@@ -23,6 +23,7 @@ public class EndpointProxy {
 	}
 
 	// like sync RPC, but do not guarantee timing, just a sample
+	@Deprecated
 	public byte[] call(byte[] data, int offset, int length) throws ChannelException {
 		final String sync = new String("call");
 		// FIXME:if error, remove this once-handler
