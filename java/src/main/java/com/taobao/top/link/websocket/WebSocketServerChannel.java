@@ -11,10 +11,13 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
@@ -49,6 +52,8 @@ public class WebSocketServerChannel extends ServerChannel {
 	private LoggerFactory loggerFactory;
 	private Logger logger;
 
+	private ServerBootstrap bootstrap;
+	private ChannelGroup allChannels = new DefaultChannelGroup();
 	private String ip;
 	private int port;
 	private String url;
@@ -76,27 +81,36 @@ public class WebSocketServerChannel extends ServerChannel {
 
 	@Override
 	protected void run() {
-		ServerBootstrap bootstrap = new ServerBootstrap(
+		this.bootstrap = new ServerBootstrap(
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(),
 						Executors.newCachedThreadPool()));
 		// IdleStateHandler.
 		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/handler/timeout/IdleStateHandler.html
 		final Timer timer = new HashedWheelTimer();
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
-				pipeline.addLast("idleStateHandler", new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
-				pipeline.addLast("maxIdleHandler", new MaxIdleHandler(loggerFactory, maxIdleTimeSeconds));
+				pipeline.addLast("idleStateHandler",
+						new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
+				pipeline.addLast("maxIdleHandler",
+						new MaxIdleHandler(loggerFactory, maxIdleTimeSeconds));
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("encoder", new HttpResponseEncoder());
-				pipeline.addLast("handler", new WebSocketServerHandler(loggerFactory, url, getChannelHandler()));
+				pipeline.addLast("handler",
+						new WebSocketServerHandler(loggerFactory, url, getChannelHandler(), allChannels));
 				return pipeline;
 			}
 		});
-		bootstrap.bind(new InetSocketAddress(this.port));
+		this.allChannels.add(this.bootstrap.bind(new InetSocketAddress(this.port)));
 		this.logger.info("server channel bind at %s", this.port);
+	}
+
+	@Override
+	protected void stop() {
+		this.allChannels.close().awaitUninterruptibly();
+		this.bootstrap.releaseExternalResources();
 	}
 
 	private static void closeChannel(ChannelHandlerContext ctx, int statusCode, String reason) throws InterruptedException {
@@ -128,11 +142,19 @@ public class WebSocketServerChannel extends ServerChannel {
 		private String url;
 		private ChannelHandler handler;
 		private WebSocketServerHandshaker handshaker;
+		private ChannelGroup allChannels;
 
-		public WebSocketServerHandler(LoggerFactory loggerFactory, String url, ChannelHandler handler) {
+		public WebSocketServerHandler(LoggerFactory loggerFactory,
+				String url, ChannelHandler handler, ChannelGroup channelGroup) {
 			this.logger = loggerFactory.create(this);
 			this.url = url;
 			this.handler = handler;
+			this.allChannels = channelGroup;
+		}
+
+		@Override
+		public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
+			this.allChannels.add(e.getChannel());
 		}
 
 		@Override

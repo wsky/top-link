@@ -15,4 +15,5 @@ public abstract class ServerChannel {
 	}
 
 	protected abstract void run();
+	protected abstract void stop();
 }

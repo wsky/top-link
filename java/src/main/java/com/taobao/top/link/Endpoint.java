@@ -27,6 +27,11 @@ public class Endpoint {
 		this.serverChannel = channel;
 		this.serverChannel.run(this);
 	}
+	
+	public void unbind() {
+		if(this.serverChannel!=null)
+			this.serverChannel.stop();
+	}
 
 	public EndpointProxy getEndpoint(URI uri) throws ChannelException {
 		return this.getEndpoint(this.channelSelectHandler.getClientChannel(uri));
