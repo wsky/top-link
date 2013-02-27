@@ -86,6 +86,10 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			this.logger.warn("connection closed: %s|%s",
 					closeFrame.getStatusCode(), closeFrame.getReasonText());
 		} else if (frame instanceof BinaryWebSocketFrame) {
+			if(!((BinaryWebSocketFrame) frame).isFinalFragment()){
+				this.logger.warn("received a frame that not final fragment, not support!");
+				return;
+			}
 			// TODO:oncehandler need broadcast?
 			ChannelHandler handler = this.onceHandlers.isEmpty() ? this.channelHandler : this.onceHandlers.poll();
 			if (handler != null) {

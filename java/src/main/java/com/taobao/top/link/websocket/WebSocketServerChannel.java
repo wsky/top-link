@@ -182,7 +182,14 @@ public class WebSocketServerChannel extends ServerChannel {
 				ctx.getChannel().close();
 				return;
 			} else if (frame instanceof BinaryWebSocketFrame) {
+				if(!((BinaryWebSocketFrame) frame).isFinalFragment()){
+					this.logger.warn("received a frame that not final fragment, not support!");
+					return;
+				}
 				if (this.handler != null) {
+					// if not final frame,
+					// should wait until final frame received
+					// https://github.com/wsky/top-link/issues/5
 					ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
 					this.handler.onReceive(buffer.array(),
 							buffer.arrayOffset(),
