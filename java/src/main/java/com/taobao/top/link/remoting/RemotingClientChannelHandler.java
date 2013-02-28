@@ -30,7 +30,8 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 		handler.flag = flag + "";
 		this.callbacks.put(handler.flag, handler);// concurrent?
 
-		//System.out.println(String.format("sending request of rpc-call#%s", flag));
+		// System.out.println(String.format("sending request of rpc-call#%s",
+		// flag));
 		channel.send(buffer.array(), buffer.arrayOffset(), buffer.capacity());
 	}
 
@@ -44,7 +45,8 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 		String flag = buffer.getInt() + "";// poor perf?
 		RemotingCallback handler = this.callbacks.remove(flag);
 		if (handler != null) {
-			//System.out.println(String.format("receive reply of rpc-call#%s", flag));
+			// System.out.println(String.format("receive reply of rpc-call#%s",
+			// flag));
 			handler.onReceive(buffer);
 		}
 	}

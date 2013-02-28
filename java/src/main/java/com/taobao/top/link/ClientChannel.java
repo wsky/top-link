@@ -4,6 +4,8 @@ import com.taobao.top.link.handler.ChannelHandler;
 
 public abstract class ClientChannel {
 
+	public abstract boolean isConnected();
+	
 	public abstract void setChannelHandler(ChannelHandler handler);
 	
 	protected abstract void addOnceChannelHandler(ChannelHandler handler);

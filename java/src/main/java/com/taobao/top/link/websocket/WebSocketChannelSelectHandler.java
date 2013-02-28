@@ -110,6 +110,11 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 			protected void addOnceChannelHandler(ChannelHandler handler) {
 				clientHandler.onceHandlers.add(handler);
 			}
+
+			@Override
+			public boolean isConnected() {
+				return channel.isConnected();
+			}
 			
 			@Override
 			public void send(byte[] data, int offset, int length) throws ChannelException {

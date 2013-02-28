@@ -53,7 +53,7 @@ public class WebSocketServerChannel extends ServerChannel {
 	private Logger logger;
 
 	private ServerBootstrap bootstrap;
-	private ChannelGroup allChannels = new DefaultChannelGroup();
+	private ChannelGroup allChannels;
 	private String ip;
 	private int port;
 	private String url;
@@ -66,6 +66,8 @@ public class WebSocketServerChannel extends ServerChannel {
 	public WebSocketServerChannel(LoggerFactory factory, String ip, int port) {
 		this.loggerFactory = factory;
 		this.logger = factory.create(this);
+		this.allChannels = new DefaultChannelGroup();
+		
 		this.ip = ip;
 		this.port = port;
 		this.url = String.format("ws://%s:%s/link", this.ip, this.port);

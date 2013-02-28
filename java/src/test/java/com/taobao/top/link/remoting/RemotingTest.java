@@ -72,7 +72,7 @@ public class RemotingTest {
 				}
 			}
 		}).start();
-		
+
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -109,7 +109,7 @@ public class RemotingTest {
 			@Override
 			public byte[] onRequest(ByteBuffer buffer) {
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -118,12 +118,17 @@ public class RemotingTest {
 		});
 		server.bind(serverChannel);
 
-		DynamicProxy proxy = RemotingService.connect(uri);
-		proxy.call("hi".getBytes(), 0, 2, 500);
+		try {
+			DynamicProxy proxy = RemotingService.connect(uri);
+			proxy.call("hi".getBytes(), 0, 2, 500);
+		} catch (ChannelException e) {
+			assertEquals("remoting call timeout", e.getMessage());
+			throw e;
+		}
 	}
 
 	@Test(expected = ChannelException.class)
-	public void channel_broken_while_calling_test() throws URISyntaxException, ChannelException {
+	public void channel_broken_while_calling_test() throws Exception {
 		URI uri = new URI("ws://localhost:9004/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		final Endpoint server = new Endpoint();
@@ -141,8 +146,8 @@ public class RemotingTest {
 		server.bind(serverChannel);
 
 		DynamicProxy proxy = RemotingService.connect(uri);
-		
-		//make server broken
+
+		// make server broken
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -154,11 +159,12 @@ public class RemotingTest {
 				server.unbind();
 			}
 		}).start();
-		
+
 		try {
-		proxy.call("hi".getBytes(), 0, 2);
-		} catch (Exception e) {
-			e.printStackTrace();
+			proxy.call("hi".getBytes(), 0, 2);
+		} catch (ChannelException e) {
+			assertEquals("channel broken with unknown error", e.getMessage());
+			throw e;
 		}
 	}
 }

@@ -23,4 +23,10 @@ public class WebSocketOutcomeClientChannel extends OutcomeClientChannel {
 		
 	}
 
+	@Override
+	public boolean isConnected() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

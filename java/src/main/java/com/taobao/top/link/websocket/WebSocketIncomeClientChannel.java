@@ -24,4 +24,10 @@ public class WebSocketIncomeClientChannel extends IncomeClientChannel {
 		
 	}
 
+	@Override
+	public boolean isConnected() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
