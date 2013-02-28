@@ -20,7 +20,7 @@ public class DynamicProxy {
 
 	public ByteBuffer call(byte[] data, int offset, int length, int timeoutMillisecond) throws ChannelException {
 		SynchronizedRemotingCallback syncHandler = new SynchronizedRemotingCallback();
-		
+
 		// pending and sending
 		this.channelHandler.pending(this.channel, data, offset, length, syncHandler);
 
@@ -37,10 +37,10 @@ public class DynamicProxy {
 				throw unexcepException(syncHandler, "remoting call error", syncHandler.getFailure());
 
 			if (timeoutMillisecond > 0 && (i++) * wait >= timeoutMillisecond)
-				throw new ChannelException("remoting call timeout");
+				throw unexcepException(syncHandler, "remoting call timeout", null);
 
 			if (!this.channel.isConnected())
-				throw new ChannelException("channel broken with unknown error");
+				throw unexcepException(syncHandler, "channel broken with unknown error", null);
 
 			synchronized (syncHandler.sync) {
 				try {
@@ -49,7 +49,6 @@ public class DynamicProxy {
 					throw unexcepException(syncHandler, "waiting callback interrupted", e);
 				}
 			}
-
 		}
 	}
 
@@ -57,7 +56,7 @@ public class DynamicProxy {
 			SynchronizedRemotingCallback callback, String message, Throwable innerException) {
 		this.channelHandler.cancel(callback);
 		return innerException != null
-				? new ChannelException("waiting callback error", innerException)
-				: new ChannelException("waiting callback error");
+				? new ChannelException(message, innerException)
+				: new ChannelException(message);
 	}
 }

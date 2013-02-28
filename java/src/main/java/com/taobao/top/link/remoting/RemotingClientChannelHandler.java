@@ -29,6 +29,10 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 			byte[] data, int offset, int length, RemotingCallback handler) throws ChannelException {
 		int flag = this.integer.incrementAndGet();
 		// TODO:buffer usage should be refactor
+		// byte[] data not work well for mem usage improve
+		// should refact to import formatterSink desgin to resolve biz object
+		// serialize, or append protocol bytes to data's ends? no
+		// https://github.com/wsky/top-link/issues/4
 		ByteBuffer buffer = ByteBuffer.wrap(new byte[length + 4]);
 		buffer.putInt(flag);
 		buffer.put(data, offset, length);
