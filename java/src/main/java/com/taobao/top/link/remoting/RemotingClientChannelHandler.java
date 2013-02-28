@@ -8,12 +8,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.EndpointContext;
+import com.taobao.top.link.Logger;
 import com.taobao.top.link.handler.ChannelHandler;
 
 // one handler per channel
 public class RemotingClientChannelHandler extends ChannelHandler {
+	private Logger logger;
 	private AtomicInteger integer = new AtomicInteger(0);
 	private HashMap<String, RemotingCallback> callbacks = new HashMap<String, RemotingCallback>();
+
+	public RemotingClientChannelHandler(Logger logger) {
+		this.logger = logger;
+	}
 
 	// remoting message mode:
 	// - one-way
@@ -30,8 +36,7 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 		handler.flag = flag + "";
 		this.callbacks.put(handler.flag, handler);// concurrent?
 
-		// System.out.println(String.format("sending request of rpc-call#%s",
-		// flag));
+		this.logger.debug("sending request of rpc-call#%s", flag);
 		channel.send(buffer.array(), buffer.arrayOffset(), buffer.capacity());
 	}
 
@@ -45,8 +50,7 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 		String flag = buffer.getInt() + "";// poor perf?
 		RemotingCallback handler = this.callbacks.remove(flag);
 		if (handler != null) {
-			// System.out.println(String.format("receive reply of rpc-call#%s",
-			// flag));
+			this.logger.debug("receive reply of rpc-call#%s", flag);
 			handler.onReceive(buffer);
 		}
 	}

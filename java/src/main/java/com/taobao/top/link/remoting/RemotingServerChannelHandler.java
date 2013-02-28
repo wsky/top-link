@@ -11,8 +11,9 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		ByteBuffer request = ByteBuffer.wrap(data, offset, length);
 		int flag = request.getInt();
 
-		//System.out.println(String.format("receive request of rpc-call#%s", flag));
-		
+		// System.out.println(String.format("receive request of rpc-call#%s",
+		// flag));
+
 		// upper-layer logic
 		byte[] result = this.onRequest(request);
 
@@ -20,17 +21,6 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		reply.putInt(flag);
 		reply.put(result, 0, result.length);
 		context.reply(reply.array(), reply.arrayOffset(), reply.capacity());
-
-		// this.onRequest(buffer, new EndpointContext() {
-		// @Override
-		// public void reply(byte[] data, int offset, int length) {
-		// ByteBuffer buffer = ByteBuffer.wrap(new byte[length + 4]);
-		// buffer.putInt(flag);
-		// buffer.put(data, offset, length);
-		// context.reply(buffer.array(), buffer.arrayOffset(),
-		// buffer.capacity());
-		// }
-		// });
 	}
 
 	public abstract byte[] onRequest(ByteBuffer buffer);
