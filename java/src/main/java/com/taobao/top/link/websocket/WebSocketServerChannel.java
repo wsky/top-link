@@ -57,7 +57,7 @@ public class WebSocketServerChannel extends ServerChannel {
 	private String ip;
 	private int port;
 	private String url;
-	private int maxIdleTimeSeconds = 60;
+	private int maxIdleTimeSeconds = 0;
 
 	public WebSocketServerChannel(String ip, int port) {
 		this(new DefaultLoggerFactory(), ip, port);
@@ -67,7 +67,7 @@ public class WebSocketServerChannel extends ServerChannel {
 		this.loggerFactory = factory;
 		this.logger = factory.create(this);
 		this.allChannels = new DefaultChannelGroup();
-		
+
 		this.ip = ip;
 		this.port = port;
 		this.url = String.format("ws://%s:%s/link", this.ip, this.port);
@@ -94,10 +94,12 @@ public class WebSocketServerChannel extends ServerChannel {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
-				pipeline.addLast("idleStateHandler",
-						new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
-				pipeline.addLast("maxIdleHandler",
-						new MaxIdleHandler(loggerFactory, maxIdleTimeSeconds));
+				if (maxIdleTimeSeconds > 0) {
+					pipeline.addLast("idleStateHandler",
+							new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
+					pipeline.addLast("maxIdleHandler",
+							new MaxIdleHandler(loggerFactory, maxIdleTimeSeconds));
+				}
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("encoder", new HttpResponseEncoder());
 				pipeline.addLast("handler",
