@@ -6,6 +6,7 @@ import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.handler.ChannelSelectHandler;
 import com.taobao.top.link.websocket.WebSocketChannelSelectHandler;
 
+// just an sample api gateway, upper layer app can use serverChannel/channelSelect directly
 public class Endpoint {
 	private ServerChannel serverChannel;
 	private ChannelSelectHandler channelSelectHandler;
