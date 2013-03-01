@@ -27,7 +27,7 @@ public class RemotingTest {
 		server.bind(serverChannel);
 
 		DynamicProxy proxy = RemotingService.connect(uri);
-		ByteBuffer resultBuffer = proxy.call("hi".getBytes(), 0, 2);
+		ByteBuffer resultBuffer = proxy.send("hi".getBytes(), 0, 2);
 		assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
 	}
 
@@ -48,7 +48,7 @@ public class RemotingTest {
 		DynamicProxy proxy = RemotingService.connect(uri);
 		for (int i = 0; i < 10; i++) {
 			ByteBuffer.wrap(data).putInt(i);
-			ByteBuffer resultBuffer = proxy.call(data, 0, 4);
+			ByteBuffer resultBuffer = proxy.send(data, 0, 4);
 			assertEquals(i, resultBuffer.getInt());
 		}
 
@@ -60,7 +60,7 @@ public class RemotingTest {
 					DynamicProxy proxy = RemotingService.connect(uri);
 					for (int i = 0; i < 1000; i++) {
 						ByteBuffer.wrap(data).putInt(i);
-						ByteBuffer resultBuffer = proxy.call(data, 0, 4);
+						ByteBuffer resultBuffer = proxy.send(data, 0, 4);
 						assertEquals(i, resultBuffer.getInt());
 					}
 				} catch (Exception e) {
@@ -81,7 +81,7 @@ public class RemotingTest {
 					DynamicProxy proxy = RemotingService.connect(uri);
 					for (int i = 1000; i < 2000; i++) {
 						ByteBuffer.wrap(data).putInt(i);
-						ByteBuffer resultBuffer = proxy.call(data, 0, 4);
+						ByteBuffer resultBuffer = proxy.send(data, 0, 4);
 						assertEquals(i, resultBuffer.getInt());
 					}
 				} catch (Exception e) {
@@ -120,7 +120,7 @@ public class RemotingTest {
 
 		try {
 			DynamicProxy proxy = RemotingService.connect(uri);
-			proxy.call("hi".getBytes(), 0, 2, 500);
+			proxy.send("hi".getBytes(), 0, 2, 500);
 		} catch (ChannelException e) {
 			assertEquals("remoting call timeout", e.getMessage());
 			throw e;
@@ -161,10 +161,25 @@ public class RemotingTest {
 		}).start();
 
 		try {
-			proxy.call("hi".getBytes(), 0, 2);
+			proxy.send("hi".getBytes(), 0, 2);
 		} catch (ChannelException e) {
 			assertEquals("channel broken with unknown error", e.getMessage());
 			throw e;
 		}
+	}
+
+	//@Test(expected = ChannelException.class)
+	public void dynamicProxy_test() throws Exception {
+		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
+		remotingServerChannelHandler.addService(new SampleService());
+
+		URI uri = new URI("ws://localhost:9005/link");
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		final Endpoint server = new Endpoint();
+		server.setChannelHandler(remotingServerChannelHandler);
+		server.bind(serverChannel);
+
+		SampleServiceInterface sampleService = (SampleServiceInterface) RemotingService.connect(uri, SampleServiceInterface.class);
+		assertEquals("hi", sampleService.echo("hi"));
 	}
 }

@@ -1,11 +1,14 @@
 package com.taobao.top.link.remoting;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 
-public class DynamicProxy {
+public class DynamicProxy implements InvocationHandler {
 	private ClientChannel channel;
 	private RemotingClientChannelHandler channelHandler;
 
@@ -14,11 +17,30 @@ public class DynamicProxy {
 		this.channelHandler = handler;
 	}
 
-	public ByteBuffer call(byte[] data, int offset, int length) throws ChannelException {
-		return this.call(data, offset, length, 0);
+	protected Object create(Class<?> interfaceClass) {
+		return Proxy.newProxyInstance(
+				interfaceClass.getClassLoader(), 
+				new Class[] { interfaceClass }, 
+				this);
+	}
+	
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		Request request = new Request();
+		ByteBuffer requestBuffer = RemotingProtocolIO.writeRequest(request);
+		ByteBuffer responseBuffer = this.send(
+				requestBuffer.array(), 
+				requestBuffer.arrayOffset(),
+				requestBuffer.capacity());
+		return responseBuffer;
 	}
 
-	public ByteBuffer call(byte[] data, int offset, int length, int timeoutMillisecond) throws ChannelException {
+	public ByteBuffer send(byte[] data, int offset, int length) throws ChannelException {
+		return this.send(data, offset, length, 0);
+	}
+
+	public ByteBuffer send(byte[] data,
+			int offset, int length, int timeoutMillisecond) throws ChannelException {
 		SynchronizedRemotingCallback syncHandler = new SynchronizedRemotingCallback();
 
 		// pending and sending
