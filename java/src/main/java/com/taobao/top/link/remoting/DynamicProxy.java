@@ -19,19 +19,20 @@ public class DynamicProxy implements InvocationHandler {
 
 	protected Object create(Class<?> interfaceClass) {
 		return Proxy.newProxyInstance(
-				interfaceClass.getClassLoader(), 
-				new Class[] { interfaceClass }, 
+				interfaceClass.getClassLoader(),
+				new Class[] { interfaceClass },
 				this);
 	}
-	
+
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		Request request = new Request();
 		ByteBuffer requestBuffer = RemotingProtocolIO.writeRequest(request);
 		ByteBuffer responseBuffer = this.send(
-				requestBuffer.array(), 
+				requestBuffer.array(),
 				requestBuffer.arrayOffset(),
 				requestBuffer.capacity());
+		// TODO:resolve response by sink
 		return responseBuffer;
 	}
 

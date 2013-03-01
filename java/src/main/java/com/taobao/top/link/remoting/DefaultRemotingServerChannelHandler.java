@@ -7,6 +7,7 @@ import java.util.HashMap;
 public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHandler {
 	@Override
 	public byte[] onRequest(ByteBuffer buffer) {
+		// TODO:resolve request by sink
 		return null;
 	}
 
