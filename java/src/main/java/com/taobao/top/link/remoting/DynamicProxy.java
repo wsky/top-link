@@ -26,8 +26,8 @@ public class DynamicProxy implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		Request request = new Request();
-		ByteBuffer requestBuffer = RemotingProtocolIO.writeRequest(request);
+		MethodCall request = new MethodCall();
+		ByteBuffer requestBuffer = null;
 		ByteBuffer responseBuffer = this.send(
 				requestBuffer.array(),
 				requestBuffer.arrayOffset(),
