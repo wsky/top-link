@@ -64,3 +64,18 @@ Call
 ByteBuffer resultBuffer = RemotingService.connect(uri).call("hi".getBytes(), 0, 2);
 assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
 ```
+
+## License
+
+- Netty, Apache License Version 2.0
+
+	https://github.com/netty/netty
+
+	https://github.com/netty/netty/blob/master/LICENSE.txt
+
+- RemotingProtocolParser, MIT License
+
+	https://github.com/wsky/RemotingProtocolParser
+
+	https://github.com/wsky/RemotingProtocolParser/blob/master/README.md#license
+
