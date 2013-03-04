@@ -47,6 +47,7 @@ import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.ServerChannel;
+import com.taobao.top.link.ClientChannel.SendHandler;
 import com.taobao.top.link.handler.ChannelHandler;
 
 public class WebSocketServerChannel extends ServerChannel {
@@ -224,19 +225,30 @@ public class WebSocketServerChannel extends ServerChannel {
 					this.handler.onReceive(buffer.toByteBuffer(),
 							new EndpointContext() {
 								@Override
-								public void reply(ByteBuffer dataBuffer) {
-									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
+								public void reply(byte[] data, int offset, int length) {
+									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 									BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 									frame.setFinalFragment(true);
 									ctx.getChannel().write(frame);
 								}
 
 								@Override
-								public void reply(byte[] data, int offset, int length) {
-									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
+								public void reply(ByteBuffer dataBuffer) {
+									this.reply(dataBuffer, null);
+								}
+
+								@Override
+								public void reply(ByteBuffer dataBuffer, final SendHandler sendHandler) {
+									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 									BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 									frame.setFinalFragment(true);
-									ctx.getChannel().write(frame);
+									ctx.getChannel().write(frame).addListener(new ChannelFutureListener() {
+										@Override
+										public void operationComplete(ChannelFuture arg0) throws Exception {
+											if (sendHandler != null)
+												sendHandler.onSendComplete();
+										}
+									});
 								}
 							});
 				}
