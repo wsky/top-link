@@ -14,6 +14,6 @@ public class EndpointProxy {
 	}
 
 	public void send(ByteBuffer dataBuffer) throws ChannelException {
-		this.channel.send(dataBuffer);
+		this.channel.send(dataBuffer, null);
 	}
 }

@@ -13,6 +13,7 @@ public class BufferManager {
 	}
 
 	public static void returnBuffer(ByteBuffer buffer) {
+		buffer.clear();
 		buffers.add(buffer);
 	}
 }

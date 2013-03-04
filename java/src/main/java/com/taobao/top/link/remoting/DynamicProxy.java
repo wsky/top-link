@@ -5,8 +5,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 
+import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
+import com.taobao.top.link.ClientChannel.SendHandler;
 
 public class DynamicProxy implements InvocationHandler {
 	private ClientChannel channel;
@@ -39,10 +41,15 @@ public class DynamicProxy implements InvocationHandler {
 		SynchronizedRemotingCallback syncHandler = new SynchronizedRemotingCallback();
 
 		// pending and sending
-		ByteBuffer buffer = this.channelHandler.pending(this.channel, syncHandler);
+		final ByteBuffer buffer = this.channelHandler.pending(this.channel, syncHandler);
 		buffer.put(data, offset, length);
 		buffer.flip();
-		this.channel.send(buffer);
+		this.channel.send(buffer, new SendHandler() {
+			@Override
+			public void onSendComplete() {
+				BufferManager.returnBuffer(buffer);
+			}
+		});
 
 		// send and receive maybe fast enough
 		if (syncHandler.isSucess())

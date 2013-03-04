@@ -119,7 +119,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 			}
 
 			@Override
-			public void send(ByteBuffer dataBuffer) throws ChannelException {
+			public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 				// prevent unknown exception after connected and get channel
 				// channel.write is async default
 				if (!channel.isConnected()) {
@@ -129,8 +129,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 				dataBuffer.position(0);
 				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-				this.send(frame);
-
+				this.send(frame, sendHandler);
 			}
 
 			@Override
@@ -141,15 +140,16 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 				}
 				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-				this.send(frame);
+				this.send(frame, null);
 			}
 
-			private void send(BinaryWebSocketFrame frame) throws ChannelException {
+			private void send(BinaryWebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
 				frame.setFinalFragment(true);
 				channel.write(frame).addListener(new ChannelFutureListener() {
 					@Override
 					public void operationComplete(ChannelFuture arg0) throws Exception {
-						// TODO:release buffer
+						if (sendHandler != null)
+							sendHandler.onSendComplete();
 					}
 				});
 			}
