@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 
 import org.junit.Test;
 
@@ -23,8 +24,8 @@ public class EndpointTest {
 		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override
-			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
-				String dataString = new String(data, offset, length);
+			public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
+				String dataString = new String(dataBuffer.array(), dataBuffer.arrayOffset(), dataBuffer.capacity());
 				if (request.equals(dataString)) {
 					System.out.println("request:" + dataString);
 					synchronized (request) {
@@ -35,7 +36,7 @@ public class EndpointTest {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					context.reply(reply.getBytes(), 0, reply.length());
+					context.reply(ByteBuffer.wrap(reply.getBytes()));
 				}
 				if (reply.equals(dataString)) {
 					System.out.println("reply:" + dataString);
@@ -47,10 +48,15 @@ public class EndpointTest {
 		});
 		endpoint.bind(serverChannel);
 
+		// use direct buffer
+		byte[] data = request.getBytes();
+		ByteBuffer buffer = ByteBuffer.allocate(1024).put(data);
+		buffer.flip();
+		buffer.position(0);
 		// sender, get and send
 		try {
 			EndpointProxy target = endpoint.getEndpoint(uri);
-			target.send(request.getBytes(), 0, request.length());
+			target.send(buffer);
 		} catch (ChannelException e) {
 			System.err.println(e.getMessage());
 		}
@@ -84,7 +90,7 @@ public class EndpointTest {
 		EndpointProxy target = endpoint.getEndpoint(uri);
 		Thread.sleep(2000);
 
-		target.send("hi".getBytes(), 0, 2);
+		target.send(ByteBuffer.wrap("hi".getBytes()));
 	}
 
 	@Test
@@ -96,34 +102,15 @@ public class EndpointTest {
 		Thread.sleep(3500);
 
 		try {
-			target.send("hi".getBytes(), 0, 2);
+			target.send(ByteBuffer.wrap("hi".getBytes()));
 			assertTrue(false);
 		} catch (ChannelException e) {
 			System.err.println(e.getMessage());
 		}
 
 		target = endpoint.getEndpoint(uri);
-		target.send("hi".getBytes(), 0, 2);
+		target.send(ByteBuffer.wrap("hi".getBytes()));
 		Thread.sleep(1000);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Test
-	public void call_test() throws URISyntaxException, ChannelException {
-		URI uri = new URI("ws://localhost:8006/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
-		Endpoint endpoint = new Endpoint();
-		endpoint.setChannelHandler(new SimpleChannelHandler() {
-			@Override
-			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
-				String dataString = new String(data, offset, length);
-				System.out.println(dataString);
-				context.reply(data, offset, length);
-			}
-		});
-		endpoint.bind(serverChannel);
-		EndpointProxy target = new Endpoint().getEndpoint(uri);
-		assertEquals("hi", new String(target.call("hi".getBytes(), 0, 2)));
 	}
 
 	private Endpoint run(int port, int maxIdle) throws InterruptedException {
@@ -131,8 +118,8 @@ public class EndpointTest {
 		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override
-			public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
-				String dataString = new String(data, offset, length);
+			public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
+				String dataString = new String(dataBuffer.array(), dataBuffer.arrayOffset(), dataBuffer.capacity());
 				System.out.println(dataString);
 			}
 		});

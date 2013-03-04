@@ -20,8 +20,8 @@ public class RemotingTest {
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public byte[] onRequest(ByteBuffer buffer) {
-				return "ok".getBytes();
+			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
+				responseBuffer.put("ok".getBytes());
 			}
 		});
 		server.bind(serverChannel);
@@ -38,8 +38,8 @@ public class RemotingTest {
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public byte[] onRequest(ByteBuffer buffer) {
-				return new byte[] { buffer.get(), buffer.get(), buffer.get(), buffer.get() };
+			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
+				responseBuffer.put(new byte[] { requestBuffer.get(), requestBuffer.get(), requestBuffer.get(), requestBuffer.get() });
 			}
 		});
 		server.bind(serverChannel);
@@ -107,13 +107,13 @@ public class RemotingTest {
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public byte[] onRequest(ByteBuffer buffer) {
+			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				return "ok".getBytes();
+				responseBuffer.put("ok".getBytes());
 			}
 		});
 		server.bind(serverChannel);
@@ -134,13 +134,13 @@ public class RemotingTest {
 		final Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public byte[] onRequest(ByteBuffer buffer) {
+			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				return "ok".getBytes();
+				responseBuffer.put("ok".getBytes());
 			}
 		});
 		server.bind(serverChannel);
@@ -168,7 +168,7 @@ public class RemotingTest {
 		}
 	}
 
-	//@Test(expected = ChannelException.class)
+	// @Test(expected = ChannelException.class)
 	public void dynamicProxy_test() throws Exception {
 		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
 		remotingServerChannelHandler.addService(new SampleService());

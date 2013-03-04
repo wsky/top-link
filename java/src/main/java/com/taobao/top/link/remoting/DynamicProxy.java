@@ -26,14 +26,8 @@ public class DynamicProxy implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		MethodCall request = new MethodCall();
-		ByteBuffer requestBuffer = null;
-		ByteBuffer responseBuffer = this.send(
-				requestBuffer.array(),
-				requestBuffer.arrayOffset(),
-				requestBuffer.capacity());
 		// TODO:resolve response by sink
-		return responseBuffer;
+		return null;
 	}
 
 	public ByteBuffer send(byte[] data, int offset, int length) throws ChannelException {
@@ -45,7 +39,10 @@ public class DynamicProxy implements InvocationHandler {
 		SynchronizedRemotingCallback syncHandler = new SynchronizedRemotingCallback();
 
 		// pending and sending
-		this.channelHandler.pending(this.channel, data, offset, length, syncHandler);
+		ByteBuffer buffer = this.channelHandler.pending(this.channel, syncHandler);
+		buffer.put(data, offset, length);
+		buffer.flip();
+		this.channel.send(buffer);
 
 		// send and receive maybe fast enough
 		if (syncHandler.isSucess())

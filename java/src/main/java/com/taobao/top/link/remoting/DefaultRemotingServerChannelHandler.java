@@ -6,9 +6,8 @@ import java.util.HashMap;
 // high-level abstract remoting server
 public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHandler {
 	@Override
-	public byte[] onRequest(ByteBuffer buffer) {
+	public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
 		// TODO:resolve request by sink
-		return null;
 	}
 
 	private HashMap<String, Object> services;

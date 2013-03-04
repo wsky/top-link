@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.EndpointContext;
@@ -25,23 +26,16 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 	// - one-way
 	// - two-way
 	// - request
-	public void pending(ClientChannel channel,
-			byte[] data, int offset, int length, RemotingCallback handler) throws ChannelException {
+	public ByteBuffer pending(ClientChannel channel, RemotingCallback handler) throws ChannelException {
 		int flag = this.integer.incrementAndGet();
-		// TODO:buffer usage should be refactor
-		// byte[] data not work well for mem usage improve
-		// should refact to import formatterSink desgin to resolve biz object
-		// serialize, or append protocol bytes to data's ends? no
-		// https://github.com/wsky/top-link/issues/4
-		ByteBuffer buffer = ByteBuffer.wrap(new byte[length + 4]);
+		ByteBuffer buffer = BufferManager.getBuffer();
 		buffer.putInt(flag);
-		buffer.put(data, offset, length);
 
 		handler.flag = flag + "";
 		this.callbacks.put(handler.flag, handler);// concurrent?
-
 		this.logger.debug("sending request of rpc-call#%s", flag);
-		channel.send(buffer.array(), buffer.arrayOffset(), buffer.capacity());
+
+		return buffer;
 	}
 
 	public void cancel(RemotingCallback handler) {
@@ -49,13 +43,12 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 	}
 
 	@Override
-	public void onReceive(byte[] data, int offset, int length, EndpointContext context) {
-		ByteBuffer buffer = ByteBuffer.wrap(data, offset, length);
-		String flag = buffer.getInt() + "";// poor perf?
+	public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
+		String flag = dataBuffer.getInt() + "";// poor perf?
 		RemotingCallback handler = this.callbacks.remove(flag);
 		if (handler != null) {
 			this.logger.debug("receive reply of rpc-call#%s", flag);
-			handler.onReceive(buffer);
+			handler.onReceive(dataBuffer);
 		}
 	}
 

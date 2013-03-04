@@ -1,6 +1,7 @@
 package com.taobao.top.link.websocket;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -220,10 +221,16 @@ public class WebSocketServerChannel extends ServerChannel {
 					// should wait until final frame received
 					// https://github.com/wsky/top-link/issues/5
 					ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
-					this.handler.onReceive(buffer.array(),
-							buffer.arrayOffset(),
-							buffer.capacity(),
+					this.handler.onReceive(buffer.toByteBuffer(),
 							new EndpointContext() {
+								@Override
+								public void reply(ByteBuffer dataBuffer) {
+									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
+									BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
+									frame.setFinalFragment(true);
+									ctx.getChannel().write(frame);
+								}
+
 								@Override
 								public void reply(byte[] data, int offset, int length) {
 									ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);

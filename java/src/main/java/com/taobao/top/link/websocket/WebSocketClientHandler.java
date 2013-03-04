@@ -1,5 +1,6 @@
 package com.taobao.top.link.websocket;
 
+import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -95,10 +96,16 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			ChannelHandler handler = this.onceHandlers.isEmpty() ? this.channelHandler : this.onceHandlers.poll();
 			if (handler != null) {
 				ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
-				handler.onReceive(buffer.array(),
-						buffer.arrayOffset(),
-						buffer.capacity(),
+				handler.onReceive(buffer.toByteBuffer(),
 						new EndpointContext() {
+							@Override
+							public void reply(ByteBuffer dataBuffer) {
+								ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
+								BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
+								frame.setFinalFragment(true);
+								ctx.getChannel().write(frame);
+							}
+
 							@Override
 							public void reply(byte[] data, int offset, int length) {
 								ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);

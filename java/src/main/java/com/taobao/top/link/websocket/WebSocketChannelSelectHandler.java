@@ -2,6 +2,7 @@ package com.taobao.top.link.websocket;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.Hashtable;
 import java.util.concurrent.Executors;
 
@@ -10,6 +11,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
@@ -115,19 +117,41 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 			public boolean isConnected() {
 				return channel.isConnected();
 			}
-			
+
 			@Override
-			public void send(byte[] data, int offset, int length) throws ChannelException {
+			public void send(ByteBuffer dataBuffer) throws ChannelException {
 				// prevent unknown exception after connected and get channel
 				// channel.write is async default
 				if (!channel.isConnected()) {
 					clearHandler.clear();
 					throw new ChannelException("channel closed");
 				}
+				dataBuffer.position(0);
+				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
+				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
+				this.send(frame);
+
+			}
+
+			@Override
+			public void send(byte[] data, int offset, int length) throws ChannelException {
+				if (!channel.isConnected()) {
+					clearHandler.clear();
+					throw new ChannelException("channel closed");
+				}
 				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
+				this.send(frame);
+			}
+
+			private void send(BinaryWebSocketFrame frame) throws ChannelException {
 				frame.setFinalFragment(true);
-				channel.write(frame);
+				channel.write(frame).addListener(new ChannelFutureListener() {
+					@Override
+					public void operationComplete(ChannelFuture arg0) throws Exception {
+						// TODO:release buffer
+					}
+				});
 			}
 		};
 	}
