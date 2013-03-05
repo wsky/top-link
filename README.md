@@ -5,6 +5,27 @@ design draft: embedded duplex multi-channel endpoint and connection management f
 
 https://gist.github.com/4680940
 
+## Build
+
+set external repo first
+```
+git submodule init
+git submodule update
+git submodule foreach git pull
+```
+
+Java
+```java
+cd java
+mvn package
+```
+
+C#
+```c#
+cd csharp
+build.bat
+```
+
 ## Endpoint
 
 ```java
@@ -43,7 +64,7 @@ try {
 
 ## Build-in RPC
 
-low-level implementation to support application extension.
+Low-Level implementation to support application extension.
 
 Server Bind
 ```java
@@ -63,6 +84,15 @@ Call
 ```java
 ByteBuffer resultBuffer = RemotingService.connect(uri).call("hi".getBytes(), 0, 2);
 assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
+```
+
+High-Level Abstract Remoting
+	- IOC support at server/client
+	- Extendable sink design, like custom FormatterSink/TransportSink
+
+```java
+SampleService sampleService = (SampleService) RemotingService.connect(uri, SampleService.class);
+assertEquals("hi", sampleService.echo("hi"));
 ```
 
 ## License
