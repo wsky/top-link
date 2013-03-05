@@ -13,7 +13,6 @@ import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.handler.ChannelHandler;
 
-// one handler per channel
 public class RemotingClientChannelHandler extends ChannelHandler {
 	private Logger logger;
 	private AtomicInteger flag;

@@ -18,6 +18,10 @@ public class DynamicProxy implements InvocationHandler {
 		this.channel = channel;
 		this.channelHandler = handler;
 	}
+	
+	protected ClientChannel getChannel() {
+		return this.channel;
+	}
 
 	protected Object create(Class<?> interfaceClass) {
 		return Proxy.newProxyInstance(

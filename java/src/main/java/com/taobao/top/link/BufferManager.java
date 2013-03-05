@@ -9,6 +9,7 @@ public class BufferManager {
 
 	public static ByteBuffer getBuffer() {
 		ByteBuffer buffer = buffers.poll();
+		// TODO:change fixed capacity
 		return buffer == null ? ByteBuffer.allocateDirect(1024 * 4) : buffer;
 	}
 

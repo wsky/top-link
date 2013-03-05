@@ -13,15 +13,19 @@ public class RemotingService {
 	private static AtomicInteger flag = new AtomicInteger(0);
 	private static LoggerFactory loggerFactory = new DefaultLoggerFactory();
 	private static WebSocketChannelSelectHandler selectHandler = new WebSocketChannelSelectHandler(loggerFactory);
+	// TODO:shared handler or one handler per channel?
 	private static RemotingClientChannelHandler channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
-
-	public static DynamicProxy connect(URI uri) throws ChannelException {
-		ClientChannel channel = selectHandler.getClientChannel(uri);
-		channel.setChannelHandler(channelHandler);
-		return new DynamicProxy(channel, channelHandler);
-	}
 
 	public static Object connect(URI uri, Class<?> interfaceClass) throws ChannelException {
 		return connect(uri).create(interfaceClass);
+	}
+
+	public static DynamicProxy connect(URI uri) throws ChannelException {
+		return proxy(selectHandler.getClientChannel(uri));
+	}
+
+	protected static DynamicProxy proxy(ClientChannel channel) {
+		channel.setChannelHandler(channelHandler);
+		return new DynamicProxy(channel, channelHandler);
 	}
 }

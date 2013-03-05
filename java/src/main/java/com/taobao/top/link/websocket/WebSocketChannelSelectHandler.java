@@ -59,7 +59,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		return channel;
 	}
 
-	private ClientChannel connect(URI uri, int timeout, final ClearHandler clearHandler) throws ChannelException {
+	public ClientChannel connect(URI uri, int timeout, final ClearHandler clearHandler) throws ChannelException {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
