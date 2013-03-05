@@ -105,6 +105,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		return new ClientChannel() {
 			@Override
 			public void setChannelHandler(ChannelHandler handler) {
+				//TODO:maybe course null when concurrent? use volatile?
 				clientHandler.channelHandler = handler;
 			}
 
