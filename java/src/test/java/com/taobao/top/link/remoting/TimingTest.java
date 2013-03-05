@@ -97,7 +97,7 @@ public class TimingTest {
 			@Override
 			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
 				try {
-					Thread.sleep(50);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -2,23 +2,18 @@ package com.taobao.top.link.websocket;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.Hashtable;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.handler.codec.http.HttpRequestEncoder;
 import org.jboss.netty.handler.codec.http.HttpResponseDecoder;
-import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
@@ -26,11 +21,11 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.handler.ChannelSelectHandler;
 import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
 public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
+	private final static int CONNECT_TIMEOUT = 5000;
 	private LoggerFactory loggerFactory;
 	private Hashtable<String, ClientChannel> channels;
 	private WebSocketClientHandshakerFactory wsFactory;
@@ -49,7 +44,7 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 		final String url = uri.toString();
 		ClientChannel channel = channels.get(url);
 		if (channel == null) {
-			channels.put(url, channel = this.connect(uri, 5000, new ClearHandler() {
+			channels.put(url, channel = this.connect(uri, CONNECT_TIMEOUT, new ClearHandler() {
 				@Override
 				public void clear() {
 					channels.remove(url);
@@ -102,58 +97,6 @@ public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
 			throw new ChannelException("handshake fail", clientHandler.handshakeFuture.getCause());
 		}
 
-		return new ClientChannel() {
-			@Override
-			public void setChannelHandler(ChannelHandler handler) {
-				//TODO:maybe course null when concurrent? use volatile?
-				clientHandler.channelHandler = handler;
-			}
-
-			@Override
-			protected void addOnceChannelHandler(ChannelHandler handler) {
-				clientHandler.onceHandlers.add(handler);
-			}
-
-			@Override
-			public boolean isConnected() {
-				return channel.isConnected();
-			}
-
-			@Override
-			public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
-				// prevent unknown exception after connected and get channel
-				// channel.write is async default
-				if (!channel.isConnected()) {
-					clearHandler.clear();
-					throw new ChannelException("channel closed");
-				}
-				dataBuffer.position(0);
-				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
-				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-				this.send(frame, sendHandler);
-			}
-
-			@Override
-			public void send(byte[] data, int offset, int length) throws ChannelException {
-				if (!channel.isConnected()) {
-					clearHandler.clear();
-					throw new ChannelException("channel closed");
-				}
-				ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
-				BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-				this.send(frame, null);
-			}
-
-			private void send(BinaryWebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
-				frame.setFinalFragment(true);
-				channel.write(frame).addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture arg0) throws Exception {
-						if (sendHandler != null)
-							sendHandler.onSendComplete();
-					}
-				});
-			}
-		};
+		return new WebSocketClientChannel(channel, clientHandler, clearHandler);
 	}
 }
