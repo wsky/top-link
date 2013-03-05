@@ -75,7 +75,6 @@ public class TimingTest {
 				try {
 					byte[] data = new byte[4];
 					for (int i = from; i < to; i++) {
-						System.out.println("thread2");
 						ByteBuffer.wrap(data).putInt(i);
 						ByteBuffer resultBuffer = proxy.send(data, 0, 4);
 						assertEquals(i, resultBuffer.getInt());
@@ -98,7 +97,7 @@ public class TimingTest {
 			@Override
 			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
 				try {
-					Thread.sleep(10);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
