@@ -39,6 +39,11 @@ public class RemotingTest {
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				responseBuffer.put(new byte[] { requestBuffer.get(), requestBuffer.get(), requestBuffer.get(), requestBuffer.get() });
 			}
 		});
@@ -52,15 +57,19 @@ public class RemotingTest {
 			assertEquals(i, resultBuffer.getInt());
 		}
 
+		// proxy1/2 will share same channel, so rpc flag must be split
+		final DynamicProxy proxy1 = RemotingService.connect(uri);
+		final DynamicProxy proxy2 = RemotingService.connect(uri);
+
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					byte[] data = new byte[4];
-					DynamicProxy proxy = RemotingService.connect(uri);
-					for (int i = 0; i < 1000; i++) {
+					for (int i = 0; i < 100; i++) {
+						System.out.println("thread1");
 						ByteBuffer.wrap(data).putInt(i);
-						ByteBuffer resultBuffer = proxy.send(data, 0, 4);
+						ByteBuffer resultBuffer = proxy1.send(data, 0, 4);
 						assertEquals(i, resultBuffer.getInt());
 					}
 				} catch (Exception e) {
@@ -78,10 +87,10 @@ public class RemotingTest {
 			public void run() {
 				try {
 					byte[] data = new byte[4];
-					DynamicProxy proxy = RemotingService.connect(uri);
-					for (int i = 1000; i < 2000; i++) {
+					for (int i = 100; i < 200; i++) {
+						System.out.println("thread2");
 						ByteBuffer.wrap(data).putInt(i);
-						ByteBuffer resultBuffer = proxy.send(data, 0, 4);
+						ByteBuffer resultBuffer = proxy2.send(data, 0, 4);
 						assertEquals(i, resultBuffer.getInt());
 					}
 				} catch (Exception e) {
@@ -97,7 +106,6 @@ public class RemotingTest {
 		synchronized (uri) {
 			uri.wait();
 		}
-
 	}
 
 	@Test(expected = ChannelException.class)

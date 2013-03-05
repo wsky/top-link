@@ -9,7 +9,7 @@ public class BufferManager {
 
 	public static ByteBuffer getBuffer() {
 		ByteBuffer buffer = buffers.poll();
-		return buffer == null ? ByteBuffer.allocateDirect(1024 * 64) : buffer;
+		return buffer == null ? ByteBuffer.allocateDirect(1024 * 4) : buffer;
 	}
 
 	public static void returnBuffer(ByteBuffer buffer) {

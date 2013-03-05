@@ -10,16 +10,18 @@ import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.Logger;
+import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.handler.ChannelHandler;
 
 // one handler per channel
 public class RemotingClientChannelHandler extends ChannelHandler {
 	private Logger logger;
-	private AtomicInteger integer = new AtomicInteger(0);
+	private AtomicInteger flag;
 	private HashMap<String, RemotingCallback> callbacks = new HashMap<String, RemotingCallback>();
 
-	public RemotingClientChannelHandler(Logger logger) {
-		this.logger = logger;
+	public RemotingClientChannelHandler(LoggerFactory loggerFactory, AtomicInteger flag) {
+		this.logger = loggerFactory.create(this);
+		this.flag = flag;
 	}
 
 	// remoting message mode:
@@ -27,11 +29,11 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 	// - two-way
 	// - request
 	public ByteBuffer pending(ClientChannel channel, RemotingCallback handler) throws ChannelException {
-		int flag = this.integer.incrementAndGet();
+		int flag = this.flag.incrementAndGet();
 		ByteBuffer buffer = BufferManager.getBuffer();
 		buffer.putInt(flag);
 
-		handler.flag = flag + "";
+		handler.flag = Integer.toString(flag);
 		this.callbacks.put(handler.flag, handler);// concurrent?
 		this.logger.debug("sending request of rpc-call#%s", flag);
 

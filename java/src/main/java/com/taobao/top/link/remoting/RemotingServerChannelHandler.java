@@ -15,6 +15,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		responseBuffer.putInt(flag);
 
 		this.onRequest(dataBuffer, responseBuffer);
+		
 		responseBuffer.flip();
 		context.reply(responseBuffer, new SendHandler() {
 			@Override
