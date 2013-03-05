@@ -10,16 +10,10 @@ import com.taobao.top.link.handler.SimpleChannelHandler;
 public abstract class RemotingServerChannelHandler extends SimpleChannelHandler {
 	@Override
 	public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
-		//TODO:resolve request by sink
-		
 		int flag = dataBuffer.getInt();
 		final ByteBuffer responseBuffer = BufferManager.getBuffer();
 		responseBuffer.putInt(flag);
 
-		// remoting message mode:
-		// - one-way
-		// - two-way
-		// - request
 		this.onRequest(dataBuffer, responseBuffer);
 		
 		responseBuffer.flip();

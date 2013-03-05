@@ -78,6 +78,7 @@ public class DynamicProxy implements InvocationHandler {
 		handle.WriteContentLength(1024);
 		HashMap<String, Object> headers = new HashMap<String, Object>();
 		headers.put(TcpTransportHeader.RequestUri, this.uriString);
+		headers.put(RemotingTransportHeader.Flag, 0);
 		handle.WriteTransportHeaders(headers);
 		handle.WriteContent(null);
 
