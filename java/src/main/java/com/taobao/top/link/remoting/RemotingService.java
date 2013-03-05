@@ -16,8 +16,8 @@ public class RemotingService {
 	// TODO:shared handler or one handler per channel?
 	private static RemotingClientChannelHandler channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
 
-	public static Object connect(URI uri, Class<?> interfaceClass) throws ChannelException {
-		return connect(uri).create(interfaceClass);
+	public static Object connect(URI remoteUri, Class<?> interfaceClass) throws ChannelException {
+		return connect(remoteUri).create(interfaceClass, remoteUri);
 	}
 
 	public static DynamicProxy connect(URI uri) throws ChannelException {

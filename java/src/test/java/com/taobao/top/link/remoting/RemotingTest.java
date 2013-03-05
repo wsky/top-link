@@ -14,7 +14,7 @@ import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 public class RemotingTest {
 	@Test
-	public void call_test() throws URISyntaxException, ChannelException {
+	public void send_test() throws URISyntaxException, ChannelException {
 		URI uri = new URI("ws://localhost:9001/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		Endpoint server = new Endpoint();
@@ -49,7 +49,7 @@ public class RemotingTest {
 	}
 
 	@Test(expected = ChannelException.class)
-	public void execute_timeout_test() throws ChannelException, URISyntaxException {
+	public void execution_timeout_test() throws ChannelException, URISyntaxException {
 		URI uri = new URI("ws://localhost:9003/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		Endpoint server = new Endpoint();
@@ -70,7 +70,7 @@ public class RemotingTest {
 			DynamicProxy proxy = RemotingService.connect(uri);
 			proxy.send("hi".getBytes(), 0, 2, 500);
 		} catch (ChannelException e) {
-			assertEquals("remoting call timeout", e.getMessage());
+			assertEquals("remoting execution timeout", e.getMessage());
 			throw e;
 		}
 	}

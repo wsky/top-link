@@ -23,10 +23,6 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 		this.flag = flag;
 	}
 
-	// remoting message mode:
-	// - one-way
-	// - two-way
-	// - request
 	public ByteBuffer pending(ClientChannel channel, RemotingCallback handler) throws ChannelException {
 		int flag = this.flag.incrementAndGet();
 		ByteBuffer buffer = BufferManager.getBuffer();

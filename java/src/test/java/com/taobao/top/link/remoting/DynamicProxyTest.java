@@ -3,6 +3,7 @@ package com.taobao.top.link.remoting;
 import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 
@@ -12,6 +13,12 @@ import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 // high-level abstract remoting test
 public class DynamicProxyTest {
+	
+	@Test
+	public void call_test() throws URISyntaxException, ChannelException {
+		
+	}
+	
 	public void dynamicProxy_test() throws Exception {
 		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
 		remotingServerChannelHandler.addService(new SampleService());

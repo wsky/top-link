@@ -80,10 +80,18 @@ server.setChannelHandler(new RemotingServerChannelHandler() {
 server.bind(serverChannel);
 ```
 
+Send
+```java
+ByteBuffer resultBuffer = RemotingService.connect(uri).send("hi".getBytes(), 0, 2);
+assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
+```
+
 Call
 ```java
-ByteBuffer resultBuffer = RemotingService.connect(uri).call("hi".getBytes(), 0, 2);
-assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
+MethodResponse ret = RemotingService.connect(uri).call(new MethodCall());
+if(ret.Exception!=null)
+	throw ret.Exception;
+return ret.ReturnValue;
 ```
 
 High-Level Abstract Remoting
