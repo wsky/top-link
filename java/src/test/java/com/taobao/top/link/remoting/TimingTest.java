@@ -28,8 +28,8 @@ public class TimingTest {
 		DynamicProxy proxy = RemotingService.connect(uri);
 		for (int i = 0; i < 10; i++) {
 			ByteBuffer.wrap(data).putInt(i);
-			//ByteBuffer resultBuffer = proxy.send(data, 0, 4);
-			//assertEquals(i, resultBuffer.getInt());
+			// ByteBuffer resultBuffer = proxy.send(data, 0, 4);
+			// assertEquals(i, resultBuffer.getInt());
 		}
 	}
 
@@ -76,8 +76,8 @@ public class TimingTest {
 					byte[] data = new byte[4];
 					for (int i = from; i < to; i++) {
 						ByteBuffer.wrap(data).putInt(i);
-						//ByteBuffer resultBuffer = proxy.send(data, 0, 4);
-						//assertEquals(i, resultBuffer.getInt());
+						// ByteBuffer resultBuffer = proxy.send(data, 0, 4);
+						// assertEquals(i, resultBuffer.getInt());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -94,18 +94,26 @@ public class TimingTest {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
+			// @Override
+			// public void onRequest(ByteBuffer requestBuffer, ByteBuffer
+			// responseBuffer) {
+			// try {
+			// Thread.sleep(10);
+			// } catch (InterruptedException e) {
+			// e.printStackTrace();
+			// }
+			// responseBuffer.put(new byte[] {
+			// requestBuffer.get(),
+			// requestBuffer.get(),
+			// requestBuffer.get(),
+			// requestBuffer.get() });
+			// }
+
 			@Override
-			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				responseBuffer.put(new byte[] {
-						requestBuffer.get(),
-						requestBuffer.get(),
-						requestBuffer.get(),
-						requestBuffer.get() });
+			public MethodReturn onMethodCall(MethodCall methodCall) {
+				MethodReturn methodReturn = new MethodReturn();
+				methodReturn.ReturnValue = methodCall.Args[0];
+				return null;
 			}
 		});
 		server.bind(serverChannel);

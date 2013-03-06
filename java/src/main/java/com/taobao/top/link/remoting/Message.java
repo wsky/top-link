@@ -1,5 +1,7 @@
 package com.taobao.top.link.remoting;
 
-public interface Message {
+import java.io.Serializable;
+
+public interface Message extends Serializable {
 
 }

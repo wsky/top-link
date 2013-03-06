@@ -20,15 +20,27 @@ public class RemotingTest {
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
-				responseBuffer.put("ok".getBytes());
+			public MethodReturn onMethodCall(MethodCall methodCall) {
+				MethodReturn methodReturn = new MethodReturn();
+				methodReturn.ReturnValue = "ok";
+				return methodReturn;
 			}
 		});
 		server.bind(serverChannel);
 
 		DynamicProxy proxy = RemotingService.connect(uri);
-		//ByteBuffer resultBuffer = proxy.send("hi".getBytes(), 0, 2);
-		//assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
+		MethodCall methodCall = new MethodCall();
+		MethodReturn methodReturn = null;
+		try {
+			methodReturn = proxy.invoke(methodCall);
+		} catch (RemotingException e) {
+			e.printStackTrace();
+		} catch (FormatterException e) {
+			e.printStackTrace();
+		}
+		methodReturn.Exception.printStackTrace();
+		assertNull(methodReturn.Exception);
+		assertEquals("ok", methodReturn.ReturnValue);
 	}
 
 	@Test
@@ -38,7 +50,8 @@ public class RemotingTest {
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
+			public MethodReturn onMethodCall(MethodCall methodCall) {
+				return null;
 			}
 		});
 		server.bind(serverChannel);
@@ -55,20 +68,20 @@ public class RemotingTest {
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
+			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				responseBuffer.put("ok".getBytes());
+				return null;
 			}
 		});
 		server.bind(serverChannel);
 
 		try {
 			DynamicProxy proxy = RemotingService.connect(uri);
-			//proxy.send("hi".getBytes(), 0, 2, 500);
+			// proxy.send("hi".getBytes(), 0, 2, 500);
 		} catch (ChannelException e) {
 			assertEquals("remoting execution timeout", e.getMessage());
 			throw e;
@@ -82,13 +95,13 @@ public class RemotingTest {
 		final Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
+			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				responseBuffer.put("ok".getBytes());
+				return null;
 			}
 		});
 		server.bind(serverChannel);
@@ -108,11 +121,11 @@ public class RemotingTest {
 			}
 		}).start();
 
-//		try {
-//			proxy.send("hi".getBytes(), 0, 2);
-//		} catch (ChannelException e) {
-//			assertEquals("channel broken with unknown error", e.getMessage());
-//			throw e;
-//		}
+		// try {
+		// proxy.send("hi".getBytes(), 0, 2);
+		// } catch (ChannelException e) {
+		// assertEquals("channel broken with unknown error", e.getMessage());
+		// throw e;
+		// }
 	}
 }

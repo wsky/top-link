@@ -1,13 +1,12 @@
 package com.taobao.top.link.remoting;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 // high-level abstract remoting server
 public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHandler {
 	@Override
-	public void onRequest(ByteBuffer requestBuffer, ByteBuffer responseBuffer) {
-		// TODO:resolve request by sink
+	public MethodReturn onMethodCall(MethodCall methodCall) {
+		return null;
 	}
 
 	private HashMap<String, Object> services;
@@ -19,4 +18,5 @@ public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHa
 	public void addService(Object serviceObject) {
 		this.services.put(serviceObject.getClass().getName(), serviceObject);
 	}
+
 }
