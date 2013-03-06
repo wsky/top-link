@@ -1,11 +1,9 @@
 package com.taobao.top.link.remoting;
 
-import java.nio.ByteBuffer;
-
 public class SynchronizedRemotingCallback extends RemotingCallback {
 	public Object sync = new Object();
 	
-	private ByteBuffer resultBuffer;
+	private MethodReturn methodReturn;
 	private boolean sucess;
 	private Throwable failure;
 
@@ -17,14 +15,14 @@ public class SynchronizedRemotingCallback extends RemotingCallback {
 		return this.failure;
 	}
 	
-	public ByteBuffer getResult() {
-		return this.resultBuffer;
+	public MethodReturn getMethodReturn() {
+		return this.methodReturn;
 	}
 
 	@Override
-	public void onReceive(ByteBuffer buffer) {
+	public void onMethodReturn(MethodReturn methodReturn) {
 		this.sucess = true;
-		this.resultBuffer = buffer;
+		this.methodReturn = methodReturn;
 		this.nofityCall();
 	}
 

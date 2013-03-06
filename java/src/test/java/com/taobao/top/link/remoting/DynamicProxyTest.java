@@ -15,7 +15,7 @@ import com.taobao.top.link.websocket.WebSocketServerChannel;
 public class DynamicProxyTest {
 	
 	@Test
-	public void call_test() throws URISyntaxException, ChannelException {
+	public void invoke_test() throws URISyntaxException, ChannelException {
 		
 	}
 	

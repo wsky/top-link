@@ -1,13 +1,20 @@
 package com.taobao.top.link.remoting;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import remoting.protocol.NotSupportedException;
+import remoting.protocol.tcp.TcpContentDelimiter;
+import remoting.protocol.tcp.TcpOperations;
+import remoting.protocol.tcp.TcpProtocolHandle;
+
 import com.taobao.top.link.BufferManager;
-import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
@@ -15,38 +22,83 @@ import com.taobao.top.link.handler.ChannelHandler;
 
 public class RemotingClientChannelHandler extends ChannelHandler {
 	private Logger logger;
-	private AtomicInteger flag;
+	private AtomicInteger flagAtomic;
 	private HashMap<String, RemotingCallback> callbacks = new HashMap<String, RemotingCallback>();
 
-	public RemotingClientChannelHandler(LoggerFactory loggerFactory, AtomicInteger flag) {
+	public RemotingClientChannelHandler(LoggerFactory loggerFactory, AtomicInteger flagAtomic) {
 		this.logger = loggerFactory.create(this);
-		this.flag = flag;
+		this.flagAtomic = flagAtomic;
 	}
 
-	public ByteBuffer pending(ClientChannel channel, RemotingCallback handler) throws ChannelException {
-		int flag = this.flag.incrementAndGet();
-		ByteBuffer buffer = BufferManager.getBuffer();
-		buffer.putInt(flag);
+	// act as formatter sink
+	public ByteBuffer pending(RemotingCallback handler, short operation,
+			HashMap<String, Object> transportHeaders, MethodCall methodCall) throws FormatterException {
+		byte[] data = this.serializeMethodCall(methodCall);
+		String flag = Integer.toString(this.flagAtomic.incrementAndGet());
 
-		handler.flag = Integer.toString(flag);
+		ByteBuffer buffer = BufferManager.getBuffer();
+		TcpProtocolHandle handle = new TcpProtocolHandle(buffer);
+		handle.WritePreamble();
+		handle.WriteMajorVersion();
+		handle.WriteMinorVersion();
+		handle.WriteOperation(TcpOperations.Request);
+		handle.WriteContentDelimiter(TcpContentDelimiter.ContentLength);
+		handle.WriteContentLength(data.length);
+		transportHeaders.put(RemotingTransportHeader.Flag, flag);
+		handle.WriteTransportHeaders(transportHeaders);
+		handle.WriteContent(data);
+
+		handler.flag = flag;
 		this.callbacks.put(handler.flag, handler);// concurrent?
-		this.logger.debug("sending request of rpc-call#%s", flag);
+		this.logger.debug("pending methodCall#%s", flag);
 
 		return buffer;
 	}
 
-	public void cancel(RemotingCallback handler) {
-		this.callbacks.remove(handler.flag);
+	public void cancel(RemotingCallback callback) {
+		this.callbacks.remove(callback.flag);
 	}
 
 	@Override
 	public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
-		String flag = dataBuffer.getInt() + "";// poor perf?
-		RemotingCallback handler = this.callbacks.remove(flag);
-		if (handler != null) {
-			this.logger.debug("receive reply of rpc-call#%s", flag);
-			handler.onReceive(dataBuffer);
+		TcpProtocolHandle protocol = new TcpProtocolHandle(dataBuffer);
+		protocol.ReadPreamble();
+		protocol.ReadMajorVersion();
+		protocol.ReadMinorVersion();
+
+		short operation = protocol.ReadOperation();
+		if (operation != TcpOperations.Reply)
+			return;
+
+		protocol.ReadContentDelimiter();
+		protocol.ReadContentLength();
+
+		HashMap<String, Object> transportHeaders = null;
+		try {
+			transportHeaders = protocol.ReadTransportHeaders();
+		} catch (NotSupportedException e) {
+			e.printStackTrace();
 		}
+		Object flag;
+		if (transportHeaders == null ||
+				(flag = transportHeaders.get(RemotingTransportHeader.Flag)) == null)
+			return;
+
+		this.logger.debug("receive methodReturn of methodCall#%s", flagAtomic);
+
+		RemotingCallback handler = this.callbacks.remove(flag);
+		if (handler == null)
+			return;
+
+		MethodReturn methodReturn = null;
+		try {
+			methodReturn = this.deserializeMethodReturn(protocol.ReadContent());
+		} catch (FormatterException e) {
+			handler.onException(e);
+		}
+
+		if (methodReturn != null)
+			handler.onMethodReturn(methodReturn);
 	}
 
 	@Override
@@ -60,5 +112,26 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 			}
 		}
 		this.callbacks = new HashMap<String, RemotingCallback>();
+	}
+
+	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos.writeObject(methodCall);
+			return bos.toByteArray();
+		} catch (Exception e) {
+			throw new FormatterException("serialize MethodCall error", e);
+		}
+	}
+
+	public MethodReturn deserializeMethodReturn(byte[] input) throws FormatterException {
+		try {
+			ByteArrayInputStream bis = new ByteArrayInputStream(input);
+			ObjectInputStream ois = new ObjectInputStream(bis);
+			return (MethodReturn) ois.readObject();
+		} catch (Exception e) {
+			throw new FormatterException("deserialize MethodReturn error", e);
+		}
 	}
 }

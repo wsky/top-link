@@ -7,10 +7,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-import remoting.protocol.NotSupportedException;
-import remoting.protocol.tcp.TcpContentDelimiter;
 import remoting.protocol.tcp.TcpOperations;
-import remoting.protocol.tcp.TcpProtocolHandle;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
@@ -34,9 +31,6 @@ public class DynamicProxy implements InvocationHandler {
 		return this.channel;
 	}
 
-	// high-level remoting
-
-	// eg. remote.rem
 	private String uriString;
 
 	protected Object create(Class<?> interfaceClass, URI remoteUri) {
@@ -56,81 +50,58 @@ public class DynamicProxy implements InvocationHandler {
 		// do not support method overloaded currently
 		methodCall.MethodSignature = null;
 		methodCall.Args = args;
-		return this.call(methodCall);
+
+		MethodReturn methodReturn = this.invoke(methodCall);
+
+		if (methodReturn.Exception == null)
+			return methodReturn.ReturnValue;
+
+		throw methodReturn.Exception;
 	}
 
-	// low-level remoting
-
-	public MethodResponse call(MethodCall methodCall) throws ChannelException {
-		return this.call(methodCall, this.defaultTimeout);
+	public MethodReturn invoke(MethodCall methodCall) throws RemotingException, FormatterException {
+		return this.invoke(methodCall, this.defaultTimeout);
 	}
 
-	public MethodResponse call(MethodCall methodCall, int executionTimeoutMillisecond) throws ChannelException {
+	public MethodReturn invoke(MethodCall methodCall, int executionTimeoutMillisecond) throws RemotingException, FormatterException {
 		SynchronizedRemotingCallback syncCallback = new SynchronizedRemotingCallback();
-		final ByteBuffer buffer = this.channelHandler.pending(this.channel, syncCallback);
 
-		TcpProtocolHandle handle = new TcpProtocolHandle(buffer);
-		handle.WritePreamble();
-		handle.WriteMajorVersion();
-		handle.WriteMinorVersion();
-		handle.WriteOperation(TcpOperations.Request);
-		handle.WriteContentDelimiter(TcpContentDelimiter.ContentLength);
-		handle.WriteContentLength(1024);
-		HashMap<String, Object> headers = new HashMap<String, Object>();
-		headers.put(TcpTransportHeader.RequestUri, this.uriString);
-		headers.put(RemotingTransportHeader.Flag, 0);
-		handle.WriteTransportHeaders(headers);
-		handle.WriteContent(null);
+		HashMap<String, Object> transportHeaders = new HashMap<String, Object>();
+		transportHeaders.put(TcpTransportHeader.RequestUri, this.uriString);
 
-		ByteBuffer ret = this.send(buffer, syncCallback, executionTimeoutMillisecond);
-		handle = new TcpProtocolHandle(buffer);
-		handle.ReadPreamble();
-		handle.ReadMajorVersion();
-		handle.ReadMinorVersion();
-		handle.ReadOperation();
-		handle.ReadContentDelimiter();
-		handle.ReadContentLength();
-		try {
-			handle.ReadTransportHeaders();
-		} catch (NotSupportedException e) {
-			e.printStackTrace();
-		}
-		handle.ReadContent();
-		return null;
+		return this.send(this.channelHandler.pending(syncCallback,
+				TcpOperations.Request,
+				transportHeaders,
+				methodCall),
+				syncCallback,
+				executionTimeoutMillisecond);
 	}
 
-	public ByteBuffer send(byte[] data, int offset, int length) throws ChannelException {
-		return this.send(data, offset, length, this.defaultTimeout);
-	}
-
-	public ByteBuffer send(byte[] data,
-			int offset, int length, int executionTimeoutMillisecond) throws ChannelException {
-		SynchronizedRemotingCallback syncCallback = new SynchronizedRemotingCallback();
-		final ByteBuffer buffer = this.channelHandler.pending(this.channel, syncCallback);
-		buffer.put(data, offset, length);
-		return this.send(buffer, syncCallback, executionTimeoutMillisecond);
-	}
-
-	private ByteBuffer send(final ByteBuffer buffer,
+	private MethodReturn send(final ByteBuffer buffer,
 			SynchronizedRemotingCallback syncCallback,
-			int executionTimeoutMillisecond) throws ChannelException {
+			int executionTimeoutMillisecond) throws RemotingException {
 		// reset buffer limit and position for send
 		buffer.flip();
-		this.channel.send(buffer, new SendHandler() {
-			@Override
-			public void onSendComplete() {
-				BufferManager.returnBuffer(buffer);
-			}
-		});
+		
+		try {
+			this.channel.send(buffer, new SendHandler() {
+				@Override
+				public void onSendComplete() {
+					BufferManager.returnBuffer(buffer);
+				}
+			});
+		} catch (ChannelException e) {
+			throw unexcepException(syncCallback, "send error", e);
+		}
 
 		// send and receive maybe fast enough
 		if (syncCallback.isSucess())
-			return syncCallback.getResult();
+			return syncCallback.getMethodReturn();
 
 		int i = 0, wait = 100;
 		while (true) {
 			if (syncCallback.isSucess())
-				return syncCallback.getResult();
+				return syncCallback.getMethodReturn();
 
 			if (syncCallback.getFailure() != null)
 				throw unexcepException(syncCallback, "remoting call error", syncCallback.getFailure());
@@ -151,11 +122,11 @@ public class DynamicProxy implements InvocationHandler {
 		}
 	}
 
-	private ChannelException unexcepException(
+	private RemotingException unexcepException(
 			SynchronizedRemotingCallback callback, String message, Throwable innerException) {
 		this.channelHandler.cancel(callback);
 		return innerException != null
-				? new ChannelException(message, innerException)
-				: new ChannelException(message);
+				? new RemotingException(message, innerException)
+				: new RemotingException(message);
 	}
 }
