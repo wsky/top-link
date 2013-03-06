@@ -39,7 +39,6 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		Object flag = transportHeaders.get(RemotingTransportHeader.Flag);
 		transportHeaders.clear();
 		transportHeaders.put(RemotingTransportHeader.Flag, flag);
-		System.out.println("receive methodCall#" + flag);
 
 		// get method return
 		MethodCall methodCall = null;

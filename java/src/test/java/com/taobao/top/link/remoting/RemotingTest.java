@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 
 import org.junit.Test;
 
@@ -38,7 +37,6 @@ public class RemotingTest {
 		} catch (FormatterException e) {
 			e.printStackTrace();
 		}
-		methodReturn.Exception.printStackTrace();
 		assertNull(methodReturn.Exception);
 		assertEquals("ok", methodReturn.ReturnValue);
 	}
@@ -61,8 +59,8 @@ public class RemotingTest {
 		assertEquals(proxy1.getChannel(), proxy2.getChannel());
 	}
 
-	@Test(expected = ChannelException.class)
-	public void execution_timeout_test() throws ChannelException, URISyntaxException {
+	@Test(expected = RemotingException.class)
+	public void execution_timeout_test() throws URISyntaxException, ChannelException, RemotingException, FormatterException {
 		URI uri = new URI("ws://localhost:9003/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		Endpoint server = new Endpoint();
@@ -79,16 +77,17 @@ public class RemotingTest {
 		});
 		server.bind(serverChannel);
 
+		DynamicProxy proxy = RemotingService.connect(uri);
+
 		try {
-			DynamicProxy proxy = RemotingService.connect(uri);
-			// proxy.send("hi".getBytes(), 0, 2, 500);
-		} catch (ChannelException e) {
+			proxy.invoke(new MethodCall(), 2000);
+		} catch (RemotingException e) {
 			assertEquals("remoting execution timeout", e.getMessage());
 			throw e;
 		}
 	}
 
-	@Test(expected = ChannelException.class)
+	@Test(expected = RemotingException.class)
 	public void channel_broken_while_calling_test() throws Exception {
 		URI uri = new URI("ws://localhost:9004/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
@@ -121,11 +120,16 @@ public class RemotingTest {
 			}
 		}).start();
 
-		// try {
-		// proxy.send("hi".getBytes(), 0, 2);
-		// } catch (ChannelException e) {
-		// assertEquals("channel broken with unknown error", e.getMessage());
-		// throw e;
-		// }
+		try {
+			proxy.invoke(new MethodCall());
+		} catch (RemotingException e) {
+			assertEquals("channel broken with unknown error", e.getMessage());
+			throw e;
+		}
+	}
+	
+	@Test
+	public void transportHeaders_got_error_statusCode_test() {
+		
 	}
 }

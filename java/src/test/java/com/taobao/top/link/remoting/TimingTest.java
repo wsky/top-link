@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 
 import org.junit.Test;
 
@@ -20,16 +19,15 @@ public class TimingTest {
 	private WebSocketChannelSelectHandler selectHandler = new WebSocketChannelSelectHandler(new DefaultLoggerFactory());
 
 	@Test
-	public void timing_test() throws URISyntaxException, ChannelException, InterruptedException {
+	public void timing_test() throws URISyntaxException, RemotingException, FormatterException, ChannelException {
 		final URI uri = new URI("ws://localhost:9010/link");
 		this.runServer(uri);
 
-		byte[] data = new byte[4];
 		DynamicProxy proxy = RemotingService.connect(uri);
 		for (int i = 0; i < 10; i++) {
-			ByteBuffer.wrap(data).putInt(i);
-			// ByteBuffer resultBuffer = proxy.send(data, 0, 4);
-			// assertEquals(i, resultBuffer.getInt());
+			MethodCall methodCall = new MethodCall();
+			methodCall.Args = new Object[] { i };
+			assertEquals(i, proxy.invoke(methodCall).ReturnValue);
 		}
 	}
 
@@ -57,8 +55,8 @@ public class TimingTest {
 		this.runServer(uri);
 
 		// proxy1/2 use different channel but same remote server
-		final DynamicProxy proxy1 = RemotingService.proxy(selectHandler.connect(uri, 5000, null));
-		final DynamicProxy proxy2 = RemotingService.proxy(selectHandler.connect(uri, 5000, null));
+		final DynamicProxy proxy1 = RemotingService.proxy(selectHandler.connect(uri, 2000, null));
+		final DynamicProxy proxy2 = RemotingService.proxy(selectHandler.connect(uri, 2000, null));
 
 		this.runThread(proxy1, uri, 0, 100);
 		this.runThread(proxy2, uri, 100, 200);
@@ -73,11 +71,10 @@ public class TimingTest {
 			@Override
 			public void run() {
 				try {
-					byte[] data = new byte[4];
 					for (int i = from; i < to; i++) {
-						ByteBuffer.wrap(data).putInt(i);
-						// ByteBuffer resultBuffer = proxy.send(data, 0, 4);
-						// assertEquals(i, resultBuffer.getInt());
+						MethodCall methodCall = new MethodCall();
+						methodCall.Args = new Object[] { i };
+						assertEquals(i, proxy.invoke(methodCall).ReturnValue);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -94,26 +91,11 @@ public class TimingTest {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
-			// @Override
-			// public void onRequest(ByteBuffer requestBuffer, ByteBuffer
-			// responseBuffer) {
-			// try {
-			// Thread.sleep(10);
-			// } catch (InterruptedException e) {
-			// e.printStackTrace();
-			// }
-			// responseBuffer.put(new byte[] {
-			// requestBuffer.get(),
-			// requestBuffer.get(),
-			// requestBuffer.get(),
-			// requestBuffer.get() });
-			// }
-
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				MethodReturn methodReturn = new MethodReturn();
 				methodReturn.ReturnValue = methodCall.Args[0];
-				return null;
+				return methodReturn;
 			}
 		});
 		server.bind(serverChannel);

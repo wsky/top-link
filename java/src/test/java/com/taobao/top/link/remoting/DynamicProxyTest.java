@@ -13,12 +13,12 @@ import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 // high-level abstract remoting test
 public class DynamicProxyTest {
-	
+
 	@Test
 	public void invoke_test() throws URISyntaxException, ChannelException {
-		
+		assertEquals(true, true);
 	}
-	
+
 	public void dynamicProxy_test() throws Exception {
 		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
 		remotingServerChannelHandler.addService(new SampleService());
@@ -29,7 +29,8 @@ public class DynamicProxyTest {
 		server.setChannelHandler(remotingServerChannelHandler);
 		server.bind(serverChannel);
 
-		//SampleServiceInterface sampleService = (SampleServiceInterface) RemotingService.connect(uri, SampleServiceInterface.class);
-		//assertEquals("hi", sampleService.echo("hi"));
+		// SampleServiceInterface sampleService = (SampleServiceInterface)
+		// RemotingService.connect(uri, SampleServiceInterface.class);
+		// assertEquals("hi", sampleService.echo("hi"));
 	}
 }

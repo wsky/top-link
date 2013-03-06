@@ -45,7 +45,6 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 		handle.WriteOperation(TcpOperations.Request);
 		handle.WriteContentDelimiter(TcpContentDelimiter.ContentLength);
 		handle.WriteContentLength(data.length);
-		System.out.println(data.length);
 		transportHeaders.put(RemotingTransportHeader.Flag, flag);
 		handle.WriteTransportHeaders(transportHeaders);
 		handle.WriteContent(data);
