@@ -2,7 +2,6 @@ package com.taobao.top.link.remoting;
 
 import static org.junit.Assert.*;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 
 import org.junit.Test;
