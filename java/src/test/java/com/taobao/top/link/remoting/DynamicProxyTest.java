@@ -17,6 +17,11 @@ public class DynamicProxyTest {
 		DefaultRemotingServerChannelHandler handler = this.runDefaultServer(uri);
 		handler.addProcessor("sample", new SampleService());
 
+		// java.lang.IllegalArgumentException:
+		// com.taobao.top.link.remoting.DynamicProxyTest$SampleService is not an
+		// interface
+		// SampleService sampleService = (SampleService)
+		// RemotingService.connect(uri, SampleService.class);
 		SampleServiceInterface sampleService = (SampleServiceInterface) RemotingService.connect(uri, SampleServiceInterface.class);
 		assertEquals("hi", sampleService.echo("hi"));
 	}
