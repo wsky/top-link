@@ -1,11 +1,11 @@
 top-link
 ========
 
+[![Build Status](https://travis-ci.org/wsky/top-link.png?branch=master)](https://travis-ci.org/wsky/top-link)
+
 design draft: embedded duplex multi-channel endpoint and connection management for c#/java/...
 
 https://gist.github.com/4680940
-
-[![Build Status](https://travis-ci.org/wsky/top-link.png?branch=master)](https://travis-ci.org/wsky/top-link)
 
 ## Build
 
@@ -66,42 +66,47 @@ try {
 
 ## Build-in RPC
 
-Low-Level implementation to support application extension.
+- Low-Level implementation to support application extension.
 
 Server Bind
 ```java
-URI uri = new URI("ws://localhost:9001/link");
+URI uri = new URI("ws://localhost/");
 WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 Endpoint server = new Endpoint();
-server.setChannelHandler(new RemotingServerChannelHandler() {
-	@Override
-	public byte[] onRequest(ByteBuffer buffer) {
-		return "ok".getBytes();
-	}
-});
+server.setChannelHandler(new DefaultRemotingServerChannelHandler());
 server.bind(serverChannel);
 ```
 
-Send
+//Send
 ```java
-ByteBuffer resultBuffer = RemotingService.connect(uri).send("hi".getBytes(), 0, 2);
-assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
+//ByteBuffer resultBuffer = RemotingService.connect(uri).send("hi".getBytes(), 0, 2);
+//assertEquals("ok", new String(new byte[] { resultBuffer.get(), resultBuffer.get() }));
+//hold
 ```
 
-Call
+invoke
 ```java
-MethodResponse ret = RemotingService.connect(uri).call(new MethodCall());
-if(ret.Exception!=null)
-	throw ret.Exception;
-return ret.ReturnValue;
+MethodReturn methodReturn = RemotingService.connect(uri).invoke(new MethodCall());
+if(methodReturn.Exception != null)
+	throw methodReturn.Exception;
+return methodReturn.ReturnValue;
 ```
 
-High-Level Abstract Remoting
-	- IOC support at server/client
-	- Extendable sink design, like custom FormatterSink/TransportSink
+- High-Level Abstract Remoting
+	- [X] Dynamic Proxy for Java Interface
+	- [ ] IOC support at server/client
+	- [ ] Extendable sink design, like custom FormatterSink/TransportSink
 
 ```java
-SampleService sampleService = (SampleService) RemotingService.connect(uri, SampleService.class);
+DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
+handler.addProcessor("sample", new SampleService());
+
+WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+final Endpoint server = new Endpoint();
+server.setChannelHandler(remotingServerChannelHandler);
+server.bind(serverChannel);
+
+SampleService sampleService = (SampleService) RemotingService.connect("ws://localhost/sample", SampleService.class);
 assertEquals("hi", sampleService.echo("hi"));
 ```
 

@@ -29,14 +29,11 @@ public class DynamicProxyTest {
 	@Test(expected = RemotingException.class)
 	public void invoke_throw_not_UndeclaredThrowable_test() throws RemotingException, Exception {
 		URI uri = new URI("ws://localhost:9021/sample");
-		DefaultRemotingServerChannelHandler handler = this.runDefaultServer(uri);
-		handler.addProcessor("sample", new SampleService());
+		this.runDefaultServer(uri);
 
 		DynamicProxy proxy = RemotingService.connect(uri);
-
 		MethodCall methodCall = new MethodCall();
 		methodCall.Args = new Object[] { "hi" };
-
 		MethodReturn methodReturn = proxy.invoke(methodCall);
 		throw new RemotingException("", methodReturn.Exception);
 	}
