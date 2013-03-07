@@ -5,6 +5,8 @@ design draft: embedded duplex multi-channel endpoint and connection management f
 
 https://gist.github.com/4680940
 
+[![Build Status](https://travis-ci.org/wsky/top-link.png?branch=master)](https://travis-ci.org/wsky/top-link)
+
 ## Build
 
 set external repo first
