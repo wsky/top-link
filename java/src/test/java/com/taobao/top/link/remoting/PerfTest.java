@@ -1,7 +1,5 @@
 package com.taobao.top.link.remoting;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
