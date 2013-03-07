@@ -22,10 +22,10 @@ public class DynamicProxy implements InvocationHandler {
 	private ClientChannel channel;
 	private RemotingClientChannelHandler channelHandler;
 
-	protected DynamicProxy(ClientChannel channel, RemotingClientChannelHandler handler) {
+	protected DynamicProxy(URI remoteUri, ClientChannel channel, RemotingClientChannelHandler handler) {
 		this.channel = channel;
 		this.channelHandler = handler;
-		this.uriString = "";
+		this.uriString = remoteUri != null ? remoteUri.toString() : "";
 	}
 
 	protected ClientChannel getChannel() {
@@ -48,8 +48,8 @@ public class DynamicProxy implements InvocationHandler {
 		methodCall.Uri = this.uriString;
 		methodCall.MethodName = method.getName();
 		methodCall.TypeName = method.getDeclaringClass().getName();
-		// do not support method overloaded currently
-		methodCall.MethodSignature = null;
+		// support method overloaded just in java
+		methodCall.MethodSignature = method.getParameterTypes();
 		methodCall.Args = args;
 
 		MethodReturn methodReturn = this.invoke(methodCall);
@@ -57,6 +57,10 @@ public class DynamicProxy implements InvocationHandler {
 		if (methodReturn.Exception == null)
 			return methodReturn.ReturnValue;
 
+		// https://github.com/wsky/top-link/issues/18
+		// will course java.lang.reflect.UndeclaredThrowableException
+		// throw new RemotingException("invoke got error",
+		// methodReturn.Exception);
 		throw methodReturn.Exception;
 	}
 
@@ -83,7 +87,7 @@ public class DynamicProxy implements InvocationHandler {
 			int executionTimeoutMillisecond) throws RemotingException {
 		// reset buffer limit and position for send
 		buffer.flip();
-		
+
 		try {
 			this.channel.send(buffer, new SendHandler() {
 				@Override

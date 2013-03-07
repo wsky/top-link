@@ -76,7 +76,7 @@ public class TimingTest {
 						methodCall.Args = new Object[] { i };
 						assertEquals(i, proxy.invoke(methodCall).ReturnValue);
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 

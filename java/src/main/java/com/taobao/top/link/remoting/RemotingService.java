@@ -20,12 +20,16 @@ public class RemotingService {
 		return connect(remoteUri).create(interfaceClass, remoteUri);
 	}
 
-	public static DynamicProxy connect(URI uri) throws ChannelException {
-		return proxy(selectHandler.getClientChannel(uri));
+	public static DynamicProxy connect(URI remoteUri) throws ChannelException {
+		return proxy(selectHandler.getClientChannel(remoteUri), remoteUri);
 	}
 
 	protected static DynamicProxy proxy(ClientChannel channel) {
+		return proxy(channel, null);
+	}
+
+	protected static DynamicProxy proxy(ClientChannel channel, URI remoteUri) {
 		channel.setChannelHandler(channelHandler);
-		return new DynamicProxy(channel, channelHandler);
+		return new DynamicProxy(remoteUri, channel, channelHandler);
 	}
 }

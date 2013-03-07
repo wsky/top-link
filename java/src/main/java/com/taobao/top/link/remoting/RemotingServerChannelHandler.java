@@ -46,7 +46,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		try {
 			methodCall = this.deserializeMethodCall(protocol.ReadContent());
 			methodReturn = this.onMethodCall(methodCall);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			methodReturn = new MethodReturn();
 			methodReturn.Exception = e;
 		}
@@ -84,7 +84,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		});
 	}
 
-	public abstract MethodReturn onMethodCall(MethodCall methodCall);
+	public abstract MethodReturn onMethodCall(MethodCall methodCall) throws Throwable;
 
 	private byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
 		try {

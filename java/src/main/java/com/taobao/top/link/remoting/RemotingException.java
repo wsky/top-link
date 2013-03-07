@@ -1,6 +1,6 @@
 package com.taobao.top.link.remoting;
 
-public class RemotingException extends Exception {
+public class RemotingException extends Throwable {
 
 	private static final long serialVersionUID = 1231494988352101100L;
 

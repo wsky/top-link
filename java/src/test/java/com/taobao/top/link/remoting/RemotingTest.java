@@ -88,7 +88,7 @@ public class RemotingTest {
 	}
 
 	@Test(expected = RemotingException.class)
-	public void channel_broken_while_calling_test() throws Exception {
+	public void channel_broken_while_calling_test() throws Throwable {
 		URI uri = new URI("ws://localhost:9004/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
 		final Endpoint server = new Endpoint();
