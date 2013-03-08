@@ -1,0 +1,1 @@
+java -Xmx128m -cp ".\*;." RemotingServerTest

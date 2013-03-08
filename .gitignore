@@ -12,6 +12,7 @@
 
 target
 *.com
+build
 
 # csharp
 packages
