@@ -13,7 +13,7 @@ import com.taobao.top.link.websocket.WebSocketServerChannel;
 public class PerfTest {
 	private static DynamicProxy proxy;
 
-	@BeforeClass
+	//@BeforeClass
 	public static void connect() throws URISyntaxException, ChannelException {
 		if (proxy == null) {
 			URI uri = new URI("ws://localhost:9000/");
@@ -23,8 +23,8 @@ public class PerfTest {
 
 	@Test
 	public void remoting_test() throws FormatterException, RemotingException, URISyntaxException, ChannelException {
-		connect();// for jmeter
-		proxy.invoke(new MethodCall());
+		//connect();// for jmeter
+		//proxy.invoke(new MethodCall());
 	}
 
 	public void remoting_sequence_test() throws URISyntaxException, ChannelException {
