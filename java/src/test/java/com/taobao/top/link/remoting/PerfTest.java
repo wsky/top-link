@@ -3,6 +3,7 @@ package com.taobao.top.link.remoting;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.taobao.top.link.ChannelException;
@@ -10,9 +11,20 @@ import com.taobao.top.link.Endpoint;
 import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 public class PerfTest {
-	@Test
-	public void request_reply_test() {
+	private static DynamicProxy proxy;
 
+	@BeforeClass
+	public static void connect() throws URISyntaxException, ChannelException {
+		if (proxy == null) {
+			URI uri = new URI("ws://localhost:9000/");
+			proxy = RemotingService.connect(uri);
+		}
+	}
+
+	@Test
+	public void remoting_test() throws FormatterException, RemotingException, URISyntaxException, ChannelException {
+		connect();// for jmeter
+		proxy.invoke(new MethodCall());
 	}
 
 	public void remoting_sequence_test() throws URISyntaxException, ChannelException {
