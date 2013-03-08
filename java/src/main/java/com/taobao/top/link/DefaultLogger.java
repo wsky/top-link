@@ -2,9 +2,49 @@ package com.taobao.top.link;
 
 public class DefaultLogger implements Logger {
 	private String type;
+	private boolean isDebugEnable;
+	private boolean isInfoEnable;
+	private boolean isWarnEnable;
+	private boolean isErrorEnable;
+	private boolean isFatalEnable;
 
-	public DefaultLogger(String type) {
+	public DefaultLogger(String type, 
+			boolean isDebugEnable,
+			boolean isInfoEnable,
+			boolean isWarnEnable,
+			boolean isErrorEnable,
+			boolean isFatalEnable) {
 		this.type = type;
+		this.isDebugEnable = isDebugEnable;
+		this.isInfoEnable = isInfoEnable;
+		this.isWarnEnable = isWarnEnable;
+		this.isErrorEnable = isErrorEnable;
+		this.isFatalEnable = isFatalEnable;
+	}
+
+	@Override
+	public boolean isDebugEnable() {
+		return this.isDebugEnable;
+	}
+
+	@Override
+	public boolean isInfoEnable() {
+		return this.isInfoEnable;
+	}
+
+	@Override
+	public boolean isWarnEnable() {
+		return this.isWarnEnable;
+	}
+
+	@Override
+	public boolean isErrorEnable() {
+		return this.isErrorEnable;
+	}
+
+	@Override
+	public boolean isFatalEnable() {
+		return this.isFatalEnable;
 	}
 
 	@Override

@@ -31,21 +31,21 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 		this.flagAtomic = flagAtomic;
 	}
 
-	public ByteBuffer pending(RemotingCallback handler, 
+	public ByteBuffer pending(RemotingCallback handler,
 			short operation,
-			HashMap<String, Object> transportHeaders, 
-			MethodCall methodCall) 
-					throws FormatterException {
+			HashMap<String, Object> transportHeaders,
+			MethodCall methodCall)
+			throws FormatterException {
 		byte[] data = this.serializeMethodCall(methodCall);
 		return this.pending(handler, operation, transportHeaders, data, 0, data.length);
 	}
 
 	// act as formatter sink
-	public ByteBuffer pending(RemotingCallback handler, 
+	public ByteBuffer pending(RemotingCallback handler,
 			short operation,
-			HashMap<String, Object> transportHeaders, 
-			byte[] data, 
-			int dataOffset, 
+			HashMap<String, Object> transportHeaders,
+			byte[] data,
+			int dataOffset,
 			int dataLength) {
 		String flag = Integer.toString(this.flagAtomic.incrementAndGet());
 
@@ -63,7 +63,8 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 
 		handler.flag = flag;
 		this.callbacks.put(handler.flag, handler);// concurrent?
-		this.logger.debug("pending methodCall#%s", flag);
+		if (this.logger.isDebugEnable())
+			this.logger.debug("pending methodCall#%s", flag);
 
 		return requestBuffer;
 	}
@@ -97,7 +98,8 @@ public class RemotingClientChannelHandler extends ChannelHandler {
 				(flag = transportHeaders.get(RemotingTransportHeader.Flag)) == null)
 			return;
 
-		this.logger.debug("receive methodReturn of methodCall#%s", flag);
+		if (this.logger.isDebugEnable())
+			this.logger.debug("receive methodReturn of methodCall#%s", flag);
 
 		RemotingCallback handler = this.callbacks.remove(flag);
 		if (handler == null)
