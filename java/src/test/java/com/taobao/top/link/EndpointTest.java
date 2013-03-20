@@ -96,10 +96,12 @@ public class EndpointTest {
 	@Test
 	public void send_error_and_reget_test() throws URISyntaxException, InterruptedException, ChannelException {
 		URI uri = new URI("ws://localhost:8005/link");
-		Endpoint endpoint = run(uri.getPort(), 3);
+		Endpoint endpoint = run(uri.getPort(), 2);
+		ChannalHandlerWrapper handlerWrapper = new ChannalHandlerWrapper();
+		endpoint.setChannelHandler(handlerWrapper);
 
 		EndpointProxy target = endpoint.getEndpoint(uri);
-		Thread.sleep(3500);
+		Thread.sleep(3000);
 
 		try {
 			target.send(ByteBuffer.wrap("hi".getBytes()));
@@ -110,20 +112,21 @@ public class EndpointTest {
 
 		target = endpoint.getEndpoint(uri);
 		target.send(ByteBuffer.wrap("hi".getBytes()));
-		Thread.sleep(1000);
+		handlerWrapper.waitHandler(1000);
+		handlerWrapper.assertHandler(1, 0);
 	}
 
 	@Test
 	public void getConnected_test() {
-		
+
 	}
-	
+
 	@Test
 	public void connected_and_close_then_remove_sender_test() {
-		
+
 	}
-	
-	private Endpoint run(int port, int maxIdle) throws InterruptedException {
+
+	private Endpoint run(int port, int maxIdleSecond) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", port);
 		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new SimpleChannelHandler() {
@@ -133,9 +136,9 @@ public class EndpointTest {
 				System.out.println(dataString);
 			}
 		});
-		serverChannel.setMaxIdleTimeSeconds(maxIdle);
+		serverChannel.setMaxIdleTimeSeconds(maxIdleSecond);
 		endpoint.bind(serverChannel);
-		Thread.sleep(1000);
+		Thread.sleep(500);
 		return endpoint;
 	}
 }
