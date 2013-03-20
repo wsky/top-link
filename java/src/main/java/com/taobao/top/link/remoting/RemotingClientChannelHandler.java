@@ -101,15 +101,15 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		if (this.logger.isDebugEnable())
 			this.logger.debug("receive methodReturn of methodCall#%s", flag);
 
-		RemotingCallback handler = this.callbacks.remove(flag);
-		if (handler == null)
+		RemotingCallback callback = this.callbacks.remove(flag);
+		if (callback == null)
 			return;
 
 		Object statusCode = transportHeaders.get(TcpTransportHeader.StatusCode);
 		Object statusPhrase = transportHeaders.get(TcpTransportHeader.StatusPhrase);
 		if (statusCode != null &&
 				Integer.parseInt(statusCode.toString()) > 0) {
-			handler.onException(statusPhrase != null ?
+			callback.onException(statusPhrase != null ?
 					new Exception(String.format("remote reutrn error#%s: %s" + statusCode + statusPhrase)) :
 					new Exception("remote reutrn unknow error#" + statusCode));
 			return;
@@ -119,12 +119,12 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		try {
 			methodReturn = this.deserializeMethodReturn(protocol.ReadContent());
 		} catch (FormatterException e) {
-			handler.onException(e);
+			callback.onException(e);
 			return;
 		}
 
 		try {
-			handler.onMethodReturn(methodReturn);
+			callback.onMethodReturn(methodReturn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
