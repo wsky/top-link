@@ -9,8 +9,8 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 
+import com.taobao.top.link.ChannelSender.SendHandler;
 import com.taobao.top.link.EndpointContext;
-import com.taobao.top.link.ClientChannel.SendHandler;
 
 public class WebSocketEndpointContext extends EndpointContext {
 	private ChannelHandlerContext ctx;

@@ -11,12 +11,12 @@ import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.Endpoint;
-import com.taobao.top.link.websocket.WebSocketChannelSelectHandler;
+import com.taobao.top.link.websocket.WebSocketClientChannelSelector;
 import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 // rpc timing is important for overlay-io/reused-channel
 public class TimingTest {
-	private WebSocketChannelSelectHandler selectHandler = new WebSocketChannelSelectHandler(new DefaultLoggerFactory());
+	private WebSocketClientChannelSelector selectHandler = new WebSocketClientChannelSelector(new DefaultLoggerFactory());
 
 	@Test
 	public void timing_test() throws URISyntaxException, RemotingException, FormatterException, ChannelException {

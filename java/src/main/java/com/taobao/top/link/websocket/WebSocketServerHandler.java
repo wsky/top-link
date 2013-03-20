@@ -24,6 +24,11 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.jboss.netty.util.CharsetUtil;
 
+import com.taobao.top.link.ChannelSender;
+import com.taobao.top.link.Endpoint;
+import com.taobao.top.link.EndpointProxy;
+import com.taobao.top.link.Identity;
+import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.handler.ChannelHandler;
@@ -36,9 +41,17 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 	private WebSocketServerHandshaker handshaker;
 	private ChannelGroup allChannels;
 
+	private Endpoint endpoint;
+	private EndpointProxy endpointProxy;
+	private ChannelSender sender;
+
 	public WebSocketServerHandler(LoggerFactory loggerFactory,
-			String url, ChannelHandler handler, ChannelGroup channelGroup) {
+			Endpoint endpoint,
+			String url,
+			ChannelHandler handler,
+			ChannelGroup channelGroup) {
 		this.logger = loggerFactory.create(this);
+		this.endpoint = endpoint;
 		this.url = url;
 		this.handler = handler;
 		this.allChannels = channelGroup;
@@ -64,15 +77,20 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 			throws Exception {
 		this.logger.error("exceptionCaught at server", e.getCause());
+
+		if (this.endpointProxy != null)
+			this.endpointProxy.remove(this.sender);
+
 		if (this.handler != null)
 			this.handler.onException(e.getCause());
+
 		// TODO:when to send close frame?
 		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
 		e.getChannel().close();
 	}
 
 	private void handleHttpRequest(ChannelHandlerContext ctx,
-			HttpRequest req) throws Exception {
+			HttpRequest req) {
 		if (req.getMethod() != HttpMethod.GET) {
 			sendHttpResponse(ctx, req,
 					new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN));
@@ -83,13 +101,33 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 				this.url, subprotocols, false);
 		this.handshaker = wsFactory.newHandshaker(req);
-
 		if (this.handshaker == null) {
 			wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
-		} else {
-			this.handshaker.handshake(ctx.getChannel(),
-					req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
+			return;
 		}
+
+		Identity identity = null;
+		if (this.endpoint.getIdentity() != null) {
+			try {
+				identity = this.endpoint.getIdentity().parse(req.getHeaders());
+			} catch (LinkException e) {
+				HttpResponse res = new DefaultHttpResponse(
+						HttpVersion.HTTP_1_1,
+						HttpResponseStatus.UNAUTHORIZED);
+				res.setStatus(new HttpResponseStatus(e.getErrorCode(), e.getMessage()));
+				ctx.getChannel().write(res);
+				this.logger.error("get identity error", e);
+			}
+		}
+
+		// create EndpointProxy for income connection
+		if (identity != null) {
+			this.endpointProxy = this.endpoint.getEndpoint(identity);
+			this.endpointProxy.add(this.sender = new WebSocketChannelSender(ctx));
+		}
+
+		this.handshaker.handshake(ctx.getChannel(),
+				req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
 	}
 
 	private void handleWebSocketFrame(final ChannelHandlerContext ctx,

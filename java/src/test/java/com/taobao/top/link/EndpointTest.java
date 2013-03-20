@@ -113,6 +113,16 @@ public class EndpointTest {
 		Thread.sleep(1000);
 	}
 
+	@Test
+	public void getConnected_test() {
+		
+	}
+	
+	@Test
+	public void connected_and_close_then_remove_sender_test() {
+		
+	}
+	
 	private Endpoint run(int port, int maxIdle) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", port);
 		Endpoint endpoint = new Endpoint();

@@ -20,17 +20,17 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
+import com.taobao.top.link.ClientChannelSelector;
 import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.handler.ChannelSelectHandler;
 import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
-public class WebSocketChannelSelectHandler implements ChannelSelectHandler {
+public class WebSocketClientChannelSelector implements ClientChannelSelector {
 	private final static int CONNECT_TIMEOUT = 5000;
 	private LoggerFactory loggerFactory;
 	private Hashtable<String, ClientChannel> channels;
 	private WebSocketClientHandshakerFactory wsFactory;
 
-	public WebSocketChannelSelectHandler(LoggerFactory factory) {
+	public WebSocketClientChannelSelector(LoggerFactory factory) {
 		this.loggerFactory = factory;
 		this.channels = new Hashtable<String, ClientChannel>();
 		this.wsFactory = new WebSocketClientHandshakerFactory();

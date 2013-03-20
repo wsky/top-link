@@ -5,14 +5,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
+import com.taobao.top.link.ClientChannelSelector;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.websocket.WebSocketChannelSelectHandler;
+import com.taobao.top.link.websocket.WebSocketClientChannelSelector;
 
 public class RemotingService {
 	private static AtomicInteger flag = new AtomicInteger(0);
 	private static LoggerFactory loggerFactory = new DefaultLoggerFactory();
-	private static WebSocketChannelSelectHandler selectHandler = new WebSocketChannelSelectHandler(loggerFactory);
+	private static ClientChannelSelector selectHandler = new WebSocketClientChannelSelector(loggerFactory);
 	// TODO:shared handler or one handler per channel?
 	private static RemotingClientChannelHandler channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
 

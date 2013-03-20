@@ -1,6 +1,6 @@
 package com.taobao.top.link;
 
-public class ChannelException extends Exception {
+public class ChannelException extends LinkException {
 
 	private static final long serialVersionUID = 3556204532218058452L;
 
@@ -15,5 +15,4 @@ public class ChannelException extends Exception {
 	public ChannelException(String message, Throwable innerException) {
 		super(message, innerException);
 	}
-
 }

@@ -14,7 +14,7 @@ import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
-public class WebSocketClientChannel extends ClientChannel {
+public class WebSocketClientChannel implements ClientChannel {
 	private Channel channel;
 	private WebSocketClientHandler clientHandler;
 	private ClearHandler clearHandler;
@@ -29,11 +29,6 @@ public class WebSocketClientChannel extends ClientChannel {
 	public void setChannelHandler(ChannelHandler handler) {
 		// TODO:maybe course null when concurrent? use volatile?
 		clientHandler.channelHandler = handler;
-	}
-
-	@Override
-	protected void addOnceChannelHandler(ChannelHandler handler) {
-		clientHandler.onceHandlers.add(handler);
 	}
 
 	@Override

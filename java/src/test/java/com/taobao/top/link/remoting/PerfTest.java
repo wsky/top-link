@@ -3,7 +3,6 @@ package com.taobao.top.link.remoting;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.taobao.top.link.ChannelException;

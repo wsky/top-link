@@ -21,7 +21,7 @@ import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.handler.ChannelHandler;
 
-public class RemotingClientChannelHandler extends ChannelHandler {
+public class RemotingClientChannelHandler implements ChannelHandler {
 	private Logger logger;
 	private AtomicInteger flagAtomic;
 	private HashMap<String, RemotingCallback> callbacks = new HashMap<String, RemotingCallback>();

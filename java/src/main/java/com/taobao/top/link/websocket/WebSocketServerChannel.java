@@ -74,7 +74,12 @@ public class WebSocketServerChannel extends ServerChannel {
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("encoder", new HttpResponseEncoder());
 				pipeline.addLast("handler",
-						new WebSocketServerHandler(loggerFactory, url, getChannelHandler(), allChannels));
+						new WebSocketServerHandler(
+								loggerFactory, 
+								endpoint, 
+								url, 
+								getChannelHandler(), 
+								allChannels));
 				return pipeline;
 			}
 		});

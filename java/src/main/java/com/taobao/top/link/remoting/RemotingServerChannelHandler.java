@@ -14,7 +14,7 @@ import remoting.protocol.tcp.TcpProtocolHandle;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
-import com.taobao.top.link.ClientChannel.SendHandler;
+import com.taobao.top.link.ChannelSender.SendHandler;
 import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.handler.SimpleChannelHandler;
 
