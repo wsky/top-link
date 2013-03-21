@@ -6,46 +6,37 @@ import java.net.URISyntaxException;
 import org.junit.Test;
 
 import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.Endpoint;
-import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 public class PerfTest {
-	private static DynamicProxy proxy;
-
-	//@BeforeClass
-	public static void connect() throws URISyntaxException, ChannelException {
-		if (proxy == null) {
-			URI uri = new URI("ws://localhost:9000/");
-			proxy = RemotingService.connect(uri);
-		}
-	}
+	private int total = 10000;
 
 	@Test
-	public void remoting_test() throws FormatterException, RemotingException, URISyntaxException, ChannelException {
-		//connect();// for jmeter
-		//proxy.invoke(new MethodCall());
+	public void remoting_test() throws FormatterException, URISyntaxException, RemotingException {
+		// jmeter
+		// RemotingService.connect(new URI("ws://localhost:9000/")).invoke(new
+		// MethodCall());
 	}
 
+	// @Test
 	public void remoting_sequence_test() throws URISyntaxException, ChannelException {
 		String uriString = "ws://localhost:9030/";
 		URI uri = new URI(uriString);
-		DefaultRemotingServerChannelHandler handler = this.runDefaultServer(uri);
-		handler.addProcessor("sample", new SampleService());
-		this.remoting_sequence_test(new URI(uriString + "sample"), 100000);
+		this.runDefaultServer(uri);
+		this.remoting_sequence_test(new URI(uriString + "sample"), total);
 	}
 
+	// @Test
 	public void remoting_concurrent_test() throws URISyntaxException, ChannelException, InterruptedException {
 		final String uriString = "ws://localhost:9031/";
 		URI uri = new URI(uriString);
-		DefaultRemotingServerChannelHandler handler = this.runDefaultServer(uri);
-		handler.addProcessor("sample", new SampleService());
+		this.runDefaultServer(uri);
 		final URI remoteUri = new URI(uriString + "sample");
 		for (int i = 0; i < 2; i++) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						remoting_sequence_test(remoteUri, 100000);
+						remoting_sequence_test(remoteUri, total);
 					} catch (ChannelException e) {
 						e.printStackTrace();
 					}
@@ -76,13 +67,8 @@ public class PerfTest {
 		// total:100000, cost:18219ms, tps:5488.7754call/s, time:0.18219ms
 	}
 
-	private DefaultRemotingServerChannelHandler runDefaultServer(URI uri) {
-		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		final Endpoint server = new Endpoint();
-		server.setChannelHandler(remotingServerChannelHandler);
-		server.bind(serverChannel);
-		return remotingServerChannelHandler;
+	private void runDefaultServer(URI uri) {
+		RemotingConfiguration.configure().websocket(uri.getPort()).addProcessor("sample", new SampleService());
 	}
 
 	public interface SampleServiceInterface {
