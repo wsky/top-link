@@ -19,7 +19,7 @@ public class EndpointTest {
 		final String reply = "ok";
 
 		// init server channel
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		// init endpoint
 		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new SimpleChannelHandler() {
@@ -127,7 +127,7 @@ public class EndpointTest {
 	}
 
 	private Endpoint run(int port, int maxIdleSecond) throws InterruptedException {
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", port);
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(port);
 		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override

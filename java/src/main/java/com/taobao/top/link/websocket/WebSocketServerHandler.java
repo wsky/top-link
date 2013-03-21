@@ -36,7 +36,6 @@ import com.taobao.top.link.handler.ChannelHandler;
 //one handler per connection
 public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 	private Logger logger;
-	private String url;
 	private ChannelHandler handler;
 	private WebSocketServerHandshaker handshaker;
 	private ChannelGroup allChannels;
@@ -47,12 +46,10 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 
 	public WebSocketServerHandler(LoggerFactory loggerFactory,
 			Endpoint endpoint,
-			String url,
 			ChannelHandler handler,
 			ChannelGroup channelGroup) {
 		this.logger = loggerFactory.create(this);
 		this.endpoint = endpoint;
-		this.url = url;
 		this.handler = handler;
 		this.allChannels = channelGroup;
 	}
@@ -96,10 +93,10 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 					new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN));
 			return;
 		}
-
+		
 		String subprotocols = "mqtt";
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-				this.url, subprotocols, false);
+				req.getUri(), subprotocols, false);
 		this.handshaker = wsFactory.newHandshaker(req);
 		if (this.handshaker == null) {
 			wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());

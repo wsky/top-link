@@ -27,27 +27,18 @@ public class WebSocketServerChannel extends ServerChannel {
 
 	private ServerBootstrap bootstrap;
 	private ChannelGroup allChannels;
-	private String ip;
 	private int port;
-	private String url;
 	private int maxIdleTimeSeconds = 0;
 
-	public WebSocketServerChannel(String ip, int port) {
-		this(new DefaultLoggerFactory(), ip, port);
+	public WebSocketServerChannel(int port) {
+		this(new DefaultLoggerFactory(), port);
 	}
 
-	public WebSocketServerChannel(LoggerFactory factory, String ip, int port) {
+	public WebSocketServerChannel(LoggerFactory factory, int port) {
 		this.loggerFactory = factory;
 		this.logger = factory.create(this);
 		this.allChannels = new DefaultChannelGroup();
-
-		this.ip = ip;
 		this.port = port;
-		this.url = String.format("ws://%s:%s/link", this.ip, this.port);
-	}
-
-	public String getServerUrl() {
-		return this.url;
 	}
 
 	public void setMaxIdleTimeSeconds(int value) {
@@ -75,10 +66,9 @@ public class WebSocketServerChannel extends ServerChannel {
 				pipeline.addLast("encoder", new HttpResponseEncoder());
 				pipeline.addLast("handler",
 						new WebSocketServerHandler(
-								loggerFactory, 
-								endpoint, 
-								url, 
-								getChannelHandler(), 
+								loggerFactory,
+								endpoint,
+								getChannelHandler(),
 								allChannels));
 				return pipeline;
 			}

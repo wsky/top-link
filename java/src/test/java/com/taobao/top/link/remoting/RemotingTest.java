@@ -15,7 +15,7 @@ public class RemotingTest {
 	@Test
 	public void send_test() throws URISyntaxException, ChannelException {
 		URI uri = new URI("ws://localhost:9001/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
@@ -44,7 +44,7 @@ public class RemotingTest {
 	@Test(expected = RemotingException.class)
 	public void execution_timeout_test() throws URISyntaxException, ChannelException, RemotingException, FormatterException {
 		URI uri = new URI("ws://localhost:9003/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
@@ -72,7 +72,7 @@ public class RemotingTest {
 	@Test(expected = RemotingException.class)
 	public void channel_broken_while_calling_test() throws Throwable {
 		URI uri = new URI("ws://localhost:9004/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		final Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override

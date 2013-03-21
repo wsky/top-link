@@ -78,7 +78,7 @@ public class PerfTest {
 
 	private DefaultRemotingServerChannelHandler runDefaultServer(URI uri) {
 		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		final Endpoint server = new Endpoint();
 		server.setChannelHandler(remotingServerChannelHandler);
 		server.bind(serverChannel);

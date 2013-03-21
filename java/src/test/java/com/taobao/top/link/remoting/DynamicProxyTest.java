@@ -24,7 +24,8 @@ public class DynamicProxyTest {
 		// SampleService sampleService = (SampleService)
 		// RemotingService.connect(uri, SampleService.class);
 		URI remoteUri = new URI(uriString + "sample");
-		SampleServiceInterface sampleService = (SampleServiceInterface) RemotingService.connect(remoteUri, SampleServiceInterface.class);
+		SampleServiceInterface sampleService = (SampleServiceInterface) 
+				RemotingService.connect(remoteUri, SampleServiceInterface.class);
 		assertEquals("hi", sampleService.echo("hi"));
 	}
 
@@ -36,7 +37,8 @@ public class DynamicProxyTest {
 		handler.addProcessor("sample", new SampleService());
 
 		URI remoteUri = new URI(uriString + "sample_wrong");
-		SampleServiceInterface sampleService = (SampleServiceInterface) RemotingService.connect(remoteUri, SampleServiceInterface.class);
+		SampleServiceInterface sampleService = (SampleServiceInterface) 
+				RemotingService.connect(remoteUri, SampleServiceInterface.class);
 		try {
 			sampleService.echo("hi");
 		} catch (Exception e) {
@@ -59,7 +61,7 @@ public class DynamicProxyTest {
 
 	private DefaultRemotingServerChannelHandler runDefaultServer(URI uri) {
 		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		final Endpoint server = new Endpoint();
 		server.setChannelHandler(remotingServerChannelHandler);
 		server.bind(serverChannel);

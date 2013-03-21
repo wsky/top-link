@@ -91,7 +91,7 @@ public class TimingTest {
 	}
 
 	private void runServer(URI uri) {
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		Endpoint server = new Endpoint();
 		server.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
