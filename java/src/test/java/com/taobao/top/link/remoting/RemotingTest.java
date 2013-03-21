@@ -41,24 +41,6 @@ public class RemotingTest {
 		assertEquals("ok", methodReturn.ReturnValue);
 	}
 
-	@Test
-	public void channel_reuse_test() throws URISyntaxException, ChannelException {
-		URI uri = new URI("ws://localhost:9002/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
-		Endpoint server = new Endpoint();
-		server.setChannelHandler(new RemotingServerChannelHandler() {
-			@Override
-			public MethodReturn onMethodCall(MethodCall methodCall) {
-				return null;
-			}
-		});
-		server.bind(serverChannel);
-
-		DynamicProxy proxy1 = RemotingService.connect(uri);
-		DynamicProxy proxy2 = RemotingService.connect(uri);
-		assertEquals(proxy1.getChannel(), proxy2.getChannel());
-	}
-
 	@Test(expected = RemotingException.class)
 	public void execution_timeout_test() throws URISyntaxException, ChannelException, RemotingException, FormatterException {
 		URI uri = new URI("ws://localhost:9003/link");
@@ -127,9 +109,9 @@ public class RemotingTest {
 			throw e;
 		}
 	}
-	
+
 	@Test
 	public void transportHeaders_got_error_statusCode_test() {
-		
+
 	}
 }

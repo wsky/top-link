@@ -8,15 +8,16 @@ import java.net.URISyntaxException;
 import org.junit.Test;
 
 import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.Endpoint;
+import com.taobao.top.link.websocket.WebSocketClientChannelPooledSelector;
 import com.taobao.top.link.websocket.WebSocketClientChannelSelector;
 import com.taobao.top.link.websocket.WebSocketServerChannel;
 
 // rpc timing is important for overlay-io/reused-channel
 public class TimingTest {
-	private WebSocketClientChannelSelector selectHandler = new WebSocketClientChannelSelector(new DefaultLoggerFactory());
+	private WebSocketClientChannelSelector sharedSelector = new WebSocketClientChannelSelector(new DefaultLoggerFactory());
+	private WebSocketClientChannelPooledSelector pooledSelector = new WebSocketClientChannelPooledSelector(new DefaultLoggerFactory());
 
 	@Test
 	public void timing_test() throws URISyntaxException, RemotingException, FormatterException, ChannelException {
@@ -36,10 +37,11 @@ public class TimingTest {
 		final URI uri = new URI("ws://localhost:9011/link");
 		this.runServer(uri);
 
+		RemotingService.setChannelSelector(sharedSelector);
 		// proxy1/2 will share same channel
-		ClientChannel channel = selectHandler.getClientChannel(uri);
-		final DynamicProxy proxy1 = RemotingService.proxy(channel);
-		final DynamicProxy proxy2 = RemotingService.proxy(channel);
+		sharedSelector.getChannel(uri);
+		final DynamicProxy proxy1 = RemotingService.connect(uri);
+		final DynamicProxy proxy2 = RemotingService.connect(uri);
 
 		this.runThread(proxy1, uri, 0, 100);
 		this.runThread(proxy2, uri, 100, 200);
@@ -54,9 +56,10 @@ public class TimingTest {
 		final URI uri = new URI("ws://localhost:9012/link");
 		this.runServer(uri);
 
+		RemotingService.setChannelSelector(pooledSelector);
 		// proxy1/2 use different channel but same remote server
-		final DynamicProxy proxy1 = RemotingService.proxy(selectHandler.connect(uri, 2000, null));
-		final DynamicProxy proxy2 = RemotingService.proxy(selectHandler.connect(uri, 2000, null));
+		final DynamicProxy proxy1 = RemotingService.connect(uri);
+		final DynamicProxy proxy2 = RemotingService.connect(uri);
 
 		this.runThread(proxy1, uri, 0, 100);
 		this.runThread(proxy2, uri, 100, 200);

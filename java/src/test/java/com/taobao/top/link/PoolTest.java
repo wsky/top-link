@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class PoolTest {
 	@Test
-	public void check_test() {
+	public void check_test() throws Throwable {
 		TestPool pool = new TestPool(0, 0);
 		Object o = pool.chekOut();
 		assertNotNull(o);
@@ -16,7 +16,7 @@ public class PoolTest {
 	}
 
 	@Test
-	public void check_more_test() {
+	public void check_more_test() throws Throwable {
 		TestPool pool = new TestPool(10, 0);
 		assertNotNull(pool.chekOut());
 		assertNotNull(pool.chekOut());
@@ -25,7 +25,7 @@ public class PoolTest {
 	}
 
 	@Test
-	public void maxSize_and_not_wait_test() {
+	public void maxSize_and_not_wait_test() throws Throwable {
 		TestPool pool = new TestPool(1, 0);
 		assertNotNull(pool.chekOut());
 		assertNull(pool.chekOut());
@@ -33,7 +33,7 @@ public class PoolTest {
 	}
 
 	@Test
-	public void maxSize_and_wait_test() {
+	public void maxSize_and_wait_test() throws Throwable {
 		TestPool pool = new TestPool(1, 10);
 		assertNotNull(pool.chekOut());
 		assertNull(pool.chekOut());
@@ -41,7 +41,7 @@ public class PoolTest {
 	}
 
 	@Test
-	public void maxSize_and_wait_then_checkin_test() throws InterruptedException {
+	public void maxSize_and_wait_then_checkin_test() throws Throwable {
 		final TestPool pool = new TestPool(1, 5000);
 		final Object o = pool.chekOut();
 		assertNotNull(o);

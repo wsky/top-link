@@ -65,7 +65,7 @@ public class Endpoint {
 
 	public synchronized EndpointProxy getEndpoint(URI uri) throws ChannelException {
 		EndpointProxy e = new EndpointProxy();
-		ClientChannel channel = this.channelSelectHandler.getClientChannel(uri);
+		ClientChannel channel = this.channelSelectHandler.getChannel(uri);
 		channel.setChannelHandler(this.channelHandler);
 		e.add(channel);
 		this.connected.add(e);

@@ -1,5 +1,6 @@
 package com.taobao.top.link.websocket;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -15,6 +16,7 @@ import com.taobao.top.link.handler.ChannelHandler;
 import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
 public class WebSocketClientChannel implements ClientChannel {
+	private URI uri;
 	private Channel channel;
 	private WebSocketClientHandler clientHandler;
 	private ClearHandler clearHandler;
@@ -22,7 +24,17 @@ public class WebSocketClientChannel implements ClientChannel {
 	public WebSocketClientChannel(Channel channel, WebSocketClientHandler clientHandler, ClearHandler clearHandler) {
 		this.channel = channel;
 		this.clientHandler = clientHandler;
-		this.clearHandler=clearHandler;
+		this.clearHandler = clearHandler;
+	}
+
+	@Override
+	public void setUri(URI uri) {
+		this.uri = uri;
+	}
+
+	@Override
+	public URI getUri() {
+		return this.uri;
 	}
 
 	@Override
@@ -38,12 +50,7 @@ public class WebSocketClientChannel implements ClientChannel {
 
 	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
-		// prevent unknown exception after connected and get channel
-		// channel.write is async default
-		if (!channel.isConnected()) {
-			clearHandler.clear();
-			throw new ChannelException("channel closed");
-		}
+		this.checkChannel();
 		dataBuffer.position(0);
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
@@ -52,10 +59,7 @@ public class WebSocketClientChannel implements ClientChannel {
 
 	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
-		if (!channel.isConnected()) {
-			clearHandler.clear();
-			throw new ChannelException("channel closed");
-		}
+		this.checkChannel();
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		this.send(frame, null);
@@ -70,5 +74,15 @@ public class WebSocketClientChannel implements ClientChannel {
 					sendHandler.onSendComplete();
 			}
 		});
+	}
+
+	private void checkChannel() throws ChannelException {
+		// prevent unknown exception after connected and get channel
+		// channel.write is async default
+		if (!channel.isConnected()) {
+			if (this.clearHandler != null)
+				this.clearHandler.clear();
+			throw new ChannelException("channel closed");
+		}
 	}
 }

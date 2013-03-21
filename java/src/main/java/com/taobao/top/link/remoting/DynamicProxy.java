@@ -14,25 +14,24 @@ import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.ChannelSender.SendHandler;
+import com.taobao.top.link.ClientChannelSelector;
 
 public class DynamicProxy implements InvocationHandler {
 	// do not make execution timeout
 	private int defaultTimeout = 0;
-
-	private ClientChannel channel;
+	private URI remoteUri;
+	private String uriString;
+	private ClientChannelSelector selector;
 	private RemotingClientChannelHandler channelHandler;
 
-	protected DynamicProxy(URI remoteUri, ClientChannel channel, RemotingClientChannelHandler handler) {
-		this.channel = channel;
-		this.channelHandler = handler;
+	protected DynamicProxy(URI remoteUri,
+			ClientChannelSelector selector,
+			RemotingClientChannelHandler handler) {
+		this.remoteUri = remoteUri;
 		this.uriString = remoteUri != null ? remoteUri.toString() : "";
+		this.selector = selector;
+		this.channelHandler = handler;
 	}
-
-	protected ClientChannel getChannel() {
-		return this.channel;
-	}
-
-	private String uriString;
 
 	protected Object create(Class<?> interfaceClass, URI remoteUri) {
 		this.uriString = remoteUri.toString();
@@ -68,28 +67,44 @@ public class DynamicProxy implements InvocationHandler {
 		return this.invoke(methodCall, this.defaultTimeout);
 	}
 
-	public MethodReturn invoke(MethodCall methodCall, int executionTimeoutMillisecond) throws RemotingException, FormatterException {
+	public MethodReturn invoke(MethodCall methodCall,
+			int executionTimeoutMillisecond) throws RemotingException, FormatterException {
 		SynchronizedRemotingCallback syncCallback = new SynchronizedRemotingCallback();
 
 		HashMap<String, Object> transportHeaders = new HashMap<String, Object>();
 		transportHeaders.put(TcpTransportHeader.RequestUri, this.uriString);
 
-		return this.send(this.channelHandler.pending(syncCallback,
-				TcpOperations.Request,
-				transportHeaders,
-				methodCall),
-				syncCallback,
-				executionTimeoutMillisecond);
+		ClientChannel channel = this.getChannel();
+		try {
+			return this.send(channel,
+					this.channelHandler.pending(syncCallback,
+							TcpOperations.Request, transportHeaders, methodCall),
+					syncCallback,
+					executionTimeoutMillisecond);
+		} finally {
+			this.selector.returnChannel(channel);
+		}
 	}
 
-	private MethodReturn send(final ByteBuffer buffer,
+	private ClientChannel getChannel() throws RemotingException {
+		try {
+			ClientChannel channel = this.selector.getChannel(this.remoteUri);
+			channel.setChannelHandler(channelHandler);
+			return channel;
+		} catch (ChannelException e) {
+			throw new RemotingException("can not get channel", e);
+		}
+	}
+
+	private MethodReturn send(ClientChannel clientChannel,
+			final ByteBuffer buffer,
 			SynchronizedRemotingCallback syncCallback,
 			int executionTimeoutMillisecond) throws RemotingException {
 		// reset buffer limit and position for send
 		buffer.flip();
 
 		try {
-			this.channel.send(buffer, new SendHandler() {
+			clientChannel.send(buffer, new SendHandler() {
 				@Override
 				public void onSendComplete() {
 					BufferManager.returnBuffer(buffer);
@@ -114,7 +129,7 @@ public class DynamicProxy implements InvocationHandler {
 			if (executionTimeoutMillisecond > 0 && (i++) * wait >= executionTimeoutMillisecond)
 				throw unexcepException(syncCallback, "remoting execution timeout", null);
 
-			if (!this.channel.isConnected())
+			if (!clientChannel.isConnected())
 				throw unexcepException(syncCallback, "channel broken with unknown error", null);
 
 			synchronized (syncCallback.sync) {

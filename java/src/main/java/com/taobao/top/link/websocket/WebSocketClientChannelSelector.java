@@ -26,32 +26,42 @@ import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
 public class WebSocketClientChannelSelector implements ClientChannelSelector {
 	private final static int CONNECT_TIMEOUT = 5000;
-	private LoggerFactory loggerFactory;
 	private Hashtable<String, ClientChannel> channels;
 	private WebSocketClientHandshakerFactory wsFactory;
+	protected LoggerFactory loggerFactory;
+	protected Object lockObject;
 
 	public WebSocketClientChannelSelector(LoggerFactory factory) {
 		this.loggerFactory = factory;
 		this.channels = new Hashtable<String, ClientChannel>();
 		this.wsFactory = new WebSocketClientHandshakerFactory();
+		this.lockObject = new Object();
 	}
 
 	@Override
-	public ClientChannel getClientChannel(URI uri) throws ChannelException {
+	public ClientChannel getChannel(URI uri) throws ChannelException {
 		if (!uri.getScheme().equalsIgnoreCase("ws")) {
 			return null;
 		}
 		final String url = uri.toString();
-		ClientChannel channel = channels.get(url);
-		if (channel == null) {
-			channels.put(url, channel = this.connect(uri, CONNECT_TIMEOUT, new ClearHandler() {
-				@Override
-				public void clear() {
-					channels.remove(url);
+		if (channels.get(url) == null) {
+			synchronized (this.lockObject) {
+				if (channels.get(url) == null) {
+					channels.put(url, this.connect(uri, CONNECT_TIMEOUT, new ClearHandler() {
+						@Override
+						public void clear() {
+							channels.remove(url);
+						}
+					}));
 				}
-			}));
+			}
 		}
-		return channel;
+		return channels.get(url);
+	}
+
+	@Override
+	public void returnChannel(ClientChannel channel) {
+		// shared channel
 	}
 
 	public ClientChannel connect(URI uri, int timeout, final ClearHandler clearHandler) throws ChannelException {
@@ -97,6 +107,8 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 			throw new ChannelException("handshake fail", clientHandler.handshakeFuture.getCause());
 		}
 
-		return new WebSocketClientChannel(channel, clientHandler, clearHandler);
+		ClientChannel clientChannel = new WebSocketClientChannel(channel, clientHandler, clearHandler);
+		clientChannel.setUri(uri);
+		return clientChannel;
 	}
 }

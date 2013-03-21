@@ -9,6 +9,10 @@ public abstract class Pool<T> {
 	private LinkedList<T> used;
 	private Object waiter;
 
+	public Pool() {
+		this(0, 0);
+	}
+
 	public Pool(int maxSize, int waitTimeout) {
 		this.unused = new LinkedList<T>();
 		this.used = new LinkedList<T>();
@@ -22,7 +26,7 @@ public abstract class Pool<T> {
 		return this.used.size() + this.unused.size();
 	}
 
-	public T chekOut() {
+	public T chekOut() throws Throwable {
 		T t = this.get();
 
 		if (t != null)
@@ -60,7 +64,7 @@ public abstract class Pool<T> {
 		}
 	}
 
-	public abstract T create();
+	public abstract T create() throws Throwable;
 
 	public abstract boolean validate(T t);
 
@@ -77,7 +81,7 @@ public abstract class Pool<T> {
 		return null;
 	}
 
-	private T createNew() {
+	private T createNew() throws Throwable {
 		T t = this.create();
 		this.used.addLast(t);
 		return t;
