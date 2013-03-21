@@ -17,9 +17,15 @@ git submodule foreach git pull
 ```
 
 Java
-```java
+```bash
 cd java
 mvn package
+```
+
+or
+
+```shell
+build_java.ps1
 ```
 
 C#
@@ -30,6 +36,7 @@ build.bat
 
 ## Endpoint
 
+run as receiver
 ```java
 WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", 8080);
 Endpoint endpoint = new Endpoint();
@@ -40,29 +47,33 @@ endpoint.setChannelHandler(new ChannelHandler() {
 		context.reply("ok".getBytes(), 0, 2);
 	}
 });
+//can bind to multi-channels
 endpoint.bind(serverChannel);
+//know about connect in/out endpoints
+endpoint.getConnected();
 ```
 
+run as sender
 ```java
 Endpoint endpoint = new Endpoint();
 try {
 	EndpointProxy target = endpoint.getEndpoint(new URI("ws://localhost:8080/link"));
+	// message base send
 	target.send("Hi".getBytes(), 0, 2);
 } catch (ChannelException e) {
 	e.printStackTrace();
 }
 ```
 
-sync call sample
+use identity
 ```java
-Endpoint endpoint = new Endpoint();
-try {
-	EndpointProxy target = endpoint.getEndpoint(new URI("ws://localhost:8080/link"));
-	assertEquals("ok", new String(target.call("Hi".getBytes(), 0, 2)));
-} catch (ChannelException e) {
-	e.printStackTrace();
-}
+
 ```
+
+- More
+	- [X] Identity support
+	- [ ] sync send/receive
+	- [ ] tcp channel
 
 ## Build-in RPC
 
@@ -96,15 +107,12 @@ return methodReturn.ReturnValue;
 	- [X] Dynamic Proxy for Java Interface
 	- [ ] IOC support at server/client
 	- [ ] Extendable sink design, like custom FormatterSink/TransportSink
+	- [ ] ServiceFramework
 
 ```java
-DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
-handler.addProcessor("sample", new SampleService());
-
-WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getHost(), uri.getPort());
-final Endpoint server = new Endpoint();
-server.setChannelHandler(remotingServerChannelHandler);
-server.bind(serverChannel);
+RemotingConfiguration.configure().
+	websocket(uri.getPort()).
+	addProcessor("sample", new SampleService());
 
 SampleService sampleService = (SampleService) RemotingService.connect("ws://localhost/sample", SampleService.class);
 assertEquals("hi", sampleService.echo("hi"));
