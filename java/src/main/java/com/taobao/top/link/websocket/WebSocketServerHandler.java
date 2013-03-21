@@ -125,6 +125,7 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 		if (identity != null) {
 			this.endpointProxy = this.endpoint.getEndpoint(identity);
 			this.endpointProxy.add(this.sender = new WebSocketChannelSender(ctx));
+			this.logger.info("accept an endpoint with identity: %s", identity);
 		}
 
 		this.handshaker.handshake(ctx.getChannel(),

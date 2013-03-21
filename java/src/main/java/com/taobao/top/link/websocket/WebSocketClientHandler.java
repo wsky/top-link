@@ -1,7 +1,6 @@
 package com.taobao.top.link.websocket;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Map.Entry;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -22,18 +21,18 @@ import com.taobao.top.link.handler.ChannelHandler;
 
 // one handler per connection
 public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
+	private static HttpResponseStatus SUCCESS = new HttpResponseStatus(101, "Web Socket Protocol Handshake");
+
 	protected Logger logger;
 
 	protected WebSocketClientHandshaker handshaker;
 	protected Throwable failure;
 
-	protected Queue<ChannelHandler> onceHandlers;
 	protected ChannelHandler channelHandler;
 	protected ClearHandler clearHandler;
 
 	public WebSocketClientHandler(Logger logger) {
 		this.logger = logger;
-		this.onceHandlers = new ConcurrentLinkedQueue<ChannelHandler>();
 	}
 
 	@Override
@@ -57,13 +56,15 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 		if (!this.handshaker.isHandshakeComplete()) {
 			try {
 				HttpResponse response = (HttpResponse) e.getMessage();
-				HttpResponseStatus status = new HttpResponseStatus(101, "Web Socket Protocol Handshake");
-				boolean validStatus = response.getStatus().equals(status);
+				this.dump(response);
+
+				boolean validStatus = response.getStatus().equals(SUCCESS);
 				boolean validUpgrade = response.getHeader(Names.UPGRADE) != null &&
 						response.getHeader(Names.UPGRADE).equalsIgnoreCase(Values.WEBSOCKET);
 				boolean validConnection = response.getHeader(Names.CONNECTION) != null &&
 						response.getHeader(Names.CONNECTION).equalsIgnoreCase(Values.UPGRADE);
 
+				// TODO:set TopLinkException with errorCode
 				if (!validStatus || !validUpgrade || !validConnection) {
 					this.failure = new Exception("Invalid handshake response");
 				} else {
@@ -94,11 +95,9 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 				this.logger.warn("received a frame that not final fragment, not support!");
 				return;
 			}
-			// TODO:oncehandler need broadcast?
-			ChannelHandler handler = this.onceHandlers.isEmpty() ? this.channelHandler : this.onceHandlers.poll();
-			if (handler != null) {
+			if (this.channelHandler != null) {
 				ChannelBuffer buffer = ((BinaryWebSocketFrame) frame).getBinaryData();
-				handler.onReceive(buffer.toByteBuffer(), new WebSocketEndpointContext(ctx));
+				this.channelHandler.onReceive(buffer.toByteBuffer(), new WebSocketEndpointContext(ctx));
 			}
 		}
 
@@ -113,6 +112,17 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 	private void notifyHandshake() {
 		synchronized (this.handshaker) {
 			this.handshaker.notify();
+		}
+	}
+
+	private void dump(HttpResponse response) {
+		if (!this.logger.isDebugEnable())
+			return;
+		this.logger.debug("%s|%s", 
+				response.getStatus().getCode(), 
+				response.getStatus().getReasonPhrase());
+		for (Entry<String, String> h : response.getHeaders()) {
+			this.logger.debug("%s=%s", h.getKey(), h.getValue());
 		}
 	}
 

@@ -20,13 +20,12 @@ public class IdentityTest {
 		URI uri = new URI("ws://localhost:9040/");
 		Endpoint app1 = runEndpoint(uri);
 
-		TopIdentity id = new TopIdentity("app2");
-		Endpoint app2 = new Endpoint(id);
+		Endpoint app2 = createEndpoint("app2");
 		app2.getEndpoint(uri);
 
 		assertEquals(TopIdentity.class, app1.getConnected().next().getIdentity().getClass());
 		assertEquals("app2", app1.getConnected().next().getIdentity().toString());
-		assertNotNull(app1.getEndpoint(id));
+		assertNotNull(app1.getEndpoint(app2.getIdentity()));
 	}
 
 	@Test(expected = ChannelException.class)
@@ -35,11 +34,15 @@ public class IdentityTest {
 		runEndpoint(uri);
 
 		try {
-			new Endpoint(new TopIdentity("")).getEndpoint(uri);
+			createEndpoint("").getEndpoint(uri);
 		} catch (ChannelException e) {
 			assertEquals("connect fail: Invalid handshake response", e.getMessage());
 			throw e;
 		}
+	}
+
+	private Endpoint createEndpoint(String appkey) {
+		return new Endpoint(loggerFactory, new TopIdentity(appkey));
 	}
 
 	private Endpoint runEndpoint(URI uri) {
@@ -47,7 +50,7 @@ public class IdentityTest {
 	}
 
 	private Endpoint runEndpoint(URI uri, String appkey) {
-		Endpoint endpoint = new Endpoint(new TopIdentity(appkey));
+		Endpoint endpoint = new Endpoint(loggerFactory, new TopIdentity(appkey));
 		endpoint.bind(new WebSocketServerChannel(loggerFactory, uri.getPort()));
 		return endpoint;
 	}
