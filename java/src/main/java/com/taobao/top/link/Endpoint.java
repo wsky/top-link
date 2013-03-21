@@ -2,6 +2,7 @@ package com.taobao.top.link;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class Endpoint {
 
 	// in/out endpoints
 	private List<EndpointProxy> connected;
+	private HashMap<String, EndpointProxy> connectedByUri;
 
 	public Endpoint() {
 		this(new DefaultLoggerFactory());
@@ -35,6 +37,7 @@ public class Endpoint {
 	public Endpoint(LoggerFactory loggerFactory, Identity identity) {
 		this.serverChannels = new ArrayList<ServerChannel>();
 		this.connected = new ArrayList<EndpointProxy>();
+		this.connectedByUri = new HashMap<String, EndpointProxy>();
 		this.logger = loggerFactory.create(this);
 		this.identity = identity;
 		this.channelSelectHandler = new WebSocketClientChannelSelector(loggerFactory);
@@ -72,11 +75,19 @@ public class Endpoint {
 	}
 
 	public synchronized EndpointProxy getEndpoint(URI uri) throws ChannelException {
-		EndpointProxy e = new EndpointProxy();
+		String uriString = uri.toString();
+		EndpointProxy e = this.connectedByUri.get(uriString);
+		// always clear, cached proxy will have broken channel
+		if (e != null) {
+			this.connected.remove(e);
+		}
+		e = new EndpointProxy();
+		// always reget channel, make sure it's valid
 		ClientChannel channel = this.channelSelectHandler.getChannel(uri);
 		channel.setChannelHandler(this.channelHandler);
 		e.add(channel);
 		this.connected.add(e);
+		this.connectedByUri.put(uriString, e);
 		return e;
 	}
 
@@ -89,6 +100,8 @@ public class Endpoint {
 		EndpointProxy e = new EndpointProxy();
 		e.setIdentity(identity);
 		this.connected.add(e);
+		if (this.logger.isDebugEnable())
+			this.logger.debug("create new EndpointProxy by identity");
 		return e;
 	}
 }

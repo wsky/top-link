@@ -96,12 +96,12 @@ public class EndpointTest {
 	@Test
 	public void send_error_and_reget_test() throws URISyntaxException, InterruptedException, ChannelException {
 		URI uri = new URI("ws://localhost:8005/link");
-		Endpoint endpoint = run(uri.getPort(), 2);
+		Endpoint endpoint = run(uri.getPort(), 3);
 		ChannalHandlerWrapper handlerWrapper = new ChannalHandlerWrapper();
 		endpoint.setChannelHandler(handlerWrapper);
 
 		EndpointProxy target = endpoint.getEndpoint(uri);
-		Thread.sleep(3000);
+		Thread.sleep(3500);
 
 		try {
 			target.send(ByteBuffer.wrap("hi".getBytes()));
