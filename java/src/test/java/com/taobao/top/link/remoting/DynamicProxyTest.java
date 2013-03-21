@@ -6,17 +6,13 @@ import java.net.URI;
 
 import org.junit.Test;
 
-import com.taobao.top.link.Endpoint;
-import com.taobao.top.link.websocket.WebSocketServerChannel;
-
 // high-level abstract remoting test
 public class DynamicProxyTest {
 	@Test
 	public void dynamicProxy_test() throws Throwable {
 		String uriString = "ws://localhost:9020/";
 		URI uri = new URI(uriString);
-		DefaultRemotingServerChannelHandler handler = this.runDefaultServer(uri);
-		handler.addProcessor("sample", new SampleService());
+		this.runDefaultServer(uri);
 
 		// java.lang.IllegalArgumentException:
 		// com.taobao.top.link.remoting.DynamicProxyTest$SampleService is not an
@@ -24,7 +20,7 @@ public class DynamicProxyTest {
 		// SampleService sampleService = (SampleService)
 		// RemotingService.connect(uri, SampleService.class);
 		URI remoteUri = new URI(uriString + "sample");
-		SampleServiceInterface sampleService = (SampleServiceInterface) 
+		SampleServiceInterface sampleService = (SampleServiceInterface)
 				RemotingService.connect(remoteUri, SampleServiceInterface.class);
 		assertEquals("hi", sampleService.echo("hi"));
 	}
@@ -33,11 +29,10 @@ public class DynamicProxyTest {
 	public void objectUri_empty_or_not_matched_processor_test() throws Throwable {
 		String uriString = "ws://localhost:9021/";
 		URI uri = new URI(uriString);
-		DefaultRemotingServerChannelHandler handler = this.runDefaultServer(uri);
-		handler.addProcessor("sample", new SampleService());
+		this.runDefaultServer(uri);
 
 		URI remoteUri = new URI(uriString + "sample_wrong");
-		SampleServiceInterface sampleService = (SampleServiceInterface) 
+		SampleServiceInterface sampleService = (SampleServiceInterface)
 				RemotingService.connect(remoteUri, SampleServiceInterface.class);
 		try {
 			sampleService.echo("hi");
@@ -59,13 +54,11 @@ public class DynamicProxyTest {
 		throw new RemotingException("", methodReturn.Exception);
 	}
 
-	private DefaultRemotingServerChannelHandler runDefaultServer(URI uri) {
-		DefaultRemotingServerChannelHandler remotingServerChannelHandler = new DefaultRemotingServerChannelHandler();
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		final Endpoint server = new Endpoint();
-		server.setChannelHandler(remotingServerChannelHandler);
-		server.bind(serverChannel);
-		return remotingServerChannelHandler;
+	private RemotingConfiguration runDefaultServer(URI uri) {
+		return RemotingConfiguration.
+				configure().
+				websocket(uri.getPort()).
+				addProcessor("sample", new SampleService());
 	}
 
 	public interface SampleServiceInterface {
