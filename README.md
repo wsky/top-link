@@ -66,6 +66,7 @@ try {
 ```
 
 use identity
+see https://github.com/wsky/top-link/tree/master/java/src/test/java/com/taobao/top/link/IdentityTest.java
 ```java
 
 ```
