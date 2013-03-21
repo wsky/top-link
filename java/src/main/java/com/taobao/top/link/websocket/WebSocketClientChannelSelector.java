@@ -68,7 +68,8 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		// shared channel
 	}
 
-	public ClientChannel connect(URI uri, Identity identity, int timeout, final ClearHandler clearHandler) throws ChannelException {
+	public ClientChannel connect(URI uri, 
+			Identity identity, int timeout, final ClearHandler clearHandler) throws ChannelException {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
@@ -98,9 +99,9 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 
 		// identity render to httpheader
 		Map<String, String> headers = new HashMap<String, String>();
-		if (identity != null)
+		if (identity != null) {
 			identity.render(headers);
-
+		}
 		// handshake
 		try {
 			WebSocketClientHandshaker handshaker = this.wsFactory.newHandshaker(uri, WebSocketVersion.V13, "mqtt", true, headers);
@@ -112,16 +113,18 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		} catch (Exception e) {
 			throw new ChannelException("handshake error", e);
 		}
-		if (!clientHandler.handshaker.isHandshakeComplete()) {
-			if (clientHandler.failure != null) {
-				throw new ChannelException("handshake fail: " + clientHandler.failure.getMessage(), clientHandler.failure);
-			} else {
-				throw new ChannelException("connect timeout");
-			}
+
+		if (clientHandler.handshaker.isHandshakeComplete()) {
+			ClientChannel clientChannel = new WebSocketClientChannel(channel, clientHandler, clearHandler);
+			clientChannel.setUri(uri);
+			return clientChannel;
 		}
 
-		ClientChannel clientChannel = new WebSocketClientChannel(channel, clientHandler, clearHandler);
-		clientChannel.setUri(uri);
-		return clientChannel;
+		if (clientHandler.failure != null)
+			throw new ChannelException("connect fail: "
+					+ clientHandler.failure.getMessage(), clientHandler.failure);
+
+		throw new ChannelException("connect timeout");
+
 	}
 }

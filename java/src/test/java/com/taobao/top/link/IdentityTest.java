@@ -37,7 +37,7 @@ public class IdentityTest {
 		try {
 			new Endpoint(new TopIdentity("")).getEndpoint(uri);
 		} catch (ChannelException e) {
-			assertEquals("handshake fail: Invalid handshake response", e.getMessage());
+			assertEquals("connect fail: Invalid handshake response", e.getMessage());
 			throw e;
 		}
 	}
