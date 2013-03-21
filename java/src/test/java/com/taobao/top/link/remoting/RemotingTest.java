@@ -98,7 +98,7 @@ public class RemotingTest {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				server.unbind();
+				server.unbindAll();
 			}
 		}).start();
 

@@ -11,8 +11,9 @@ import com.taobao.top.link.websocket.WebSocketClientChannelSelector;
 // just an sample api gateway, upper layer app can use serverChannel/channelSelect directly
 // request-reply
 public class Endpoint {
+	private Logger logger;
 	private Identity identity;
-	private ServerChannel serverChannel;
+	private List<ServerChannel> serverChannels;
 	private ClientChannelSelector channelSelectHandler;
 	private ChannelHandler channelHandler;
 
@@ -32,9 +33,11 @@ public class Endpoint {
 	}
 
 	public Endpoint(LoggerFactory loggerFactory, Identity identity) {
+		this.serverChannels = new ArrayList<ServerChannel>();
 		this.connected = new ArrayList<EndpointProxy>();
-		this.channelSelectHandler = new WebSocketClientChannelSelector(loggerFactory);
+		this.logger = loggerFactory.create(this);
 		this.identity = identity;
+		this.channelSelectHandler = new WebSocketClientChannelSelector(loggerFactory);
 	}
 
 	public Identity getIdentity() {
@@ -44,21 +47,26 @@ public class Endpoint {
 	public void setChannelHandler(ChannelHandler handler) {
 		this.channelHandler = handler;
 	}
-	
+
 	public ChannelHandler getChannelHandler() {
 		return this.channelHandler;
 	}
 
 	public void bind(ServerChannel channel) {
-		this.serverChannel = channel;
-		this.serverChannel.run(this);
+		channel.run(this);
+		this.serverChannels.add(channel);
 	}
 
-	public void unbind() {
-		if (this.serverChannel != null)
-			this.serverChannel.stop();
+	public void unbindAll() {
+		for (ServerChannel channel : this.serverChannels) {
+			try {
+				channel.stop();
+			} catch (Exception e) {
+				this.logger.error("unbind error", e);
+			}
+		}
 	}
-	
+
 	public Iterator<EndpointProxy> getConnected() {
 		return this.connected.iterator();
 	}
