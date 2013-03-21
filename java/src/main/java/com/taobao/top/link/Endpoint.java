@@ -68,6 +68,7 @@ public class Endpoint {
 				this.logger.error("unbind error", e);
 			}
 		}
+		this.serverChannels.clear();
 	}
 
 	public Iterator<EndpointProxy> getConnected() {
