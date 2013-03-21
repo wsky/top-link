@@ -88,7 +88,7 @@ public class DynamicProxy implements InvocationHandler {
 
 	private ClientChannel getChannel() throws RemotingException {
 		try {
-			ClientChannel channel = this.selector.getChannel(this.remoteUri);
+			ClientChannel channel = this.selector.getChannel(this.remoteUri, null);
 			channel.setChannelHandler(channelHandler);
 			return channel;
 		} catch (ChannelException e) {

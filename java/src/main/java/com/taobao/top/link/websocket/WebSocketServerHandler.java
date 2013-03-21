@@ -1,5 +1,7 @@
 package com.taobao.top.link.websocket;
 
+import java.util.Map.Entry;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelFuture;
@@ -86,14 +88,15 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 		e.getChannel().close();
 	}
 
-	private void handleHttpRequest(ChannelHandlerContext ctx,
-			HttpRequest req) {
+	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) {
+		this.dump(req);
+
 		if (req.getMethod() != HttpMethod.GET) {
 			sendHttpResponse(ctx, req,
 					new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN));
 			return;
 		}
-		
+
 		String subprotocols = "mqtt";
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 				req.getUri(), subprotocols, false);
@@ -114,6 +117,7 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 				res.setStatus(new HttpResponseStatus(e.getErrorCode(), e.getMessage()));
 				ctx.getChannel().write(res);
 				this.logger.error("get identity error", e);
+				return;
 			}
 		}
 
@@ -159,6 +163,16 @@ public class WebSocketServerHandler extends SimpleChannelUpstreamHandler {
 
 		if (res.getStatus().getCode() != 200) {
 			f.addListener(ChannelFutureListener.CLOSE);
+		}
+	}
+
+	private void dump(HttpRequest request) {
+		if (!this.logger.isDebugEnable())
+			return;
+		this.logger.debug(request.getMethod().getName());
+		this.logger.debug(request.getUri());
+		for (Entry<String, String> h : request.getHeaders()) {
+			this.logger.debug("%s=%s", h.getKey(), h.getValue());
 		}
 	}
 }

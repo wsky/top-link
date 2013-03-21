@@ -2,7 +2,9 @@ package com.taobao.top.link.websocket;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -21,6 +23,7 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.ClientChannelSelector;
+import com.taobao.top.link.Identity;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
 
@@ -39,7 +42,7 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 	}
 
 	@Override
-	public ClientChannel getChannel(URI uri) throws ChannelException {
+	public ClientChannel getChannel(URI uri, Identity identity) throws ChannelException {
 		if (!uri.getScheme().equalsIgnoreCase("ws")) {
 			return null;
 		}
@@ -47,12 +50,13 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		if (channels.get(url) == null) {
 			synchronized (this.lockObject) {
 				if (channels.get(url) == null) {
-					channels.put(url, this.connect(uri, CONNECT_TIMEOUT, new ClearHandler() {
-						@Override
-						public void clear() {
-							channels.remove(url);
-						}
-					}));
+					channels.put(url, this.connect(uri,
+							identity, CONNECT_TIMEOUT, new ClearHandler() {
+								@Override
+								public void clear() {
+									channels.remove(url);
+								}
+							}));
 				}
 			}
 		}
@@ -64,7 +68,7 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		// shared channel
 	}
 
-	public ClientChannel connect(URI uri, int timeout, final ClearHandler clearHandler) throws ChannelException {
+	public ClientChannel connect(URI uri, Identity identity, int timeout, final ClearHandler clearHandler) throws ChannelException {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
@@ -92,19 +96,28 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		}
 		final Channel channel = future.getChannel();
 
+		// identity render to httpheader
+		Map<String, String> headers = new HashMap<String, String>();
+		if (identity != null)
+			identity.render(headers);
+
 		// handshake
 		try {
-			WebSocketClientHandshaker handshaker = this.wsFactory.newHandshaker(uri, WebSocketVersion.V13, "mqtt", true, null);
+			WebSocketClientHandshaker handshaker = this.wsFactory.newHandshaker(uri, WebSocketVersion.V13, "mqtt", true, headers);
 			clientHandler.handshaker = handshaker;
-			clientHandler.handshakeFuture = handshaker.handshake(channel);
+			handshaker.handshake(channel);
 			synchronized (handshaker) {
 				handshaker.wait(timeout);
 			}
 		} catch (Exception e) {
 			throw new ChannelException("handshake error", e);
 		}
-		if (!clientHandler.handshakeFuture.isSuccess()) {
-			throw new ChannelException("handshake fail", clientHandler.handshakeFuture.getCause());
+		if (!clientHandler.handshaker.isHandshakeComplete()) {
+			if (clientHandler.failure != null) {
+				throw new ChannelException("handshake fail: " + clientHandler.failure.getMessage(), clientHandler.failure);
+			} else {
+				throw new ChannelException("connect timeout");
+			}
 		}
 
 		ClientChannel clientChannel = new WebSocketClientChannel(channel, clientHandler, clearHandler);

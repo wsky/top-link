@@ -4,7 +4,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -26,7 +25,7 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 	protected Logger logger;
 
 	protected WebSocketClientHandshaker handshaker;
-	protected ChannelFuture handshakeFuture;
+	protected Throwable failure;
 
 	protected Queue<ChannelHandler> onceHandlers;
 	protected ChannelHandler channelHandler;
@@ -40,8 +39,8 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 			throws Exception {
-		if (this.handshakeFuture != null && !this.handshakeFuture.isSuccess()) {
-			this.handshakeFuture.setFailure(e.getCause());
+		if (!this.handshaker.isHandshakeComplete()) {
+			this.failure = e.getCause();
 			this.notifyHandshake();
 		} else {
 			this.logger.error("exceptionCaught at client", e.getCause());
@@ -56,20 +55,26 @@ public class WebSocketClientHandler extends SimpleChannelUpstreamHandler {
 			throws Exception {
 		Object msg = e.getMessage();
 		if (!this.handshaker.isHandshakeComplete()) {
-			HttpResponse response = (HttpResponse) e.getMessage();
-			HttpResponseStatus status = new HttpResponseStatus(101, "Web Socket Protocol Handshake");
-			boolean validStatus = response.getStatus().equals(status);
-			boolean validUpgrade = response.getHeader(Names.UPGRADE).equalsIgnoreCase(Values.WEBSOCKET);
-			boolean validConnection = response.getHeader(Names.CONNECTION).equalsIgnoreCase(Values.UPGRADE);
+			try {
+				HttpResponse response = (HttpResponse) e.getMessage();
+				HttpResponseStatus status = new HttpResponseStatus(101, "Web Socket Protocol Handshake");
+				boolean validStatus = response.getStatus().equals(status);
+				boolean validUpgrade = response.getHeader(Names.UPGRADE) != null &&
+						response.getHeader(Names.UPGRADE).equalsIgnoreCase(Values.WEBSOCKET);
+				boolean validConnection = response.getHeader(Names.CONNECTION) != null &&
+						response.getHeader(Names.CONNECTION).equalsIgnoreCase(Values.UPGRADE);
 
-			if (!validStatus || !validUpgrade || !validConnection) {
-				this.handshakeFuture.setFailure(new Exception("Invalid handshake response"));
-			} else {
-				this.handshaker.finishHandshake(ctx.getChannel(), response);
+				if (!validStatus || !validUpgrade || !validConnection) {
+					this.failure = new Exception("Invalid handshake response");
+				} else {
+					this.handshaker.finishHandshake(ctx.getChannel(), response);
+				}
+			} catch (Exception unknow) {
+				this.failure = unknow;
+				this.logger.error(unknow);
+			} finally {
+				this.notifyHandshake();
 			}
-
-			this.notifyHandshake();
-
 			return;
 		}
 

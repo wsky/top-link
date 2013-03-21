@@ -84,7 +84,7 @@ public class Endpoint {
 		}
 		e = new EndpointProxy();
 		// always reget channel, make sure it's valid
-		ClientChannel channel = this.channelSelectHandler.getChannel(uri);
+		ClientChannel channel = this.channelSelectHandler.getChannel(uri, this.identity);
 		channel.setChannelHandler(this.channelHandler);
 		e.add(channel);
 		this.connected.add(e);
