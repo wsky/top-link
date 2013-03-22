@@ -2,7 +2,6 @@ package com.taobao.top.link.channel.websocket;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.Hashtable;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -20,52 +19,16 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ClientChannel;
-import com.taobao.top.link.channel.ClientChannelSelector;
+import com.taobao.top.link.channel.ConnectingChannelHandler;
 
-public class WebSocketClientChannelSelector implements ClientChannelSelector {
-	private final static int CONNECT_TIMEOUT = 5000;
-	private Hashtable<String, ClientChannel> channels;
-	private WebSocketClientHandshakerFactory wsFactory;
-	protected LoggerFactory loggerFactory;
-	protected Object lockObject;
+public class WebSocketClient {
+	private static WebSocketClientHandshakerFactory wsFactory = new WebSocketClientHandshakerFactory();
 
-	public WebSocketClientChannelSelector(LoggerFactory factory) {
-		this.loggerFactory = factory;
-		this.channels = new Hashtable<String, ClientChannel>();
-		this.wsFactory = new WebSocketClientHandshakerFactory();
-		this.lockObject = new Object();
-	}
-
-	@Override
-	public ClientChannel getChannel(URI uri) throws ChannelException {
-		if (!uri.getScheme().equalsIgnoreCase("ws")) {
-			return null;
-		}
-		final String url = uri.toString();
-		if (channels.get(url) == null ||
-				!channels.get(url).isConnected()) {
-			synchronized (this.lockObject) {
-				if (channels.get(url) == null ||
-						!channels.get(url).isConnected()) {
-					channels.put(url, this.connect(uri, CONNECT_TIMEOUT));
-				}
-			}
-		}
-		return channels.get(url);
-	}
-
-	@Override
-	public void returnChannel(ClientChannel channel) {
-		// shared channel
-	}
-
-	public ClientChannel connect(URI uri, int timeout)
+	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout)
 			throws ChannelException {
-		Logger logger = this.loggerFactory.create(String.format("WebSocketClientHandler-%s", uri));
+		Logger logger = loggerFactory.create(String.format("WebSocketClientHandler-%s", uri));
 
 		WebSocketClientChannel clientChannel = new WebSocketClientChannel();
 		clientChannel.setUri(uri);
@@ -74,9 +37,9 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		clientChannel.setChannelHandler(handler);
 
 		WebSocketClientUpstreamHandler wsHandler = new WebSocketClientUpstreamHandler(logger, clientChannel);
-		ClientBootstrap bootstrap = this.prepareBootstrap(logger, wsHandler);
+		ClientBootstrap bootstrap = prepareBootstrap(logger, wsHandler);
 		// connect
-		ChannelFuture future=null;
+		ChannelFuture future = null;
 		try {
 			future = bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort())).sync();
 		} catch (Exception e) {
@@ -85,7 +48,7 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		Channel channel = future.getChannel();
 		// handshake
 		try {
-			WebSocketClientHandshaker handshaker = this.wsFactory.
+			WebSocketClientHandshaker handshaker = wsFactory.
 					newHandshaker(uri, WebSocketVersion.V13, null, true, null);
 			wsHandler.handshaker = handshaker;
 			handshaker.handshake(channel);
@@ -104,7 +67,7 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		throw new ChannelException("connect timeout");
 	}
 
-	private ClientBootstrap prepareBootstrap(Logger logger, WebSocketClientUpstreamHandler wsHandler) {
+	private static ClientBootstrap prepareBootstrap(Logger logger, WebSocketClientUpstreamHandler wsHandler) {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
@@ -119,29 +82,5 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 			}
 		});
 		return bootstrap;
-	}
-	
-	class ConnectingChannelHandler implements ChannelHandler {
-		public Throwable error;
-		public Object syncObject = new Object();
-
-		@Override
-		public void onConnect(ChannelContext context) {
-			synchronized (syncObject) {
-				syncObject.notify();
-			}
-		}
-
-		@Override
-		public void onMessage(ChannelContext context) {
-		}
-
-		@Override
-		public void onError(ChannelContext context) {
-			error = context.getError();
-			synchronized (syncObject) {
-				syncObject.notify();
-			}
-		}
 	}
 }

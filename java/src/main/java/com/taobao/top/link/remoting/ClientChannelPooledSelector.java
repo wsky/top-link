@@ -7,12 +7,13 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Pool;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
-import com.taobao.top.link.channel.websocket.WebSocketClientChannelSelector;
+import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
 
-public class WebSocketClientChannelPooledSelector extends WebSocketClientChannelSelector {
+public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 	private Hashtable<String, Pool<ClientChannel>> channels;
 
-	public WebSocketClientChannelPooledSelector(LoggerFactory factory) {
+	public ClientChannelPooledSelector(LoggerFactory factory) {
 		super(factory);
 		this.channels = new Hashtable<String, Pool<ClientChannel>>();
 	}
@@ -23,7 +24,7 @@ public class WebSocketClientChannelPooledSelector extends WebSocketClientChannel
 		if (this.channels.get(url) == null) {
 			synchronized (this.lockObject) {
 				if (this.channels.get(url) == null) {
-					this.channels.put(url, new ChannelPool(uri, this));
+					this.channels.put(url, new ChannelPool(uri, this.loggerFactory));
 				}
 			}
 		}
@@ -42,12 +43,12 @@ public class WebSocketClientChannelPooledSelector extends WebSocketClientChannel
 
 	class ChannelPool extends Pool<ClientChannel> {
 		private URI uri;
-		private WebSocketClientChannelPooledSelector selector;
+		private LoggerFactory loggerFactory;
 
-		public ChannelPool(URI uri, WebSocketClientChannelPooledSelector selector) {
+		public ChannelPool(URI uri, LoggerFactory loggerFactory) {
 			super(10, 10);
 			this.uri = uri;
-			this.selector = selector;
+			this.loggerFactory = loggerFactory;
 		}
 
 		public ClientChannel checkout() throws Throwable {
@@ -59,7 +60,7 @@ public class WebSocketClientChannelPooledSelector extends WebSocketClientChannel
 
 		@Override
 		public ClientChannel create() throws ChannelException {
-			return this.selector.connect(this.uri, 5000);
+			return WebSocketClient.connect(this.loggerFactory, this.uri, 5000);
 		}
 
 		@Override

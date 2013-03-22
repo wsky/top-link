@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import org.junit.Test;
 
 import com.taobao.top.link.DefaultLoggerFactory;
-import com.taobao.top.link.Identity;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ChannelException;

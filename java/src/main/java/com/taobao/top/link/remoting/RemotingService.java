@@ -10,7 +10,7 @@ import com.taobao.top.link.channel.ClientChannelSelector;
 public class RemotingService {
 	private static AtomicInteger flag = new AtomicInteger(0);
 	private static LoggerFactory loggerFactory = new DefaultLoggerFactory();
-	private static ClientChannelSelector channelSelector = new WebSocketClientChannelPooledSelector(loggerFactory);
+	private static ClientChannelSelector channelSelector = new ClientChannelPooledSelector(loggerFactory);
 	// TODO:shared handler or one handler per channel?
 	private static RemotingClientChannelHandler channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
 
