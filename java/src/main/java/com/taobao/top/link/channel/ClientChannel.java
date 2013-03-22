@@ -1,8 +1,7 @@
-package com.taobao.top.link;
+package com.taobao.top.link.channel;
 
 import java.net.URI;
 
-import com.taobao.top.link.handler.ChannelHandler;
 
 public interface ClientChannel extends ChannelSender {
 	public boolean isConnected();

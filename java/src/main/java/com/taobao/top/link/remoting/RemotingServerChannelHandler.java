@@ -14,14 +14,15 @@ import remoting.protocol.tcp.TcpProtocolHandle;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
-import com.taobao.top.link.ChannelSender.SendHandler;
-import com.taobao.top.link.EndpointContext;
-import com.taobao.top.link.handler.SimpleChannelHandler;
+import com.taobao.top.link.channel.ChannelContext;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.SimpleChannelHandler;
+import com.taobao.top.link.channel.ChannelSender.SendHandler;
 
 public abstract class RemotingServerChannelHandler extends SimpleChannelHandler {
 	@Override
-	public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {		
-		TcpProtocolHandle protocol = new TcpProtocolHandle(dataBuffer);
+	public void onMessage(ChannelContext context) throws ChannelException {
+		TcpProtocolHandle protocol = new TcpProtocolHandle((ByteBuffer) context.getMessage());
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();

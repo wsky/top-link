@@ -11,10 +11,10 @@ import remoting.protocol.tcp.TcpOperations;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
-import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.ClientChannel;
-import com.taobao.top.link.ChannelSender.SendHandler;
-import com.taobao.top.link.ClientChannelSelector;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ClientChannel;
+import com.taobao.top.link.channel.ClientChannelSelector;
+import com.taobao.top.link.channel.ChannelSender.SendHandler;
 
 public class DynamicProxy implements InvocationHandler {
 	// do not make execution timeout

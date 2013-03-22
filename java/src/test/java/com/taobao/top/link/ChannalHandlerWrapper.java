@@ -1,26 +1,32 @@
 package com.taobao.top.link;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 
-import com.taobao.top.link.handler.ChannelHandler;
+import com.taobao.top.link.channel.ChannelContext;
+import com.taobao.top.link.channel.ChannelHandler;
 
 public class ChannalHandlerWrapper implements ChannelHandler {
 	public Object sync = new Object();
 
+	public AtomicInteger connect = new AtomicInteger();
 	public AtomicInteger receive = new AtomicInteger();
 	public AtomicInteger error = new AtomicInteger();
 
 	@Override
-	public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
+	public void onConnect(ChannelContext context) {
+		connect.incrementAndGet();
+	}
+	
+	@Override
+	 public void onMessage(ChannelContext context)  {
 		receive.incrementAndGet();
 		this.notifyHandler();
 	}
 
 	@Override
-	public void onException(Throwable exception) {
+	public void onError(ChannelContext context) {
 		error.incrementAndGet();
 		this.notifyHandler();
 	}

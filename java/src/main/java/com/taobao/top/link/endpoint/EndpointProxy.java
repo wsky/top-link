@@ -1,8 +1,12 @@
-package com.taobao.top.link;
+package com.taobao.top.link.endpoint;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.taobao.top.link.Identity;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ChannelSender;
 
 public class EndpointProxy {
 	private Identity identity;

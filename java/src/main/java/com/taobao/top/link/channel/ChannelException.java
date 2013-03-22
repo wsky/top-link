@@ -1,4 +1,6 @@
-package com.taobao.top.link;
+package com.taobao.top.link.channel;
+
+import com.taobao.top.link.LinkException;
 
 public class ChannelException extends LinkException {
 

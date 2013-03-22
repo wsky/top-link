@@ -16,10 +16,10 @@ import remoting.protocol.tcp.TcpProtocolHandle;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
-import com.taobao.top.link.EndpointContext;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.handler.ChannelHandler;
+import com.taobao.top.link.channel.ChannelContext;
+import com.taobao.top.link.channel.ChannelHandler;
 
 public class RemotingClientChannelHandler implements ChannelHandler {
 	private Logger logger;
@@ -72,10 +72,14 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 	public void cancel(RemotingCallback callback) {
 		this.callbacks.remove(callback.flag);
 	}
+	
+	@Override
+	public void onConnect(ChannelContext context) {
+	}
 
 	@Override
-	public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
-		TcpProtocolHandle protocol = new TcpProtocolHandle(dataBuffer);
+	public void onMessage(ChannelContext context) {
+		TcpProtocolHandle protocol = new TcpProtocolHandle((ByteBuffer) context.getMessage());
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();
@@ -131,11 +135,11 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 	}
 
 	@Override
-	public void onException(Throwable exception) {
+	public void onError(ChannelContext context) {
 		// all is fail!
 		for (Entry<String, RemotingCallback> i : this.callbacks.entrySet()) {
 			try {
-				i.getValue().onException(exception);
+				i.getValue().onException(context.getError());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

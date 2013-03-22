@@ -1,8 +1,8 @@
 package com.taobao.top.link.remoting;
 
-import com.taobao.top.link.Endpoint;
-import com.taobao.top.link.ServerChannel;
-import com.taobao.top.link.websocket.WebSocketServerChannel;
+import com.taobao.top.link.channel.ServerChannel;
+import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
+import com.taobao.top.link.endpoint.Endpoint;
 
 // combined client/server remoting config helper
 public class RemotingConfiguration {

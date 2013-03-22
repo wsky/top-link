@@ -1,4 +1,4 @@
-package com.taobao.top.link;
+package com.taobao.top.link.endpoint;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -6,8 +6,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import com.taobao.top.link.handler.ChannelHandler;
-import com.taobao.top.link.websocket.WebSocketClientChannelSelector;
+import com.taobao.top.link.DefaultLoggerFactory;
+import com.taobao.top.link.Identity;
+import com.taobao.top.link.Logger;
+import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ChannelHandler;
+import com.taobao.top.link.channel.ClientChannel;
+import com.taobao.top.link.channel.ClientChannelSelector;
+import com.taobao.top.link.channel.ServerChannel;
+import com.taobao.top.link.channel.websocket.WebSocketClientChannelSelector;
 
 // just an sample api gateway, upper layer app can use serverChannel/channelSelect directly
 // request-reply
@@ -49,6 +57,7 @@ public class Endpoint {
 
 	public void setChannelHandler(ChannelHandler handler) {
 		this.channelHandler = handler;
+		this.setChannelHandler();
 	}
 
 	public ChannelHandler getChannelHandler() {
@@ -56,7 +65,8 @@ public class Endpoint {
 	}
 
 	public void bind(ServerChannel channel) {
-		channel.run(this);
+		channel.setChannelHandler(this.channelHandler);
+		channel.run();
 		this.serverChannels.add(channel);
 	}
 
@@ -104,5 +114,11 @@ public class Endpoint {
 		if (this.logger.isDebugEnable())
 			this.logger.debug("create new EndpointProxy by identity");
 		return e;
+	}
+
+	private void setChannelHandler() {
+		for (ServerChannel channel : this.serverChannels) {
+			channel.setChannelHandler(this.channelHandler);
+		}
 	}
 }

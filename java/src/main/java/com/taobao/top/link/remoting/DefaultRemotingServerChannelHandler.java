@@ -24,5 +24,4 @@ public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHa
 	public void addProcessor(String objectUri, MethodCallProcessor processor) {
 		this.services.put("/" + objectUri.toLowerCase(), processor);
 	}
-
 }

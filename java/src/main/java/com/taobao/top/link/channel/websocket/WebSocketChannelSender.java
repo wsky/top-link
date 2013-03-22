@@ -1,11 +1,11 @@
-package com.taobao.top.link.websocket;
+package com.taobao.top.link.channel.websocket;
 
 import java.nio.ByteBuffer;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.ChannelSender;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ChannelSender;
 
 public class WebSocketChannelSender extends WebSocketEndpointContext implements ChannelSender {
 

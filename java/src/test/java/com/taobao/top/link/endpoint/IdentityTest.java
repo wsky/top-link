@@ -1,4 +1,4 @@
-package com.taobao.top.link;
+package com.taobao.top.link.endpoint;
 
 import static org.junit.Assert.*;
 
@@ -10,7 +10,13 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import com.taobao.top.link.websocket.WebSocketServerChannel;
+import com.taobao.top.link.DefaultLoggerFactory;
+import com.taobao.top.link.Identity;
+import com.taobao.top.link.LinkException;
+import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
+import com.taobao.top.link.endpoint.Endpoint;
 
 public class IdentityTest {
 	private LoggerFactory loggerFactory = new DefaultLoggerFactory(true, true, true, true, true);

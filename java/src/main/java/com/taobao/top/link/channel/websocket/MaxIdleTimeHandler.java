@@ -1,4 +1,4 @@
-package com.taobao.top.link.websocket;
+package com.taobao.top.link.channel.websocket;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;

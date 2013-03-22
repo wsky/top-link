@@ -1,4 +1,4 @@
-package com.taobao.top.link.websocket;
+package com.taobao.top.link.channel.websocket;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
@@ -17,39 +17,28 @@ import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
 import com.taobao.top.link.DefaultLoggerFactory;
-import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.ServerChannel;
+import com.taobao.top.link.channel.ServerChannel;
 
 public class WebSocketServerChannel extends ServerChannel {
-	private LoggerFactory loggerFactory;
-	private Logger logger;
-
 	private ServerBootstrap bootstrap;
 	private ChannelGroup allChannels;
-	private int port;
-	private int maxIdleTimeSeconds = 0;
 
 	public WebSocketServerChannel(int port) {
 		this(new DefaultLoggerFactory(), port);
 	}
 
 	public WebSocketServerChannel(LoggerFactory factory, int port) {
-		this.loggerFactory = factory;
-		this.logger = factory.create(this);
+		super(factory, port);
 		this.allChannels = new DefaultChannelGroup();
-		this.port = port;
-	}
-
-	public void setMaxIdleTimeSeconds(int value) {
-		this.maxIdleTimeSeconds = value;
 	}
 
 	@Override
-	protected void run() {
+	public void run() {
 		this.bootstrap = new ServerBootstrap(
 				new NioServerSocketChannelFactory(
-						Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
+						Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()));
 		// shared timer for idle
 		final Timer timer = new HashedWheelTimer();
 		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -57,19 +46,12 @@ public class WebSocketServerChannel extends ServerChannel {
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
 				if (maxIdleTimeSeconds > 0) {
-					pipeline.addLast("idleStateHandler",
-							new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
-					pipeline.addLast("maxIdleHandler",
-							new MaxIdleTimeHandler(loggerFactory, maxIdleTimeSeconds));
+					pipeline.addLast("idleStateHandler", new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
+					pipeline.addLast("maxIdleHandler", new MaxIdleTimeHandler(loggerFactory, maxIdleTimeSeconds));
 				}
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("encoder", new HttpResponseEncoder());
-				pipeline.addLast("handler",
-						new WebSocketServerHandler(
-								loggerFactory,
-								endpoint,
-								getChannelHandler(),
-								allChannels));
+				pipeline.addLast("handler", new WebSocketServerUpstreamHandler(loggerFactory, channelHandler, allChannels));
 				return pipeline;
 			}
 		});
@@ -78,7 +60,7 @@ public class WebSocketServerChannel extends ServerChannel {
 	}
 
 	@Override
-	protected void stop() {
+	public void stop() {
 		this.allChannels.close().awaitUninterruptibly();
 		this.bootstrap.releaseExternalResources();
 		this.logger.info("server channel shutdown");

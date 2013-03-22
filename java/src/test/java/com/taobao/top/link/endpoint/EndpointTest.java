@@ -1,4 +1,4 @@
-package com.taobao.top.link;
+package com.taobao.top.link.endpoint;
 
 import static org.junit.Assert.*;
 
@@ -8,8 +8,13 @@ import java.nio.ByteBuffer;
 
 import org.junit.Test;
 
-import com.taobao.top.link.handler.SimpleChannelHandler;
-import com.taobao.top.link.websocket.WebSocketServerChannel;
+import com.taobao.top.link.ChannalHandlerWrapper;
+import com.taobao.top.link.channel.ChannelContext;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.SimpleChannelHandler;
+import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
+import com.taobao.top.link.endpoint.Endpoint;
+import com.taobao.top.link.endpoint.EndpointProxy;
 
 public class EndpointTest {
 	@Test
@@ -24,7 +29,8 @@ public class EndpointTest {
 		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override
-			public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
+			public void onMessage(ChannelContext context) throws ChannelException {
+				ByteBuffer dataBuffer = (ByteBuffer) context.getMessage();
 				String dataString = new String(dataBuffer.array(), dataBuffer.arrayOffset(), dataBuffer.capacity());
 				if (request.equals(dataString)) {
 					System.out.println("request:" + dataString);
@@ -116,22 +122,13 @@ public class EndpointTest {
 		handlerWrapper.assertHandler(1, 0);
 	}
 
-	@Test
-	public void getConnected_test() {
-
-	}
-
-	@Test
-	public void connected_and_close_then_remove_sender_test() {
-
-	}
-
 	private Endpoint run(int port, int maxIdleSecond) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(port);
 		Endpoint endpoint = new Endpoint();
 		endpoint.setChannelHandler(new SimpleChannelHandler() {
 			@Override
-			public void onReceive(ByteBuffer dataBuffer, EndpointContext context) {
+			public void onMessage(ChannelContext context) throws ChannelException {
+				ByteBuffer dataBuffer = (ByteBuffer) context.getMessage();
 				String dataString = new String(dataBuffer.array(), dataBuffer.arrayOffset(), dataBuffer.capacity());
 				System.out.println(dataString);
 			}

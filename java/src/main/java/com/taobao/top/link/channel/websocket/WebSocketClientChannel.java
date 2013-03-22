@@ -1,4 +1,4 @@
-package com.taobao.top.link.websocket;
+package com.taobao.top.link.channel.websocket;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -10,21 +10,17 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 
-import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.ClientChannel;
-import com.taobao.top.link.handler.ChannelHandler;
-import com.taobao.top.link.websocket.WebSocketClientHandler.ClearHandler;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ChannelHandler;
+import com.taobao.top.link.channel.ClientChannel;
 
 public class WebSocketClientChannel implements ClientChannel {
 	private URI uri;
-	private Channel channel;
-	private WebSocketClientHandler clientHandler;
-	private ClearHandler clearHandler;
-
-	public WebSocketClientChannel(Channel channel, WebSocketClientHandler clientHandler, ClearHandler clearHandler) {
-		this.channel = channel;
-		this.clientHandler = clientHandler;
-		this.clearHandler = clearHandler;
+	protected Channel channel;
+	private ChannelHandler channelHandler;
+	
+	public ChannelHandler getChannelHandler() {
+		return this.channelHandler;
 	}
 
 	@Override
@@ -40,7 +36,7 @@ public class WebSocketClientChannel implements ClientChannel {
 	@Override
 	public void setChannelHandler(ChannelHandler handler) {
 		// TODO:maybe course null when concurrent? use volatile?
-		clientHandler.channelHandler = handler;
+		this.channelHandler = handler;
 	}
 
 	@Override
@@ -79,10 +75,7 @@ public class WebSocketClientChannel implements ClientChannel {
 	private void checkChannel() throws ChannelException {
 		// prevent unknown exception after connected and get channel
 		// channel.write is async default
-		if (!channel.isConnected()) {
-			if (this.clearHandler != null)
-				this.clearHandler.clear();
+		if (!channel.isConnected())
 			throw new ChannelException("channel closed");
-		}
 	}
 }

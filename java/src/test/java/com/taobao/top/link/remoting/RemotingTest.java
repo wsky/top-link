@@ -7,9 +7,9 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.Endpoint;
-import com.taobao.top.link.websocket.WebSocketServerChannel;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
+import com.taobao.top.link.endpoint.Endpoint;
 
 public class RemotingTest {
 	@Test

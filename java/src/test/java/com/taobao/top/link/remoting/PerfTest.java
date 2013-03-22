@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import com.taobao.top.link.ChannelException;
+import com.taobao.top.link.channel.ChannelException;
 
 public class PerfTest {
 	private int total = 10000;

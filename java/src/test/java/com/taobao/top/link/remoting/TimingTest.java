@@ -7,12 +7,12 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import com.taobao.top.link.ChannelException;
 import com.taobao.top.link.DefaultLoggerFactory;
-import com.taobao.top.link.Endpoint;
-import com.taobao.top.link.websocket.WebSocketClientChannelPooledSelector;
-import com.taobao.top.link.websocket.WebSocketClientChannelSelector;
-import com.taobao.top.link.websocket.WebSocketServerChannel;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.websocket.WebSocketClientChannelPooledSelector;
+import com.taobao.top.link.channel.websocket.WebSocketClientChannelSelector;
+import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
+import com.taobao.top.link.endpoint.Endpoint;
 
 // rpc timing is important for overlay-io/reused-channel
 public class TimingTest {

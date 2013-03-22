@@ -1,13 +1,13 @@
-package com.taobao.top.link.websocket;
+package com.taobao.top.link.channel.websocket;
 
 import java.net.URI;
 import java.util.Hashtable;
 
-import com.taobao.top.link.ChannelException;
-import com.taobao.top.link.ClientChannel;
 import com.taobao.top.link.Identity;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Pool;
+import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ClientChannel;
 
 public class WebSocketClientChannelPooledSelector extends WebSocketClientChannelSelector {
 	private Hashtable<String, Pool<ClientChannel>> channels;
@@ -62,7 +62,7 @@ public class WebSocketClientChannelPooledSelector extends WebSocketClientChannel
 
 		@Override
 		public ClientChannel create() throws ChannelException {
-			return this.selector.connect(this.uri, this.identity, 5000, null);
+			return this.selector.connect(this.uri, this.identity, 5000);
 		}
 
 		@Override
