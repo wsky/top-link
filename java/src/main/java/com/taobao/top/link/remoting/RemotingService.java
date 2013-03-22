@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ClientChannelSelector;
-import com.taobao.top.link.channel.websocket.WebSocketClientChannelPooledSelector;
 
 public class RemotingService {
 	private static AtomicInteger flag = new AtomicInteger(0);

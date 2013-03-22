@@ -23,7 +23,7 @@ public class Endpoint {
 	private Logger logger;
 	private Identity identity;
 	private List<ServerChannel> serverChannels;
-	private ClientChannelSelector channelSelectHandler;
+	private ClientChannelSelector channelSelector;
 	private ChannelHandler channelHandler;
 
 	// in/out endpoints
@@ -48,7 +48,7 @@ public class Endpoint {
 		this.connectedByUri = new HashMap<String, EndpointProxy>();
 		this.logger = loggerFactory.create(this);
 		this.identity = identity;
-		this.channelSelectHandler = new WebSocketClientChannelSelector(loggerFactory);
+		this.channelSelector = new WebSocketClientChannelSelector(loggerFactory);
 	}
 
 	public Identity getIdentity() {
@@ -94,7 +94,7 @@ public class Endpoint {
 		}
 		e = new EndpointProxy();
 		// always reget channel, make sure it's valid
-		ClientChannel channel = this.channelSelectHandler.getChannel(uri, this.identity);
+		ClientChannel channel = this.channelSelector.getChannel(uri);
 		channel.setChannelHandler(this.channelHandler);
 		e.add(channel);
 		this.connected.add(e);

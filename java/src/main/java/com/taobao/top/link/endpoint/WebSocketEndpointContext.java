@@ -1,4 +1,4 @@
-package com.taobao.top.link.channel.websocket;
+package com.taobao.top.link.endpoint;
 
 import java.nio.ByteBuffer;
 
@@ -10,7 +10,6 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 
 import com.taobao.top.link.channel.ChannelSender.SendHandler;
-import com.taobao.top.link.endpoint.EndpointContext;
 
 public class WebSocketEndpointContext extends EndpointContext {
 	private ChannelHandlerContext ctx;

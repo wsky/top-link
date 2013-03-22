@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.websocket.WebSocketClientChannelPooledSelector;
 import com.taobao.top.link.channel.websocket.WebSocketClientChannelSelector;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.Endpoint;
@@ -39,7 +38,7 @@ public class TimingTest {
 
 		RemotingService.setChannelSelector(sharedSelector);
 		// proxy1/2 will share same channel
-		sharedSelector.getChannel(uri, null);
+		sharedSelector.getChannel(uri);
 		final DynamicProxy proxy1 = RemotingService.connect(uri);
 		final DynamicProxy proxy2 = RemotingService.connect(uri);
 

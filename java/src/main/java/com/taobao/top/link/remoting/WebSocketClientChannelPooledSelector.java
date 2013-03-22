@@ -1,13 +1,13 @@
-package com.taobao.top.link.channel.websocket;
+package com.taobao.top.link.remoting;
 
 import java.net.URI;
 import java.util.Hashtable;
 
-import com.taobao.top.link.Identity;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Pool;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
+import com.taobao.top.link.channel.websocket.WebSocketClientChannelSelector;
 
 public class WebSocketClientChannelPooledSelector extends WebSocketClientChannelSelector {
 	private Hashtable<String, Pool<ClientChannel>> channels;
@@ -18,12 +18,12 @@ public class WebSocketClientChannelPooledSelector extends WebSocketClientChannel
 	}
 
 	@Override
-	public ClientChannel getChannel(final URI uri, Identity identity) throws ChannelException {
+	public ClientChannel getChannel(final URI uri) throws ChannelException {
 		String url = uri.toString();
 		if (this.channels.get(url) == null) {
 			synchronized (this.lockObject) {
 				if (this.channels.get(url) == null) {
-					this.channels.put(url, new ChannelPool(uri, identity, this));
+					this.channels.put(url, new ChannelPool(uri, this));
 				}
 			}
 		}
@@ -42,14 +42,11 @@ public class WebSocketClientChannelPooledSelector extends WebSocketClientChannel
 
 	class ChannelPool extends Pool<ClientChannel> {
 		private URI uri;
-		private Identity identity;
 		private WebSocketClientChannelPooledSelector selector;
 
-		public ChannelPool(URI uri,
-				Identity identity, WebSocketClientChannelPooledSelector selector) {
+		public ChannelPool(URI uri, WebSocketClientChannelPooledSelector selector) {
 			super(10, 10);
 			this.uri = uri;
-			this.identity = identity;
 			this.selector = selector;
 		}
 
@@ -62,7 +59,7 @@ public class WebSocketClientChannelPooledSelector extends WebSocketClientChannel
 
 		@Override
 		public ClientChannel create() throws ChannelException {
-			return this.selector.connect(this.uri, this.identity, 5000);
+			return this.selector.connect(this.uri, 5000);
 		}
 
 		@Override

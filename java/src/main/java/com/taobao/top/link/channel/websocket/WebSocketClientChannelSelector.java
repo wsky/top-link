@@ -18,7 +18,6 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
-import com.taobao.top.link.Identity;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ChannelContext;
@@ -42,7 +41,7 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 	}
 
 	@Override
-	public ClientChannel getChannel(URI uri, Identity identity) throws ChannelException {
+	public ClientChannel getChannel(URI uri) throws ChannelException {
 		if (!uri.getScheme().equalsIgnoreCase("ws")) {
 			return null;
 		}
@@ -52,7 +51,7 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 			synchronized (this.lockObject) {
 				if (channels.get(url) == null ||
 						!channels.get(url).isConnected()) {
-					channels.put(url, this.connect(uri, identity, CONNECT_TIMEOUT));
+					channels.put(url, this.connect(uri, CONNECT_TIMEOUT));
 				}
 			}
 		}
@@ -64,7 +63,7 @@ public class WebSocketClientChannelSelector implements ClientChannelSelector {
 		// shared channel
 	}
 
-	public ClientChannel connect(URI uri, Identity identity, int timeout)
+	public ClientChannel connect(URI uri, int timeout)
 			throws ChannelException {
 		Logger logger = this.loggerFactory.create(String.format("WebSocketClientHandler-%s", uri));
 

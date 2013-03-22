@@ -6,6 +6,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelSender;
+import com.taobao.top.link.endpoint.WebSocketEndpointContext;
 
 public class WebSocketChannelSender extends WebSocketEndpointContext implements ChannelSender {
 
