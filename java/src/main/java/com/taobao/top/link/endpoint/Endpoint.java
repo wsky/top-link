@@ -86,16 +86,14 @@ public class Endpoint {
 	public synchronized EndpointProxy getEndpoint(URI uri) throws ChannelException {
 		String uriString = uri.toString();
 		EndpointProxy e = this.connectedByUri.get(uriString);
+		if (e == null)
+			e = this.createProxy("by uri " + uriString);
 		// always clear, cached proxy will have broken channel
-		if (e != null) {
-			this.connected.remove(e);
-		}
-		e = new EndpointProxy();
+		e.remove(uri);
 		// always reget channel, make sure it's valid
 		ClientChannel channel = this.channelSelector.getChannel(uri);
 		channel.setChannelHandler(this.channelHandler);
 		e.add(channel);
-		this.connected.add(e);
 		this.connectedByUri.put(uriString, e);
 		return e;
 	}
@@ -106,11 +104,16 @@ public class Endpoint {
 					e.getIdentity().equals(identity))
 				return e;
 		}
-		EndpointProxy e = new EndpointProxy();
+		EndpointProxy e = this.createProxy("by identity|" + identity.toString());
 		e.setIdentity(identity);
+		return e;
+	}
+
+	private EndpointProxy createProxy(String reason) {
+		EndpointProxy e = new EndpointProxy();
 		this.connected.add(e);
 		if (this.logger.isDebugEnable())
-			this.logger.debug("create new EndpointProxy by identity");
+			this.logger.debug("create new EndpointProxy: " + reason);
 		return e;
 	}
 
