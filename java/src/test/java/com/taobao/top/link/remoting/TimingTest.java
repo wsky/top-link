@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
-import com.taobao.top.link.endpoint.Endpoint;
 import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
 
 // rpc timing is important for overlay-io/reused-channel
@@ -91,8 +90,7 @@ public class TimingTest {
 
 	private void runServer(URI uri) {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		Endpoint server = new Endpoint();
-		server.setChannelHandler(new RemotingServerChannelHandler() {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				MethodReturn methodReturn = new MethodReturn();
@@ -100,6 +98,6 @@ public class TimingTest {
 				return methodReturn;
 			}
 		});
-		server.bind(serverChannel);
+		serverChannel.run();
 	}
 }

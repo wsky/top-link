@@ -9,15 +9,13 @@ import org.junit.Test;
 
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
-import com.taobao.top.link.endpoint.Endpoint;
 
 public class RemotingTest {
 	@Test
 	public void send_test() throws URISyntaxException, ChannelException {
 		URI uri = new URI("ws://localhost:9001/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		Endpoint server = new Endpoint();
-		server.setChannelHandler(new RemotingServerChannelHandler() {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				MethodReturn methodReturn = new MethodReturn();
@@ -25,7 +23,7 @@ public class RemotingTest {
 				return methodReturn;
 			}
 		});
-		server.bind(serverChannel);
+		serverChannel.run();
 
 		DynamicProxy proxy = RemotingService.connect(uri);
 		MethodCall methodCall = new MethodCall();
@@ -45,8 +43,7 @@ public class RemotingTest {
 	public void execution_timeout_test() throws URISyntaxException, ChannelException, RemotingException, FormatterException {
 		URI uri = new URI("ws://localhost:9003/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		Endpoint server = new Endpoint();
-		server.setChannelHandler(new RemotingServerChannelHandler() {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {
@@ -57,7 +54,7 @@ public class RemotingTest {
 				return null;
 			}
 		});
-		server.bind(serverChannel);
+		serverChannel.run();
 
 		DynamicProxy proxy = RemotingService.connect(uri);
 
@@ -72,9 +69,8 @@ public class RemotingTest {
 	@Test(expected = RemotingException.class)
 	public void channel_broken_while_calling_test() throws Throwable {
 		URI uri = new URI("ws://localhost:9004/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		final Endpoint server = new Endpoint();
-		server.setChannelHandler(new RemotingServerChannelHandler() {
+		final WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {
@@ -85,7 +81,7 @@ public class RemotingTest {
 				return null;
 			}
 		});
-		server.bind(serverChannel);
+		serverChannel.run();
 
 		DynamicProxy proxy = RemotingService.connect(uri);
 
@@ -98,7 +94,7 @@ public class RemotingTest {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				server.unbindAll();
+				serverChannel.stop();
 			}
 		}).start();
 

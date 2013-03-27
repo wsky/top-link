@@ -8,10 +8,7 @@ import java.nio.ByteBuffer;
 
 import org.junit.Test;
 
-import com.taobao.top.link.ChannalHandlerWrapper;
-import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.SimpleChannelHandler;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.Endpoint;
 import com.taobao.top.link.endpoint.EndpointProxy;
@@ -27,9 +24,9 @@ public class EndpointTest {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		// init endpoint
 		Endpoint endpoint = new Endpoint();
-		endpoint.setChannelHandler(new SimpleChannelHandler() {
+		endpoint.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(ChannelContext context) throws ChannelException {
+			public void onMessage(EndpointContext context) throws ChannelException {
 				ByteBuffer dataBuffer = (ByteBuffer) context.getMessage();
 				String dataString = new String(dataBuffer.array(), dataBuffer.arrayOffset(), dataBuffer.capacity());
 				if (request.equals(dataString)) {
@@ -103,8 +100,8 @@ public class EndpointTest {
 	public void send_error_and_reget_test() throws URISyntaxException, InterruptedException, ChannelException {
 		URI uri = new URI("ws://localhost:8005/link");
 		Endpoint endpoint = run(uri.getPort(), 3);
-		ChannalHandlerWrapper handlerWrapper = new ChannalHandlerWrapper();
-		endpoint.setChannelHandler(handlerWrapper);
+		MessageHandlerWrapper handlerWrapper = new MessageHandlerWrapper();
+		endpoint.setMessageHandler(handlerWrapper);
 
 		EndpointProxy target = endpoint.getEndpoint(uri);
 		Thread.sleep(3500);
@@ -119,15 +116,15 @@ public class EndpointTest {
 		target = endpoint.getEndpoint(uri);
 		target.send(ByteBuffer.wrap("hi".getBytes()));
 		handlerWrapper.waitHandler(1000);
-		handlerWrapper.assertHandler(1, 0);
+		handlerWrapper.assertHandler(1);
 	}
 
 	private Endpoint run(int port, int maxIdleSecond) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(port);
 		Endpoint endpoint = new Endpoint();
-		endpoint.setChannelHandler(new SimpleChannelHandler() {
+		endpoint.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(ChannelContext context) throws ChannelException {
+			public void onMessage(EndpointContext context) throws ChannelException {
 				ByteBuffer dataBuffer = (ByteBuffer) context.getMessage();
 				String dataString = new String(dataBuffer.array(), dataBuffer.arrayOffset(), dataBuffer.capacity());
 				System.out.println(dataString);

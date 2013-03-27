@@ -2,7 +2,6 @@ package com.taobao.top.link.remoting;
 
 import com.taobao.top.link.channel.ServerChannel;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
-import com.taobao.top.link.endpoint.Endpoint;
 
 // combined client/server remoting config helper
 public class RemotingConfiguration {
@@ -14,30 +13,27 @@ public class RemotingConfiguration {
 		return configuration;
 	}
 
-	private Endpoint endpoint;
 	private DefaultRemotingServerChannelHandler defaultHandler;
 
 	public RemotingConfiguration() {
 		this.defaultHandler = new DefaultRemotingServerChannelHandler();
-		this.endpoint = new Endpoint();
-		this.endpoint.setChannelHandler(this.defaultHandler);
 	}
 
 	// bind to custom channel
 	public RemotingConfiguration bind(ServerChannel channel) {
-		this.endpoint.bind(channel);
+		channel.setChannelHandler(this.defaultHandler);
+		channel.run();
 		return this;
 	}
 
 	public RemotingConfiguration websocket(int port) {
-		this.endpoint.bind(new WebSocketServerChannel(port));
-		return this;
+		return this.bind(new WebSocketServerChannel(port));
 	}
 
 	public RemotingConfiguration tcp(int port) {
 		return this;
 	}
-	
+
 	public RemotingConfiguration http(int port) {
 		return this;
 	}

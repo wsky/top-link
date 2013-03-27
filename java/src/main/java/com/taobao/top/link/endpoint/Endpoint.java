@@ -10,7 +10,6 @@ import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ClientChannelSelector;
 import com.taobao.top.link.channel.ServerChannel;
@@ -22,7 +21,8 @@ public class Endpoint {
 	private Identity identity;
 	private List<ServerChannel> serverChannels;
 	private ClientChannelSelector channelSelector;
-	private ChannelHandler channelHandler;
+	private EndpointChannelHandler channelHandler;
+	private MessageHandler messageHandler;
 
 	// in/out endpoints
 	private List<EndpointProxy> connected;
@@ -47,19 +47,19 @@ public class Endpoint {
 		this.logger = loggerFactory.create(this);
 		this.identity = identity;
 		this.channelSelector = new ClientChannelSharedSelector(loggerFactory);
+		this.channelHandler = new EndpointChannelHandler(loggerFactory, this);
 	}
 
 	public Identity getIdentity() {
 		return this.identity;
 	}
 
-	public void setChannelHandler(ChannelHandler handler) {
-		this.channelHandler = handler;
-		this.setChannelHandler();
+	public void setMessageHandler(MessageHandler handler) {
+		this.messageHandler = handler;
 	}
 
-	public ChannelHandler getChannelHandler() {
-		return this.channelHandler;
+	public MessageHandler getMessageHandler() {
+		return this.messageHandler;
 	}
 
 	public void bind(ServerChannel channel) {
@@ -115,11 +115,5 @@ public class Endpoint {
 		if (this.logger.isDebugEnable())
 			this.logger.debug("create new EndpointProxy: " + reason);
 		return e;
-	}
-
-	private void setChannelHandler() {
-		for (ServerChannel channel : this.serverChannels) {
-			channel.setChannelHandler(this.channelHandler);
-		}
 	}
 }
