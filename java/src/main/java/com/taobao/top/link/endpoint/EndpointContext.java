@@ -8,13 +8,18 @@ import com.taobao.top.link.channel.ChannelSender.SendHandler;
 
 public class EndpointContext {
 	private ChannelContext channelContext;
+	private Object message;
 
 	public EndpointContext(ChannelContext channelContext) {
 		this.channelContext = channelContext;
 	}
 
 	public Object getMessage() {
-		return this.channelContext.getMessage();
+		return this.message;
+	}
+	
+	public void setMessage(Object message) {
+		this.message=message;
 	}
 
 	public void reply(byte[] data, int offset, int length) throws ChannelException {

@@ -36,6 +36,8 @@ build.bat
 
 ## Endpoint
 
+https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit
+
 run as receiver
 ```java
 WebSocketServerChannel serverChannel = new WebSocketServerChannel("localhost", 8080);

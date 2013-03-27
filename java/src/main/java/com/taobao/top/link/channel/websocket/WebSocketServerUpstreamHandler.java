@@ -78,7 +78,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		this.logger.error("exceptionCaught at server", e.getCause());
 	}
 
-	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) {
+	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
 		this.dump(req);
 
 		if (req.getMethod() != HttpMethod.GET) {

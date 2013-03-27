@@ -23,7 +23,7 @@ public class EndpointTest {
 		// init server channel
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		// init endpoint
-		Endpoint endpoint = new Endpoint();
+		Endpoint endpoint = new Endpoint(null);
 		endpoint.setMessageHandler(new MessageHandler() {
 			@Override
 			public void onMessage(EndpointContext context) throws ChannelException {
@@ -76,7 +76,7 @@ public class EndpointTest {
 	@Test(expected = ChannelException.class)
 	public void connect_error_test() throws ChannelException {
 		try {
-			new Endpoint().getEndpoint(new URI("ws://localhost:8002/link"));
+			new Endpoint(null).getEndpoint(new URI("ws://localhost:8002/link"));
 		} catch (ChannelException e) {
 			System.out.println(e.getMessage());
 			throw e;
@@ -121,7 +121,7 @@ public class EndpointTest {
 
 	private Endpoint run(int port, int maxIdleSecond) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(port);
-		Endpoint endpoint = new Endpoint();
+		Endpoint endpoint = new Endpoint(null);
 		endpoint.setMessageHandler(new MessageHandler() {
 			@Override
 			public void onMessage(EndpointContext context) throws ChannelException {

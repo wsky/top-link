@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.taobao.top.link.DefaultLoggerFactory;
+import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
@@ -14,8 +15,8 @@ import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ClientChannelSelector;
 import com.taobao.top.link.channel.ServerChannel;
 
-// just an sample api gateway, upper layer app can use serverChannel/channelSelect directly
-// request-reply
+// Abstract network model
+// https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit
 public class Endpoint {
 	private Logger logger;
 	private Identity identity;
@@ -28,16 +29,8 @@ public class Endpoint {
 	private List<EndpointProxy> connected;
 	private HashMap<String, EndpointProxy> connectedByUri;
 
-	public Endpoint() {
-		this(new DefaultLoggerFactory());
-	}
-
 	public Endpoint(Identity identity) {
 		this(new DefaultLoggerFactory(), identity);
-	}
-
-	public Endpoint(LoggerFactory loggerFactory) {
-		this(loggerFactory, null);
 	}
 
 	public Endpoint(LoggerFactory loggerFactory, Identity identity) {
@@ -83,7 +76,7 @@ public class Endpoint {
 		return this.connected.iterator();
 	}
 
-	public synchronized EndpointProxy getEndpoint(URI uri) throws ChannelException {
+	public synchronized EndpointProxy getEndpoint(URI uri) throws LinkException {
 		String uriString = uri.toString();
 		EndpointProxy e = this.connectedByUri.get(uriString);
 		if (e == null)
@@ -94,6 +87,13 @@ public class Endpoint {
 		ClientChannel channel = this.channelSelector.getChannel(uri);
 		channel.setChannelHandler(this.channelHandler);
 		e.add(channel);
+		// TODO:send connect
+		SendCallback callback = new SendCallback(e);
+		this.channelHandler.pending(new Message(), callback);
+		callback.waitReturn(5000);
+		if (callback.getError() != null) {
+			throw callback.getError();
+		}
 		this.connectedByUri.put(uriString, e);
 		return e;
 	}

@@ -59,7 +59,7 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 	}
 
 	private void handleHandshake(ChannelHandlerContext ctx, HttpResponse response)
-			throws LinkException {
+			throws Exception {
 		this.dump(response);
 		boolean validStatus = response.getStatus().equals(SUCCESS);
 		boolean validUpgrade = response.getHeader(Names.UPGRADE) != null &&
