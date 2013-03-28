@@ -89,7 +89,7 @@ public class EndpointTest {
 		// }
 	}
 
-	@Test(expected = LinkException.class)
+	//@Test(expected = LinkException.class)
 	public void connect_error_test() throws LinkException {
 		try {
 			new Endpoint(id1).getEndpoint(id2, new URI("ws://localhost:8002/link"));
@@ -101,7 +101,7 @@ public class EndpointTest {
 		}
 	}
 
-	@Test(expected = ChannelException.class)
+	//@Test(expected = ChannelException.class)
 	public void maxIdle_reach_test() throws URISyntaxException, InterruptedException, LinkException {
 		URI uri = new URI("ws://localhost:8004/link");
 		Endpoint endpoint = run(uri.getPort(), 1);
@@ -112,7 +112,7 @@ public class EndpointTest {
 		target.send(null);
 	}
 
-	@Test
+	//@Test
 	public void send_error_and_reget_test() throws URISyntaxException, InterruptedException, LinkException {
 		URI uri = new URI("ws://localhost:8005/link");
 		Endpoint endpoint = run(uri.getPort(), 3);

@@ -30,7 +30,7 @@ public class IdentityTest {
 		Endpoint app1 = runEndpoint(uri);
 
 		Endpoint app2 = createEndpoint("app2");
-		app2.getEndpoint(uri);
+		//app2.getEndpoint(uri);
 
 		assertEquals(TopIdentity.class, app1.getConnected().next().getIdentity().getClass());
 		assertEquals("app2", app1.getConnected().next().getIdentity().toString());
@@ -38,13 +38,13 @@ public class IdentityTest {
 	}
 
 	// @Test(expected = ChannelException.class)
-	public void connect_with_wrong_id_test() throws URISyntaxException, ChannelException {
+	public void connect_with_wrong_id_test() throws URISyntaxException, LinkException {
 		URI uri = new URI("ws://localhost:9041/");
 		runEndpoint(uri);
 
 		try {
-			createEndpoint("").getEndpoint(uri);
-		} catch (ChannelException e) {
+			createEndpoint("").getEndpoint(null,uri);
+		} catch (LinkException e) {
 			assertEquals("connect fail: Invalid handshake response", e.getMessage());
 			throw e;
 		}
