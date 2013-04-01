@@ -59,6 +59,11 @@ public class EndpointProxy {
 		return this.identity;
 	}
 
+	// TODO:senders should be auto check alive
+	public boolean canSend() {
+		return this.senders.size() > 0;
+	}
+
 	public HashMap<String, String> sendAndWait(HashMap<String, String> message) throws LinkException {
 		return this.sendAndWait(message, Endpoint.TIMOUTSECOND);
 	}
