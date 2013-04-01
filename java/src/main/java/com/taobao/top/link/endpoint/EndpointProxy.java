@@ -33,6 +33,10 @@ public class EndpointProxy {
 		this.token = token;
 	}
 
+	protected String getToken() {
+		return this.token;
+	}
+
 	protected synchronized void add(ChannelSender sender) {
 		this.senders.add(sender);
 		if (sender instanceof ClientChannel) {

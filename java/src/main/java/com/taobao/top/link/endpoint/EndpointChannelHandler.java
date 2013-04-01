@@ -114,12 +114,17 @@ public class EndpointChannelHandler implements ChannelHandler {
 			Identity id = this.endpoint.getIdentity().parse(message.content);
 			EndpointProxy proxy = this.endpoint.getEndpoint(id);
 			proxy.add(context.getSender());
-			// uuid for token? or get from id?
-			String token = UUID.randomUUID().toString();
-			ack.token = token;
-			proxy.setToken(token);
-			this.idByToken.put(token, id);
-			this.logger.info("%s accept a connect-in endpoint#%s and assign token#%s", this.endpoint.getIdentity(), id, token);
+			if (proxy.getToken() == null) {
+				// uuid for token? or get from id?
+				proxy.setToken(UUID.randomUUID().toString());
+			}
+			ack.token = proxy.getToken();
+			this.idByToken.put(proxy.getToken(), id);
+			this.logger.info(
+					"%s accept a connect-in endpoint#%s and assign token#%s",
+					this.endpoint.getIdentity(),
+					id,
+					proxy.getToken());
 		} catch (LinkException e) {
 			ack.statusCode = e.getErrorCode();
 			ack.statusPhase = e.getMessage();
