@@ -79,8 +79,8 @@ public class Endpoint {
 		return this.connected.iterator();
 	}
 
-	public synchronized EndpointProxy getEndpoint(Identity identity, URI uri) throws LinkException {
-		EndpointProxy e = this.getEndpoint(identity);
+	public synchronized EndpointProxy getEndpoint(Identity targetIdentity, URI uri) throws LinkException {
+		EndpointProxy e = this.getEndpoint(targetIdentity);
 		// always clear, cached proxy will have broken channel
 		e.remove(uri);
 		// always reget channel, make sure it's valid

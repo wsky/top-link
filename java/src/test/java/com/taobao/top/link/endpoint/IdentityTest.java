@@ -4,105 +4,59 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LinkException;
-import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.Endpoint;
 
 public class IdentityTest {
-	private LoggerFactory loggerFactory = new DefaultLoggerFactory(true, true, true, true, true);
+	private static TopIdentity id1;
+	private static TopIdentity id2;
+	private static Endpoint e1;
+	private static URI URI;
+
+	@BeforeClass
+	public static void init() throws InterruptedException, URISyntaxException {
+		id1 = new TopIdentity("app1");
+		id2 = new TopIdentity("app2");
+		URI = new URI("ws://localhost:9040/");
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(URI.getPort());
+		e1 = new Endpoint(id1);
+		e1.setMessageHandler(new MessageHandlerWrapper());
+		e1.bind(serverChannel);
+	}
 
 	@Test
-	public void test() {
-	}
-
-	// @Test
 	public void connect_with_id_test() throws URISyntaxException, LinkException {
-		URI uri = new URI("ws://localhost:9040/");
-		Endpoint app1 = runEndpoint(uri);
+		Endpoint e2 = new Endpoint(id2);
+		e2.getEndpoint(id1, URI);
 
-		Endpoint app2 = createEndpoint("app2");
-		//app2.getEndpoint(uri);
-
-		assertEquals(TopIdentity.class, app1.getConnected().next().getIdentity().getClass());
-		assertEquals("app2", app1.getConnected().next().getIdentity().toString());
-		assertNotNull(app1.getEndpoint(app2.getIdentity()));
+		assertEquals(TopIdentity.class, e1.getConnected().next().getIdentity().getClass());
+		assertEquals("app2", e1.getConnected().next().getIdentity().toString());
+		assertNotNull(e1.getEndpoint(e2.getIdentity()));
 	}
 
-	// @Test(expected = ChannelException.class)
-	public void connect_with_wrong_id_test() throws URISyntaxException, LinkException {
-		URI uri = new URI("ws://localhost:9041/");
-		runEndpoint(uri);
-
+	@Test(expected = LinkException.class)
+	public void connect_with_wrong_id_test() throws LinkException {
+		Endpoint e2 = new Endpoint(new TopIdentity(""));
 		try {
-			createEndpoint("").getEndpoint(null,uri);
+			e2.getEndpoint(id1, URI);
 		} catch (LinkException e) {
-			assertEquals("connect fail: Invalid handshake response", e.getMessage());
+			assertEquals("id error", e.getMessage());
 			throw e;
 		}
 	}
 	
-	public void connect_self_test() {
-		
-	}
-
-	private Endpoint createEndpoint(String appkey) {
-		return new Endpoint(loggerFactory, new TopIdentity(appkey));
-	}
-
-	private Endpoint runEndpoint(URI uri) {
-		return runEndpoint(uri, "appkey");
-	}
-
-	private Endpoint runEndpoint(URI uri, String appkey) {
-		Endpoint endpoint = new Endpoint(loggerFactory, new TopIdentity(appkey));
-		endpoint.bind(new WebSocketServerChannel(loggerFactory, uri.getPort()));
-		return endpoint;
-	}
-
-	class TopIdentity implements Identity {
-		public String appKey;
-
-		public TopIdentity(String appkey) {
-			this.appKey = appkey;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public Identity parse(Object data) throws LinkException {
-			TopIdentity identity = new TopIdentity(null);
-			List<Entry<String, String>> headers = (List<Entry<String, String>>) data;
-			for (Entry<String, String> entry : headers) {
-				if (entry.getKey().equalsIgnoreCase("appkey") && entry.getValue() != "") {
-					identity.appKey = entry.getValue();
-					return identity;
-				}
-			}
-			throw new LinkException(401, "id error");
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void render(Object to) {
-			((Map<String, String>) to).put("appkey", this.appKey);
-		}
-
-		@Override
-		public boolean equals(Identity id) {
-			return ((TopIdentity) id).appKey.equals(this.appKey);
-		}
-
-		@Override
-		public String toString() {
-			return this.appKey;
+	@Test(expected = LinkException.class)
+	public void connect_self_test() throws LinkException {
+		try {
+			e1.getEndpoint(id1, URI);
+		} catch (LinkException e) {
+			assertEquals("target identity can not equal itself", e.getMessage());
+			throw e;
 		}
 	}
 }

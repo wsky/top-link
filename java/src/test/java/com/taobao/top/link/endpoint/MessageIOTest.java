@@ -22,7 +22,7 @@ public class MessageIOTest {
 
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
 		MessageIO.writeMessage(buffer, msg);
-		buffer.flip();
+		//buffer.flip();//flip in write
 		Message msg2 = MessageIO.readMessage(buffer);
 
 		assertEquals(msg.messageType, msg2.messageType);
