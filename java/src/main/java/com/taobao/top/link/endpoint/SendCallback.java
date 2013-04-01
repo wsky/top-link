@@ -1,12 +1,14 @@
 package com.taobao.top.link.endpoint;
 
+import java.util.HashMap;
+
 import com.taobao.top.link.LinkException;
 
 public class SendCallback {
 	private Object sync = new Object();
 	private EndpointProxy endpointProxy;
 	private LinkException error;
-	private Object _return;
+	private HashMap<String, String> _return;
 	private boolean isComplete;
 
 	public SendCallback(EndpointProxy endpointProxy) {
@@ -31,11 +33,11 @@ public class SendCallback {
 		this.setComplete();
 	}
 
-	public Object getReturn() {
+	public HashMap<String, String> getReturn() {
 		return this._return;
 	}
 
-	public void setReturn(Object _return) {
+	public void setReturn(HashMap<String, String> _return) {
 		this._return = _return;
 		this.setComplete();
 	}

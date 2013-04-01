@@ -25,7 +25,7 @@ public class IdentityTest {
 	}
 
 	// @Test
-	public void connect_with_id_test() throws URISyntaxException, ChannelException {
+	public void connect_with_id_test() throws URISyntaxException, LinkException {
 		URI uri = new URI("ws://localhost:9040/");
 		Endpoint app1 = runEndpoint(uri);
 
@@ -48,6 +48,10 @@ public class IdentityTest {
 			assertEquals("connect fail: Invalid handshake response", e.getMessage());
 			throw e;
 		}
+	}
+	
+	public void connect_self_test() {
+		
 	}
 
 	private Endpoint createEndpoint(String appkey) {

@@ -44,12 +44,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 		}
 		final ByteBuffer buffer = BufferManager.getBuffer();
 		MessageIO.writeMessage(buffer, msg);
-		sender.send(buffer, new SendHandler() {
-			@Override
-			public void onSendComplete() {
-				BufferManager.returnBuffer(buffer);
-			}
-		});
+		sender.send(buffer, new InnerSendHandler(buffer));
 		// TODO:dump sent message
 	}
 
@@ -94,8 +89,12 @@ public class EndpointChannelHandler implements ChannelHandler {
 		// raise onMessage for async receive mode
 		if (this.endpoint.getMessageHandler() == null)
 			return;
-		EndpointContext endpointContext =
-				new EndpointContext(context, this.endpoint, msgFrom, msg.flag, msg.token);
+
+		EndpointContext endpointContext = new EndpointContext(context,
+				this.endpoint,
+				msgFrom,
+				msg.flag,
+				msg.token);
 		endpointContext.setMessage(msg.content);
 		this.endpoint.getMessageHandler().onMessage(endpointContext);
 	}
@@ -128,18 +127,14 @@ public class EndpointChannelHandler implements ChannelHandler {
 		}
 		final ByteBuffer buffer = BufferManager.getBuffer();
 		MessageIO.writeMessage(buffer, ack);
-		context.reply(buffer, new SendHandler() {
-			@Override
-			public void onSendComplete() {
-				BufferManager.returnBuffer(buffer);
-			}
-		});
+		context.reply(buffer, new InnerSendHandler(buffer));
 	}
 
 	private void handleConnectAck(SendCallback callback, Message msg) throws LinkException {
 		if (callback == null)
 			throw new LinkException("receive CONNECTACK, but no callback to handle it");
-		if (msg.statusCode > 0)
+		if (msg.statusCode > 0 ||
+				(msg.statusPhase != null && msg.statusPhase != ""))
 			callback.setError(new LinkException(msg.statusCode, msg.statusPhase));
 		else {
 			callback.setComplete();
@@ -159,5 +154,19 @@ public class EndpointChannelHandler implements ChannelHandler {
 		msg.flag = origin.flag;
 		msg.token = origin.token;
 		return msg;
+	}
+
+	class InnerSendHandler implements SendHandler {
+		private ByteBuffer buffer;
+
+		public InnerSendHandler(ByteBuffer buffer) {
+			this.buffer = buffer;
+		}
+
+		@Override
+		public void onSendComplete() {
+			BufferManager.returnBuffer(this.buffer);
+		}
+
 	}
 }

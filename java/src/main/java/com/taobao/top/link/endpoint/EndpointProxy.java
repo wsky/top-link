@@ -59,12 +59,12 @@ public class EndpointProxy {
 		return this.identity;
 	}
 
-	public void sendAndWait(HashMap<String, String> message) throws LinkException {
-		this.sendAndWait(message, Endpoint.TIMOUTSECOND);
+	public HashMap<String, String> sendAndWait(HashMap<String, String> message) throws LinkException {
+		return this.sendAndWait(message, Endpoint.TIMOUTSECOND);
 	}
 
-	public void sendAndWait(HashMap<String, String> message, int timeoutSecond) throws LinkException {
-		this.endpoint.sendAndWait(this,
+	public HashMap<String, String> sendAndWait(HashMap<String, String> message, int timeoutSecond) throws LinkException {
+		return this.endpoint.sendAndWait(this,
 				this.getSenders(),
 				this.createMessage(message),
 				timeoutSecond);

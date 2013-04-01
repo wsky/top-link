@@ -1,5 +1,6 @@
 package com.taobao.top.link.endpoint;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
@@ -7,10 +8,17 @@ import org.junit.Assert;
 public class MessageHandlerWrapper implements MessageHandler {
 	public Object sync = new Object();
 	public AtomicInteger receive = new AtomicInteger();
+	public HashMap<String, String> lastMessage;
+
+	public boolean doReply;
 
 	@Override
 	public void onMessage(EndpointContext context) throws Exception {
+		lastMessage = context.getMessage();
 		receive.incrementAndGet();
+		System.out.println("onMessage: " + context.getMessage());
+		if (doReply)
+			context.reply(context.getMessage());
 		this.notifyHandler();
 	}
 
@@ -25,6 +33,11 @@ public class MessageHandlerWrapper implements MessageHandler {
 			else
 				this.sync.wait();
 		}
+	}
+
+	public void clear() {
+		lastMessage = null;
+		receive = new AtomicInteger();
 	}
 
 	public void notifyHandler() {

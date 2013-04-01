@@ -97,7 +97,10 @@ public class Endpoint {
 		return e;
 	}
 
-	public synchronized EndpointProxy getEndpoint(Identity identity) {
+	public synchronized EndpointProxy getEndpoint(Identity identity) throws LinkException {
+		if (identity.equals(this.identity))
+			throw new LinkException("target identity can not equal itself");
+
 		for (EndpointProxy e : this.connected) {
 			if (e.getIdentity() != null &&
 					e.getIdentity().equals(identity))
@@ -112,7 +115,7 @@ public class Endpoint {
 		this.channelHandler.pending(message, sender);
 	}
 
-	protected void sendAndWait(EndpointProxy e,
+	protected HashMap<String, String> sendAndWait(EndpointProxy e,
 			ChannelSender sender,
 			Message message,
 			int timeoutSecond) throws LinkException {
@@ -122,6 +125,7 @@ public class Endpoint {
 		if (callback.getError() != null) {
 			throw callback.getError();
 		}
+		return callback.getReturn();
 	}
 
 	private EndpointProxy createProxy(String reason) {
