@@ -1,8 +1,6 @@
 package com.taobao.top.link.endpoint;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
+import java.util.HashMap;
 
 import com.taobao.top.link.LinkException;
 
@@ -18,24 +16,18 @@ public class DefaultIdentity implements Identity {
 		this.name = name;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Identity parse(Object data) throws LinkException {
-		ByteBuffer buffer = (ByteBuffer) data;
-		buffer.order(ByteOrder.LITTLE_ENDIAN);
-		int length = buffer.getInt();
-		buffer.order(ByteOrder.BIG_ENDIAN);
-		return new DefaultIdentity(new String(buffer.array(),
-				buffer.position(), length, Charset.forName("UTF-8")));
+		HashMap<String, String> dict = (HashMap<String, String>) data;
+		return new DefaultIdentity(dict.get("name"));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void render(Object to) {
-		ByteBuffer buffer = (ByteBuffer) to;
-		buffer.order(ByteOrder.LITTLE_ENDIAN);
-		byte[] data = this.name.getBytes(Charset.forName("UTF-8"));
-		buffer.putInt(data.length);
-		buffer.put(data);
-		buffer.order(ByteOrder.BIG_ENDIAN);
+		HashMap<String, String> dict = (HashMap<String, String>) to;
+		dict.put("name", this.name);
 	}
 
 	@Override
@@ -44,4 +36,8 @@ public class DefaultIdentity implements Identity {
 				this.name.equals(((DefaultIdentity) id).name);
 	}
 
+	@Override
+	public String toString() {
+		return this.name;
+	}
 }

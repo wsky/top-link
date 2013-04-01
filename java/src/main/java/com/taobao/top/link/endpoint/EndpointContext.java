@@ -9,13 +9,19 @@ public class EndpointContext {
 	private ChannelContext channelContext;
 	private HashMap<String, String> message;
 	private Identity messageFrom;
+	private int flag;
 	private String token;
 	private Endpoint endpoint;
 
-	public EndpointContext(ChannelContext channelContext, Endpoint endpoint, Identity messageFrom, String token) {
+	public EndpointContext(ChannelContext channelContext,
+			Endpoint endpoint,
+			Identity messageFrom,
+			int flag,
+			String token) {
 		this.channelContext = channelContext;
 		this.endpoint = endpoint;
 		this.messageFrom = messageFrom;
+		this.flag = flag;
 		this.token = token;
 	}
 
@@ -39,6 +45,7 @@ public class EndpointContext {
 		Message msg = new Message();
 		msg.messageType = MessageType.SEND;
 		msg.content = message;
+		msg.flag = this.flag;
 		msg.token = this.token;
 		return msg;
 	}

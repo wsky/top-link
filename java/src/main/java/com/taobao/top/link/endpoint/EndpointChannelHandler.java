@@ -38,8 +38,10 @@ public class EndpointChannelHandler implements ChannelHandler {
 
 	// all send in Endpoint module must call here
 	public void pending(Message msg, ChannelSender sender, SendCallback callback) throws ChannelException {
-		if (callback != null)
-			this.callbackByFlag.put(Integer.toString(this.flag.incrementAndGet()), callback);
+		if (callback != null) {
+			msg.flag = this.flag.incrementAndGet();
+			this.callbackByFlag.put(Integer.toString(msg.flag), callback);
+		}
 		final ByteBuffer buffer = BufferManager.getBuffer();
 		MessageIO.writeMessage(buffer, msg);
 		sender.send(buffer, new SendHandler() {
@@ -66,7 +68,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 			return;
 		}
 
-		SendCallback callback = this.callbackByFlag.remove(msg.flag);
+		SendCallback callback = this.callbackByFlag.remove(Integer.toString(msg.flag));
 
 		if (msg.messageType == MessageType.CONNECTACK) {
 			this.handleConnectAck(callback, msg);
@@ -75,8 +77,13 @@ public class EndpointChannelHandler implements ChannelHandler {
 
 		Identity msgFrom = this.idByToken.get(msg.token);
 		// must CONNECT/CONNECTACK for got token before SEND
-		if (msgFrom == null)
-			throw new LinkException("uknown message from");
+		if (msgFrom == null) {
+			LinkException error = new LinkException("uknown message from");
+			if (callback == null)
+				throw error;
+			callback.setError(error);
+			return;
+		}
 
 		if (callback != null) {
 			if (callback.getTarget().getIdentity().equals(msgFrom))
@@ -87,8 +94,8 @@ public class EndpointChannelHandler implements ChannelHandler {
 		// raise onMessage for async receive mode
 		if (this.endpoint.getMessageHandler() == null)
 			return;
-		EndpointContext endpointContext = 
-				new EndpointContext(context, this.endpoint, msgFrom, msg.token);
+		EndpointContext endpointContext =
+				new EndpointContext(context, this.endpoint, msgFrom, msg.flag, msg.token);
 		endpointContext.setMessage(msg.content);
 		this.endpoint.getMessageHandler().onMessage(endpointContext);
 	}
@@ -102,7 +109,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 	// parse identity send from endpoint and assign it a token,
 	// token just used for routing message-from, not auth
 	private void handleConnect(ChannelContext context, Message message) throws ChannelException {
-		Message ack = new Message();
+		Message ack = this.createMessage(message);
 		ack.messageType = MessageType.CONNECTACK;
 		try {
 			Identity id = this.endpoint.getIdentity().parse(message.content);
@@ -110,9 +117,10 @@ public class EndpointChannelHandler implements ChannelHandler {
 			proxy.add(context.getSender());
 			// uuid for token? or get from id?
 			String token = UUID.randomUUID().toString();
+			ack.token = token;
 			proxy.setToken(token);
 			this.idByToken.put(token, id);
-			this.logger.info("accept a connect-in endpoint#%s and assign token#%s", id, token);
+			this.logger.info("%s accept a connect-in endpoint#%s and assign token#%s", this.endpoint.getIdentity(), id, token);
 		} catch (LinkException e) {
 			ack.statusCode = e.getErrorCode();
 			ack.statusPhase = e.getMessage();
@@ -144,5 +152,12 @@ public class EndpointChannelHandler implements ChannelHandler {
 					callback.getTarget().getIdentity(),
 					msg.token);
 		}
+	}
+
+	private Message createMessage(Message origin) {
+		Message msg = new Message();
+		msg.flag = origin.flag;
+		msg.token = origin.token;
+		return msg;
 	}
 }

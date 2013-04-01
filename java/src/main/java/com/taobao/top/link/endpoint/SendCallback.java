@@ -7,6 +7,7 @@ public class SendCallback {
 	private EndpointProxy endpointProxy;
 	private LinkException error;
 	private Object _return;
+	private boolean isComplete;
 
 	public SendCallback(EndpointProxy endpointProxy) {
 		this.endpointProxy = endpointProxy;
@@ -17,6 +18,7 @@ public class SendCallback {
 	}
 
 	public void setComplete() {
+		this.isComplete = true;
 		this.nofityReturn();
 	}
 
@@ -26,7 +28,7 @@ public class SendCallback {
 
 	public void setError(LinkException error) {
 		this.error = error;
-		this.nofityReturn();
+		this.setComplete();
 	}
 
 	public Object getReturn() {
@@ -35,16 +37,16 @@ public class SendCallback {
 
 	public void setReturn(Object _return) {
 		this._return = _return;
-		this.nofityReturn();
+		this.setComplete();
 	}
 
 	public void waitReturn(int timeoutSecond) throws LinkException {
 		int i = 0, wait = 10;
 		while (true) {
-			if (this.error != null || this._return != null)
+			if (this.isComplete)
 				return;
 
-			if (timeoutSecond > 0 && (i++) * wait >= timeoutSecond)
+			if (timeoutSecond > 0 && (i++) * wait >= timeoutSecond * 1000)
 				throw new LinkException("execution timeout");
 
 			synchronized (this.sync) {

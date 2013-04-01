@@ -2,6 +2,7 @@ package com.taobao.top.link.endpoint;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,8 +41,8 @@ public class Endpoint {
 		this.identity = identity;
 		this.channelSelector = new ClientChannelSharedSelector(loggerFactory);
 		this.channelHandler = new EndpointChannelHandler(loggerFactory, this);
-		
-		if(this.identity==null)
+
+		if (this.identity == null)
 			throw new NullPointerException("identity");
 	}
 
@@ -89,7 +90,9 @@ public class Endpoint {
 		// connect message
 		Message msg = new Message();
 		msg.messageType = MessageType.CONNECT;
-		msg.identity = this.identity;
+		HashMap<String, String> content = new HashMap<String, String>();
+		this.identity.render(content);
+		msg.content = content;
 		this.sendAndWait(e, channel, msg, TIMOUTSECOND);
 		return e;
 	}
