@@ -62,7 +62,7 @@ public class MessageIO {
 		}
 		if (message.content != null) {
 			for (Entry<String, String> i : message.content.entrySet())
-				writeCustomHeader(buffer, i.getKey(), i.getValue().toString());
+				writeCustomHeader(buffer, i.getKey(), i.getValue());
 		}
 		buffer.putShort(HeaderType.EndOfHeaders);
 
