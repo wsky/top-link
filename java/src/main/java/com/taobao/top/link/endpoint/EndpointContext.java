@@ -50,7 +50,7 @@ public class EndpointContext {
 
 	private Message createMessage(HashMap<String, String> message) {
 		Message msg = new Message();
-		msg.messageType = MessageType.SEND;
+		msg.messageType = MessageType.SENDACK;
 		msg.content = message;
 		msg.flag = this.flag;
 		msg.token = this.token;

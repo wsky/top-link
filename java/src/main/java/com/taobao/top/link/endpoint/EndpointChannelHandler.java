@@ -89,7 +89,12 @@ public class EndpointChannelHandler implements ChannelHandler {
 		// raise onMessage for async receive mode
 		if (this.endpoint.getMessageHandler() == null)
 			return;
-
+		
+		if(msg.messageType == MessageType.SENDACK){
+			this.endpoint.getMessageHandler().onMessage(msg.content);
+			return;
+		}
+		
 		EndpointContext endpointContext = new EndpointContext(
 				context, this.endpoint, msgFrom, msg.flag, msg.token);
 		endpointContext.setMessage(msg.content);

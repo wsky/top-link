@@ -110,6 +110,10 @@ public class EndpointTest {
 			public void onMessage(EndpointContext context) throws Exception {
 				Thread.sleep(5000);
 			}
+
+			@Override
+			public void onMessage(HashMap<String, String> message) {
+			}
 		});
 		try {
 			new Endpoint(id2).getEndpoint(id1, uri).sendAndWait(null, 2);

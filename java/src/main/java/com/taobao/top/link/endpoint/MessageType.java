@@ -5,6 +5,7 @@ public class MessageType {
 	public static final short CONNECTACK = 1;
 
 	public static final short SEND = 2;
+	public static final short SENDACK = 3;
 
 	public class HeaderType {
 		public final static short EndOfHeaders = 0;

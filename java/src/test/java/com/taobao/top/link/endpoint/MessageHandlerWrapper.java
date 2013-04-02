@@ -13,6 +13,14 @@ public class MessageHandlerWrapper implements MessageHandler {
 	public boolean doError;
 	public boolean doReply;
 
+	
+	@Override
+	public void onMessage(HashMap<String, String> message) {
+		lastMessage = message;
+		receive.incrementAndGet();
+		System.out.println("onMessage: " + message);
+	}
+	
 	@Override
 	public void onMessage(EndpointContext context) throws Exception {
 		lastMessage = context.getMessage();
