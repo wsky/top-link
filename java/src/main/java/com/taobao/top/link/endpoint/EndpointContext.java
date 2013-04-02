@@ -41,6 +41,13 @@ public class EndpointContext {
 		this.endpoint.send(this.channelContext.getSender(), this.createMessage(message));
 	}
 
+	public void error(int statusCode, String statusPhase) throws LinkException {
+		Message msg = this.createMessage(null);
+		msg.statusCode = statusCode;
+		msg.statusPhase = statusPhase;
+		this.endpoint.send(this.channelContext.getSender(), msg);
+	}
+
 	private Message createMessage(HashMap<String, String> message) {
 		Message msg = new Message();
 		msg.messageType = MessageType.SEND;

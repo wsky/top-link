@@ -90,6 +90,19 @@ public class EndpointTest {
 	}
 
 	@Test(expected = LinkException.class)
+	public void send_and_wait_error_test() throws LinkException {
+		handlerWrapper.doError = true;
+		Endpoint e2 = new Endpoint(id2);
+		try {
+			e2.getEndpoint(id1, URI).sendAndWait(null);
+		} catch (LinkException e) {
+			e.printStackTrace();
+			assertEquals("process error", e.getMessage());
+			throw e;
+		}
+	}
+
+	@Test(expected = LinkException.class)
 	public void send_and_wait_timeout_test() throws LinkException, InterruptedException, URISyntaxException {
 		URI uri = new URI("ws://localhost:8002/link");
 		run(id1, uri.getPort(), 30, new MessageHandler() {

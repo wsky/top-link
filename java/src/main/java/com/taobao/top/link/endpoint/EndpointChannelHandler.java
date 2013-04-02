@@ -45,7 +45,6 @@ public class EndpointChannelHandler implements ChannelHandler {
 		final ByteBuffer buffer = BufferManager.getBuffer();
 		MessageIO.writeMessage(buffer, msg);
 		sender.send(buffer, new InnerSendHandler(buffer));
-		// TODO:dump sent message
 	}
 
 	@Override
@@ -55,8 +54,6 @@ public class EndpointChannelHandler implements ChannelHandler {
 	@Override
 	public void onMessage(ChannelContext context) throws Exception {
 		Message msg = MessageIO.readMessage((ByteBuffer) context.getMessage());
-
-		// TODO:dump received message
 
 		if (msg.messageType == MessageType.CONNECT) {
 			this.handleConnect(context, msg);
@@ -80,9 +77,12 @@ public class EndpointChannelHandler implements ChannelHandler {
 			return;
 		}
 
+		// raise callback of client
 		if (callback != null) {
-			if (callback.getTarget().getIdentity().equals(msgFrom))
-				callback.setReturn(msg.content);
+			this.handleCallback(callback, msg, msgFrom);
+			return;
+		} else if (this.isError(msg)) {
+			this.logger.error("got error: %s|%s", msg.statusCode, msg.statusPhase);
 			return;
 		}
 
@@ -90,13 +90,20 @@ public class EndpointChannelHandler implements ChannelHandler {
 		if (this.endpoint.getMessageHandler() == null)
 			return;
 
-		EndpointContext endpointContext = new EndpointContext(context,
-				this.endpoint,
-				msgFrom,
-				msg.flag,
-				msg.token);
+		EndpointContext endpointContext = new EndpointContext(
+				context, this.endpoint, msgFrom, msg.flag, msg.token);
 		endpointContext.setMessage(msg.content);
-		this.endpoint.getMessageHandler().onMessage(endpointContext);
+		try {
+			this.endpoint.getMessageHandler().onMessage(endpointContext);
+		} catch (Exception e) {
+			// onMessage error should be reply to client
+			if (e instanceof LinkException)
+				endpointContext.error(
+						((LinkException) e).getErrorCode(),
+						((LinkException) e).getMessage());
+			else
+				endpointContext.error(0, e.getMessage());
+		}
 	}
 
 	@Override
@@ -138,8 +145,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 	private void handleConnectAck(SendCallback callback, Message msg) throws LinkException {
 		if (callback == null)
 			throw new LinkException("receive CONNECTACK, but no callback to handle it");
-		if (msg.statusCode > 0 ||
-				(msg.statusPhase != null && msg.statusPhase != ""))
+		if (this.isError(msg))
 			callback.setError(new LinkException(msg.statusCode, msg.statusPhase));
 		else {
 			callback.setComplete();
@@ -152,6 +158,20 @@ public class EndpointChannelHandler implements ChannelHandler {
 					callback.getTarget().getIdentity(),
 					msg.token);
 		}
+	}
+
+	private void handleCallback(SendCallback callback, Message msg, Identity msgFrom) {
+		if (!callback.getTarget().getIdentity().equals(msgFrom))
+			return;
+		if (this.isError(msg))
+			callback.setError(new LinkException(msg.statusCode, msg.statusPhase));
+		else
+			callback.setReturn(msg.content);
+	}
+
+	private boolean isError(Message msg) {
+		return msg.statusCode > 0 ||
+				(msg.statusPhase != null && msg.statusPhase != "");
 	}
 
 	private Message createMessage(Message origin) {

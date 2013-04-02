@@ -10,6 +10,7 @@ public class MessageHandlerWrapper implements MessageHandler {
 	public AtomicInteger receive = new AtomicInteger();
 	public HashMap<String, String> lastMessage;
 
+	public boolean doError;
 	public boolean doReply;
 
 	@Override
@@ -17,6 +18,10 @@ public class MessageHandlerWrapper implements MessageHandler {
 		lastMessage = context.getMessage();
 		receive.incrementAndGet();
 		System.out.println("onMessage: " + context.getMessage());
+		if (doError) {
+			System.out.println("but doError=true");
+			throw new Exception("process error");
+		}
 		if (doReply)
 			context.reply(context.getMessage());
 		this.notifyHandler();
@@ -37,6 +42,7 @@ public class MessageHandlerWrapper implements MessageHandler {
 
 	public void clear() {
 		lastMessage = null;
+		doError = false;
 		receive = new AtomicInteger();
 	}
 
