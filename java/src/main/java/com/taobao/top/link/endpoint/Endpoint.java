@@ -79,8 +79,14 @@ public class Endpoint {
 		return this.connected.iterator();
 	}
 
-	public synchronized EndpointProxy getEndpoint(Identity targetIdentity, URI uri) throws LinkException {
-		EndpointProxy e = this.getEndpoint(targetIdentity);
+	public synchronized EndpointProxy getEndpoint(Identity target, URI uri) throws LinkException {
+		return this.getEndpoint(target, uri, null);
+	}
+
+	// connect to target via special uri
+	public synchronized EndpointProxy getEndpoint(
+			Identity target, URI uri, HashMap<String, String> extras) throws LinkException {
+		EndpointProxy e = this.getEndpoint(target);
 		// always clear, cached proxy will have broken channel
 		e.remove(uri);
 		// always reget channel, make sure it's valid
@@ -92,22 +98,25 @@ public class Endpoint {
 		msg.messageType = MessageType.CONNECT;
 		HashMap<String, String> content = new HashMap<String, String>();
 		this.identity.render(content);
+		// pass extra data
+		if (extras != null)
+			content.putAll(extras);
 		msg.content = content;
 		this.sendAndWait(e, channel, msg, TIMOUTSECOND);
 		return e;
 	}
 
-	public synchronized EndpointProxy getEndpoint(Identity identity) throws LinkException {
-		if (identity.equals(this.identity))
+	public synchronized EndpointProxy getEndpoint(Identity target) throws LinkException {
+		if (target.equals(this.identity))
 			throw new LinkException("target identity can not equal itself");
 
 		for (EndpointProxy e : this.connected) {
 			if (e.getIdentity() != null &&
-					e.getIdentity().equals(identity))
+					e.getIdentity().equals(target))
 				return e;
 		}
-		EndpointProxy e = this.createProxy("by identity|" + identity.toString());
-		e.setIdentity(identity);
+		EndpointProxy e = this.createProxy("by identity|" + target.toString());
+		e.setIdentity(target);
 		return e;
 	}
 
