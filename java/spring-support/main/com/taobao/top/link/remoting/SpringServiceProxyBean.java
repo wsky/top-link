@@ -6,7 +6,7 @@ import java.net.URISyntaxException;
 import org.springframework.beans.factory.FactoryBean;
 
 // easy support spring bean
-public class DynamicProxyBean implements FactoryBean {
+public class SpringServiceProxyBean implements FactoryBean {
 
 	private URI uri;
 	private Class<?> interfaceType;
