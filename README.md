@@ -133,9 +133,9 @@ spring-support:
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean name="testService" class="com.taobao.top.link.remoting.TestService" />
+	<bean name="testService" class="TestService" />
 	<bean class="com.taobao.top.link.remoting.ServiceBean">
-		<property name="interfaceName" value="com.taobao.top.link.remoting.TestInterface" />
+		<property name="interfaceName" value="TestInterface" />
 		<property name="target">
 			<ref bean="testService" />
 		</property>
@@ -157,7 +157,7 @@ RemotingConfiguration.
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean name="test" class="com.taobao.top.link.remoting.SpringServiceProxyBean">
-		<property name="interfaceName" value="com.taobao.top.link.remoting.TestInterface" />
+		<property name="interfaceName" value="TestInterface" />
 		<property name="uri" value="ws://localhost:8889/api" />
 	</bean>
 </beans>
