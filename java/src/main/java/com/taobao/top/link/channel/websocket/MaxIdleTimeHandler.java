@@ -8,6 +8,7 @@ import org.jboss.netty.handler.timeout.IdleStateEvent;
 
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
 
 // IdleStateHandler.
 // http://docs.jboss.org/netty/3.2/api/org/jboss/netty/handler/timeout/IdleStateHandler.html
@@ -23,11 +24,11 @@ public class MaxIdleTimeHandler extends IdleStateAwareChannelHandler {
 	@Override
 	public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws InterruptedException {
 		if (e.getState() == IdleState.ALL_IDLE) {
-			this.closeChannel(ctx, 1011, "reach max idle time");
-			this.logger.info("reach maxIdleTimeSeconds=%s, close client channel", this.maxIdleTimeSeconds);
+			this.closeChannel(ctx, 1011, Text.WS_REACH_MAX_IDLE);
+			this.logger.info(Text.WS_REACH_MAX_IDLE_AND_CLOSE, this.maxIdleTimeSeconds);
 		}
 	}
-	
+
 	private void closeChannel(ChannelHandlerContext ctx, int statusCode, String reason) throws InterruptedException {
 		ctx.getChannel().write(new CloseWebSocketFrame(statusCode, reason)).sync();
 		ctx.getChannel().close();

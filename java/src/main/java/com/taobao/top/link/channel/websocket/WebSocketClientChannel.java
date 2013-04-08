@@ -10,6 +10,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ClientChannel;
@@ -76,6 +77,6 @@ public class WebSocketClientChannel implements ClientChannel {
 		// prevent unknown exception after connected and get channel
 		// channel.write is async default
 		if (!channel.isConnected())
-			throw new ChannelException("channel closed");
+			throw new ChannelException(Text.WS_CHANNEL_CLOSED);
 	}
 }

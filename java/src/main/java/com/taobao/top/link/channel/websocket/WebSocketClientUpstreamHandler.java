@@ -19,6 +19,7 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Logger;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelHandler;
 
@@ -46,7 +47,7 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 		if (this.haveHandler())
 			this.getHandler().onError(this.createContext(e.getCause()));
 		this.clear(ctx);
-		this.logger.error("exceptionCaught at client", e.getCause());
+		this.logger.error(Text.WS_ERROR_AT_CLIENT, e.getCause());
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 				response.getHeader(Names.CONNECTION).equalsIgnoreCase(Values.UPGRADE);
 
 		if (!validStatus || !validUpgrade || !validConnection) {
-			throw new LinkException("Invalid handshake response");
+			throw new LinkException(Text.WS_HANDSHAKE_INVALID);
 		}
 
 		this.handshaker.finishHandshake(ctx.getChannel(), response);
@@ -81,11 +82,11 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 		if (frame instanceof CloseWebSocketFrame) {
 			CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
 			this.clear(ctx);
-			this.logger.warn("connection closed: %s|%s",
+			this.logger.warn(Text.WS_CONNECTION_CLOSED_BY,
 					closeFrame.getStatusCode(), closeFrame.getReasonText());
 		} else if (frame instanceof BinaryWebSocketFrame) {
 			if (!((BinaryWebSocketFrame) frame).isFinalFragment()) {
-				this.logger.warn("received a frame that not final fragment, not support!");
+				this.logger.warn(Text.WS_NOT_FINAL);
 				return;
 			}
 			if (this.haveHandler()) {

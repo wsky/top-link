@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Pool;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.websocket.WebSocketClient;
@@ -54,7 +55,7 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 		public ClientChannel checkout() throws Throwable {
 			ClientChannel channel = super.chekOut();
 			if (channel == null)
-				throw new ChannelException("channel pool is busy, retry later");
+				throw new ChannelException(Text.RPC_POOL_BUSY);
 			return channel;
 		}
 

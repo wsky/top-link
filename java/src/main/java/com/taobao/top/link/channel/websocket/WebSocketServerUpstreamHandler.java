@@ -28,6 +28,7 @@ import org.jboss.netty.util.CharsetUtil;
 
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ChannelSender;
@@ -75,7 +76,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
 		e.getChannel().close();
 
-		this.logger.error("exceptionCaught at server", e.getCause());
+		this.logger.error(Text.WS_ERROR_AT_SERVER, e.getCause());
 	}
 
 	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
@@ -112,7 +113,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 			return;
 		} else if (frame instanceof BinaryWebSocketFrame) {
 			if (!((BinaryWebSocketFrame) frame).isFinalFragment()) {
-				this.logger.warn("received a frame that not final fragment, not support!");
+				this.logger.warn(Text.WS_NOT_FINAL);
 				return;
 			}
 			if (this.channelHandler != null) {

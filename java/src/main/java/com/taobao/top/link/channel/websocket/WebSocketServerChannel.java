@@ -18,6 +18,7 @@ import org.jboss.netty.util.Timer;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ServerChannel;
 
 public class WebSocketServerChannel extends ServerChannel {
@@ -56,13 +57,13 @@ public class WebSocketServerChannel extends ServerChannel {
 			}
 		});
 		this.allChannels.add(this.bootstrap.bind(new InetSocketAddress(this.port)));
-		this.logger.info("server channel bind at %s", this.port);
+		this.logger.info(Text.WS_SERVER_RUN, this.port);
 	}
 
 	@Override
 	public void stop() {
 		this.allChannels.close().awaitUninterruptibly();
 		this.bootstrap.releaseExternalResources();
-		this.logger.info("server channel shutdown");
+		this.logger.info(Text.WS_SERVER_STOP);
 	}
 }

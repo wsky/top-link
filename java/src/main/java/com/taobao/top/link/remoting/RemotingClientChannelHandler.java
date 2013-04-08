@@ -18,6 +18,7 @@ import remoting.protocol.tcp.TcpTransportHeader;
 import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelHandler;
 
@@ -64,7 +65,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		handler.flag = flag;
 		this.callbacks.put(handler.flag, handler);// concurrent?
 		if (this.logger.isDebugEnable())
-			this.logger.debug("pending methodCall#%s", flag);
+			this.logger.debug(Text.RPC_PENDING_CALL, flag);
 
 		return requestBuffer;
 	}
@@ -72,7 +73,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 	public void cancel(RemotingCallback callback) {
 		this.callbacks.remove(callback.flag);
 	}
-	
+
 	@Override
 	public void onConnect(ChannelContext context) {
 	}
@@ -103,7 +104,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 			return;
 
 		if (this.logger.isDebugEnable())
-			this.logger.debug("receive methodReturn of methodCall#%s", flag);
+			this.logger.debug(Text.RPC_GET_RETURN, flag);
 
 		RemotingCallback callback = this.callbacks.remove(flag);
 		if (callback == null)
@@ -113,9 +114,8 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		Object statusPhrase = transportHeaders.get(TcpTransportHeader.StatusPhrase);
 		if (statusCode != null &&
 				Integer.parseInt(statusCode.toString()) > 0) {
-			callback.onException(statusPhrase != null ?
-					new Exception(String.format("remote reutrn error#%s: %s" + statusCode + statusPhrase)) :
-					new Exception("remote reutrn unknow error#" + statusCode));
+			callback.onException(new Exception(String.format(
+					Text.RPC_RETURN_ERROR, statusCode, statusPhrase)));
 			return;
 		}
 

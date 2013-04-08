@@ -9,6 +9,7 @@ import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelHandler;
@@ -70,7 +71,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 		Identity msgFrom = this.idByToken.get(msg.token);
 		// must CONNECT/CONNECTACK for got token before SEND
 		if (msgFrom == null) {
-			LinkException error = new LinkException("uknown message from");
+			LinkException error = new LinkException(Text.E_UNKNOWN_MSG_FROM);
 			if (callback == null)
 				throw error;
 			callback.setError(error);
@@ -82,19 +83,19 @@ public class EndpointChannelHandler implements ChannelHandler {
 			this.handleCallback(callback, msg, msgFrom);
 			return;
 		} else if (this.isError(msg)) {
-			this.logger.error("got error: %s|%s", msg.statusCode, msg.statusPhase);
+			this.logger.error(Text.E_GOT_ERROR, msg.statusCode, msg.statusPhase);
 			return;
 		}
 
 		// raise onMessage for async receive mode
 		if (this.endpoint.getMessageHandler() == null)
 			return;
-		
-		if(msg.messageType == MessageType.SENDACK){
+
+		if (msg.messageType == MessageType.SENDACK) {
 			this.endpoint.getMessageHandler().onMessage(msg.content);
 			return;
 		}
-		
+
 		EndpointContext endpointContext = new EndpointContext(
 				context, this.endpoint, msgFrom, msg.flag, msg.token);
 		endpointContext.setMessage(msg.content);
@@ -113,7 +114,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 
 	@Override
 	public void onError(ChannelContext context) throws Exception {
-		this.logger.error("channel error", context.getError());
+		this.logger.error(Text.E_CHANNEL_ERROR, context.getError());
 	}
 
 	// deal with connect-in message from endpoint,
@@ -132,15 +133,11 @@ public class EndpointChannelHandler implements ChannelHandler {
 			}
 			ack.token = proxy.getToken();
 			this.idByToken.put(proxy.getToken(), id);
-			this.logger.info(
-					"%s accept a connect-in endpoint#%s and assign token#%s",
-					this.endpoint.getIdentity(),
-					id,
-					proxy.getToken());
+			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());
 		} catch (LinkException e) {
 			ack.statusCode = e.getErrorCode();
 			ack.statusPhase = e.getMessage();
-			this.logger.warn("refuse a connect-in endpoint", e);
+			this.logger.warn(Text.E_REFUSE, e);
 		}
 		final ByteBuffer buffer = BufferManager.getBuffer();
 		MessageIO.writeMessage(buffer, ack);
@@ -149,7 +146,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 
 	private void handleConnectAck(SendCallback callback, Message msg) throws LinkException {
 		if (callback == null)
-			throw new LinkException("receive CONNECTACK, but no callback to handle it");
+			throw new LinkException(Text.E_NO_CALLBACK);
 		if (this.isError(msg))
 			callback.setError(new LinkException(msg.statusCode, msg.statusPhase));
 		else {
@@ -159,9 +156,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 			// store token from target endpoint for receiving it's message
 			// next time
 			this.idByToken.put(msg.token, callback.getTarget().getIdentity());
-			this.logger.info("sucessfully connect to endpoint#%s, and got token#%s",
-					callback.getTarget().getIdentity(),
-					msg.token);
+			this.logger.info(Text.E_CONNECT_SUCCESS, callback.getTarget().getIdentity(), msg.token);
 		}
 	}
 

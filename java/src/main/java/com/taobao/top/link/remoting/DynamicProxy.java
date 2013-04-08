@@ -11,6 +11,7 @@ import remoting.protocol.tcp.TcpOperations;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ClientChannelSelector;
@@ -92,7 +93,7 @@ public class DynamicProxy implements InvocationHandler {
 			channel.setChannelHandler(channelHandler);
 			return channel;
 		} catch (ChannelException e) {
-			throw new RemotingException("can not get channel", e);
+			throw new RemotingException(Text.RPC_CAN_NOT_GET_CHANNEL, e);
 		}
 	}
 
@@ -111,7 +112,7 @@ public class DynamicProxy implements InvocationHandler {
 				}
 			});
 		} catch (ChannelException e) {
-			throw unexcepException(syncCallback, "send error", e);
+			throw unexcepException(syncCallback, Text.RPC_SEND_ERROR, e);
 		}
 
 		// send and receive maybe fast enough
@@ -124,19 +125,19 @@ public class DynamicProxy implements InvocationHandler {
 				return syncCallback.getMethodReturn();
 
 			if (syncCallback.getFailure() != null)
-				throw unexcepException(syncCallback, "remoting call error", syncCallback.getFailure());
+				throw unexcepException(syncCallback, Text.RPC_CALL_ERROR, syncCallback.getFailure());
 
 			if (executionTimeoutMillisecond > 0 && (i++) * wait >= executionTimeoutMillisecond)
-				throw unexcepException(syncCallback, "remoting execution timeout", null);
+				throw unexcepException(syncCallback, Text.RPC_EXECUTE_TIMEOUT, null);
 
 			if (!clientChannel.isConnected())
-				throw unexcepException(syncCallback, "channel broken with unknown error", null);
+				throw unexcepException(syncCallback, Text.RPC_CHANNEL_BROKEN, null);
 
 			synchronized (syncCallback.sync) {
 				try {
 					syncCallback.sync.wait(wait);
 				} catch (InterruptedException e) {
-					throw unexcepException(syncCallback, "waiting callback interrupted", e);
+					throw unexcepException(syncCallback, Text.RPC_WAIT_INTERRUPTED, e);
 				}
 			}
 		}

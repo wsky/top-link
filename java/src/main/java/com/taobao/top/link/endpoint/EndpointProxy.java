@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.taobao.top.link.LinkException;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.ClientChannel;
@@ -93,7 +94,7 @@ public class EndpointProxy {
 
 	private ChannelSender getSenders() throws ChannelException {
 		if (this.senders.isEmpty())
-			throw new ChannelException("do not have any valid channel to send");
+			throw new ChannelException(Text.E_NO_SENDER);
 		return this.senders.get(0);
 	}
 }

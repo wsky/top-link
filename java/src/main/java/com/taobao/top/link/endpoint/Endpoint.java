@@ -10,6 +10,7 @@ import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.ClientChannel;
@@ -69,7 +70,7 @@ public class Endpoint {
 			try {
 				channel.stop();
 			} catch (Exception e) {
-				this.logger.error("unbind error", e);
+				this.logger.error(Text.E_UNBIND_ERROR, e);
 			}
 		}
 		this.serverChannels.clear();
@@ -108,14 +109,14 @@ public class Endpoint {
 
 	public synchronized EndpointProxy getEndpoint(Identity target) throws LinkException {
 		if (target.equals(this.identity))
-			throw new LinkException("target identity can not equal itself");
+			throw new LinkException(Text.E_ID_DUPLICATE);
 
 		for (EndpointProxy e : this.connected) {
 			if (e.getIdentity() != null &&
 					e.getIdentity().equals(target))
 				return e;
 		}
-		EndpointProxy e = this.createProxy("by identity|" + target.toString());
+		EndpointProxy e = this.createProxy(target.toString());
 		e.setIdentity(target);
 		return e;
 	}
@@ -141,7 +142,7 @@ public class Endpoint {
 		EndpointProxy e = new EndpointProxy(this);
 		this.connected.add(e);
 		if (this.logger.isDebugEnable())
-			this.logger.debug("create new EndpointProxy: " + reason);
+			this.logger.debug(Text.E_CREATE_NEW + ": " + reason);
 		return e;
 	}
 }

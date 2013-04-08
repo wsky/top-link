@@ -19,6 +19,7 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ConnectingChannelHandler;
@@ -43,7 +44,7 @@ public class WebSocketClient {
 		try {
 			future = bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort())).sync();
 		} catch (Exception e) {
-			throw new ChannelException("connect error", e);
+			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
 		}
 		Channel channel = future.getChannel();
 		// handshake
@@ -56,15 +57,16 @@ public class WebSocketClient {
 				handler.syncObject.wait(timeout);
 			}
 		} catch (Exception e) {
-			throw new ChannelException("handshake error", e);
+			throw new ChannelException(Text.WS_HANDSHAKE_ERROR, e);
 		}
 
 		if (wsHandler.handshaker.isHandshakeComplete())
 			return clientChannel;
 		if (handler.error != null)
-			throw new ChannelException("connect fail: " + handler.error.getMessage(), handler.error);
+			throw new ChannelException(Text.WS_CONNECT_FAIL 
+					+ ": " + handler.error.getMessage(), handler.error);
 
-		throw new ChannelException("connect timeout");
+		throw new ChannelException(Text.WS_CONNECT_TIMEOUT);
 	}
 
 	private static ClientBootstrap prepareBootstrap(Logger logger, WebSocketClientUpstreamHandler wsHandler) {

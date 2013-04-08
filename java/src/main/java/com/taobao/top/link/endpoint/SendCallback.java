@@ -3,6 +3,7 @@ package com.taobao.top.link.endpoint;
 import java.util.HashMap;
 
 import com.taobao.top.link.LinkException;
+import com.taobao.top.link.Text;
 
 public class SendCallback {
 	private Object sync = new Object();
@@ -49,13 +50,13 @@ public class SendCallback {
 				return;
 
 			if (timeoutSecond > 0 && (i++) * wait >= timeoutSecond * 1000)
-				throw new LinkException("execution timeout");
+				throw new LinkException(Text.E_EXECUTE_TIMEOUT);
 
 			synchronized (this.sync) {
 				try {
 					this.sync.wait(wait);
 				} catch (InterruptedException e) {
-					throw new LinkException("uknown error", e);
+					throw new LinkException(Text.E_UNKNOWN_ERROR, e);
 				}
 			}
 		}
