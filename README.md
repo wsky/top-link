@@ -127,7 +127,7 @@ SampleService sampleService = (SampleService) RemotingService.connect("ws://loca
 assertEquals("hi", sampleService.echo("hi"));
 ```
 
-spring-support:
+#### spring-support:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
