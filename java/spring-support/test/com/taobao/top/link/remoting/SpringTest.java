@@ -21,6 +21,11 @@ public class SpringTest {
 
 			+ "	<bean name=\"testService\" class=\"com.taobao.top.link.remoting.TestService\" />"
 
+			+ "	<bean name=\"server\" class=\"com.taobao.top.link.remoting.SpringServerBean\">"
+			+ "		<property name=\"port\" value=\"8889\" />"
+			+ "		<property name=\"path\" value=\"api\" />"
+			+ "</bean>"
+
 			+ "	<bean class=\"com.taobao.top.link.remoting.ServiceBean\">"
 			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.TestInterface\" />"
 			+ "		<property name=\"target\">"
@@ -36,12 +41,7 @@ public class SpringTest {
 		beanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((BeanDefinitionRegistry) beanFactory);
 		reader.loadBeanDefinitions(new ByteArrayResource(beansXml.getBytes()));
-		
-		RemotingConfiguration.
-				configure().
-				websocket(8889).
-				addProcessor("api",
-						new SpringMethodCallProcessor(beanFactory));
+		beanFactory.getBean("server");
 	}
 
 	@Test

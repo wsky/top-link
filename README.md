@@ -134,6 +134,10 @@ assertEquals("hi", sampleService.echo("hi"));
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean name="testService" class="TestService" />
+	<bean name="server" class="com.taobao.top.link.remoting.SpringServerBean">
+		<property name="port" value="8889" />
+		<property name="path" value="api" />
+	</bean>
 	<bean class="com.taobao.top.link.remoting.ServiceBean">
 		<property name="interfaceName" value="TestInterface" />
 		<property name="target">
@@ -145,11 +149,7 @@ assertEquals("hi", sampleService.echo("hi"));
 
 ```java
 ListableBeanFactory beanFactory;//get from current context or whatever
-RemotingConfiguration.
-	configure().
-	websocket(8889).
-	addProcessor("api", new SpringMethodCallProcessor(beanFactory));
-
+beanFactory.getBean("server");
 ```
 
 ```xml
@@ -158,7 +158,7 @@ RemotingConfiguration.
 <beans>
 	<bean name="test" class="com.taobao.top.link.remoting.SpringServiceProxyBean">
 		<property name="interfaceName" value="TestInterface" />
-		<property name="uri" value="ws://localhost:8889/api" />
+		<property name="uri" value="ws://localhost:8889/" />
 	</bean>
 </beans>
 ```
