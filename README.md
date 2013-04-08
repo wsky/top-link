@@ -28,6 +28,12 @@ or
 build_java.ps1
 ```
 
+custom package:
+```shell
+cd java
+mvn -DgroupId=yourDomain -DartifactId=yourId -DfinalName=jarName clean package
+```
+
 C#
 ```c#
 cd csharp
@@ -108,7 +114,7 @@ return methodReturn.ReturnValue;
 
 - High-Level Abstract Remoting
 	- [X] Dynamic Proxy for Java Interface
-	- [ ] IOC support at server/client
+	- [X] IOC support at server/client, spring
 	- [ ] Extendable sink design, like custom FormatterSink/TransportSink
 	- [ ] ServiceFramework
 
@@ -119,6 +125,47 @@ RemotingConfiguration.configure().
 
 SampleService sampleService = (SampleService) RemotingService.connect("ws://localhost/sample", SampleService.class);
 assertEquals("hi", sampleService.echo("hi"));
+```
+
+spring-support:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean name="testService" class="com.taobao.top.link.remoting.TestService" />
+	<bean class="com.taobao.top.link.remoting.ServiceBean">
+		<property name="interfaceName" value="com.taobao.top.link.remoting.TestInterface" />
+		<property name="target">
+			<ref bean="testService" />
+		</property>
+	</bean>
+</beans>
+```
+
+```java
+ListableBeanFactory beanFactory;//get from current context or whatever
+RemotingConfiguration.
+	configure().
+	websocket(8889).
+	addProcessor("api", new SpringMethodCallProcessor(beanFactory));
+
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean name="test" class="com.taobao.top.link.remoting.SpringServiceProxyBean">
+		<property name="interfaceName" value="com.taobao.top.link.remoting.TestInterface" />
+		<property name="uri" value="ws://localhost:8889/api" />
+	</bean>
+</beans>
+```
+
+```java
+TestInterface testInterface = (TestInterface) beanFactory.getBean("test");
+assertEquals("hi", testInterface.echo("hi"));
 ```
 
 ## License
