@@ -1,4 +1,5 @@
 mkdir build\java
+mkdir build\java
 rm -rf build\java
 
 cd java

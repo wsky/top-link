@@ -6,7 +6,8 @@ import com.taobao.top.link.remoting.MethodCall;
 
 public class RemotingClientTest {
 	public static void main(String[] args) throws Throwable {
-		URI uri = new URI("ws://localhost:9000/");
+		String host = args.length > 0 ? args[0] : "localhost";
+		URI uri = new URI("ws://"+ host +":9000/");
 		DynamicProxy proxy = RemotingService.connect(uri);
 
 		long total = 100000;
