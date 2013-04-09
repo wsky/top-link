@@ -1,1 +1,1 @@
-java -Xmx128m -cp "*:." RemotingClientTest
+java -Xmx128m -cp "*:." RemotingClientTest $1
