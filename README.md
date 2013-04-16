@@ -137,6 +137,7 @@ assertEquals("hi", sampleService.echo("hi"));
 	<bean name="server" class="com.taobao.top.link.remoting.SpringServerBean">
 		<property name="port" value="8889" />
 		<property name="path" value="api" />
+		<property name="maxMessageSize" value="1024" />
 	</bean>
 	<bean class="com.taobao.top.link.remoting.ServiceBean">
 		<property name="interfaceName" value="TestInterface" />
@@ -159,6 +160,7 @@ beanFactory.getBean("server");
 	<bean name="test" class="com.taobao.top.link.remoting.SpringServiceProxyBean">
 		<property name="interfaceName" value="TestInterface" />
 		<property name="uri" value="ws://localhost:8889/" />
+		<property name="executionTimeout" value="5000" />
 	</bean>
 </beans>
 ```
