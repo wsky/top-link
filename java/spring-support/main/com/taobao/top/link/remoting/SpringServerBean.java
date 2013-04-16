@@ -8,10 +8,13 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.taobao.top.link.BufferManager;
+
 public class SpringServerBean implements InitializingBean, BeanFactoryAware, ApplicationContextAware {
+	private ListableBeanFactory beanFactory;
 	private int port;
 	private String path;
-	private ListableBeanFactory beanFactory;
+	private int maxMessageSize;
 
 	public void setPort(String port) {
 		this.port = Integer.parseInt(port);
@@ -19,6 +22,10 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public void setMaxMessageSize(String maxMessageSize) {
+		this.maxMessageSize = Integer.parseInt(maxMessageSize);
 	}
 
 	@Override
@@ -33,6 +40,9 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		if (this.maxMessageSize > 0)
+			BufferManager.setBufferSize(this.maxMessageSize);
+		
 		RemotingConfiguration.
 				configure().
 				websocket(this.port).
