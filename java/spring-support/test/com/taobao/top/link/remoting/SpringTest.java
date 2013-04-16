@@ -17,6 +17,7 @@ public class SpringTest {
 			+ "	<bean name=\"test\" class=\"com.taobao.top.link.remoting.SpringServiceProxyBean\">"
 			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.TestInterface\" />"
 			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
+			+ "		<property name=\"executionTimeout\" value=\"5000\" />"
 			+ "	</bean>"
 
 			+ "	<bean name=\"testService\" class=\"com.taobao.top.link.remoting.TestService\" />"

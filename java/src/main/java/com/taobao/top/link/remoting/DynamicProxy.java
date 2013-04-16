@@ -42,6 +42,10 @@ public class DynamicProxy implements InvocationHandler {
 				this);
 	}
 
+	public void setExecutionTimeout(int millisecond) {
+		this.defaultTimeout = millisecond;
+	}
+
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		MethodCall methodCall = new MethodCall();
@@ -119,7 +123,7 @@ public class DynamicProxy implements InvocationHandler {
 		if (syncCallback.isSucess())
 			return syncCallback.getMethodReturn();
 
-		int i = 0, wait = 100;
+		int i = 0, wait = 10;
 		while (true) {
 			if (syncCallback.isSucess())
 				return syncCallback.getMethodReturn();

@@ -5,11 +5,14 @@ import java.net.URISyntaxException;
 
 import org.springframework.beans.factory.FactoryBean;
 
+import com.taobao.top.link.BufferManager;
+
 // easy support spring bean
-public class SpringServiceProxyBean implements  FactoryBean {
+public class SpringServiceProxyBean implements FactoryBean {
 
 	private URI uri;
 	private Class<?> interfaceType;
+	private int executionTimeout;
 
 	public void setInterfaceName(String interfaceName) throws ClassNotFoundException {
 		this.interfaceType = Class.forName(interfaceName);
@@ -19,9 +22,19 @@ public class SpringServiceProxyBean implements  FactoryBean {
 		this.uri = new URI(uri);
 	}
 
+	public void setExecutionTimeout(String executionTimeout) {
+		this.executionTimeout = Integer.parseInt(executionTimeout);
+	}
+
 	@Override
 	public Object getObject() throws Exception {
-		return RemotingService.connect(this.uri, this.interfaceType);
+		// default set 2M max message size for client
+		// TODO:change to growing buffer
+		BufferManager.setBufferSize(1024 * 1024 * 2);
+		DynamicProxy proxy = RemotingService.connect(this.uri);
+		if (this.executionTimeout > 0)
+			proxy.setExecutionTimeout(this.executionTimeout);
+		return proxy.create(this.interfaceType, this.uri);
 	}
 
 	@Override
