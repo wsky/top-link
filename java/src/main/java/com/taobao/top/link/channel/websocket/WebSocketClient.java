@@ -42,7 +42,7 @@ public class WebSocketClient {
 		// connect
 		ChannelFuture future = null;
 		try {
-			future = bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort())).sync();
+			future = bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort() > 0 ? uri.getPort() : 80)).sync();
 		} catch (Exception e) {
 			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
 		}
@@ -63,7 +63,7 @@ public class WebSocketClient {
 		if (wsHandler.handshaker.isHandshakeComplete())
 			return clientChannel;
 		if (handler.error != null)
-			throw new ChannelException(Text.WS_CONNECT_FAIL 
+			throw new ChannelException(Text.WS_CONNECT_FAIL
 					+ ": " + handler.error.getMessage(), handler.error);
 
 		throw new ChannelException(Text.WS_CONNECT_TIMEOUT);
