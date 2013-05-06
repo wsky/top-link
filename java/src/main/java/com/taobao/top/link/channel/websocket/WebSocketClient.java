@@ -40,12 +40,7 @@ public class WebSocketClient {
 		WebSocketClientUpstreamHandler wsHandler = new WebSocketClientUpstreamHandler(logger, clientChannel);
 		ClientBootstrap bootstrap = prepareBootstrap(logger, wsHandler);
 		// connect
-		ChannelFuture future = null;
-		try {
-			future = bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort() > 0 ? uri.getPort() : 80)).sync();
-		} catch (Exception e) {
-			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
-		}
+		ChannelFuture future = connect(bootstrap, uri);
 		Channel channel = future.getChannel();
 		// handshake
 		try {
@@ -69,14 +64,23 @@ public class WebSocketClient {
 		throw new ChannelException(Text.WS_CONNECT_TIMEOUT);
 	}
 
-	private static ClientBootstrap prepareBootstrap(Logger logger, WebSocketClientUpstreamHandler wsHandler) {
+	protected static ChannelFuture connect(ClientBootstrap bootstrap, URI uri) throws ChannelException {
+		try {
+			return bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort() > 0 ? uri.getPort() : 80)).sync();
+		} catch (Exception e) {
+			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
+		}
+	}
+
+	protected static ClientBootstrap prepareBootstrap(Logger logger, WebSocketClientUpstreamHandler wsHandler) {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
 		final ChannelPipeline pipeline = Channels.pipeline();
 		pipeline.addLast("decoder", new HttpResponseDecoder());
 		pipeline.addLast("encoder", new HttpRequestEncoder());
-		pipeline.addLast("handler", wsHandler);
+		if (wsHandler != null)
+			pipeline.addLast("handler", wsHandler);
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
