@@ -30,6 +30,7 @@ public class PerfTest {
 	@Test
 	public void remoting_test() throws FormatterException, URISyntaxException, RemotingException {
 		// jmeter
+		proxy.toString();
 		// proxy.invoke(new MethodCall());
 	}
 
