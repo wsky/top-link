@@ -14,6 +14,13 @@ public class RemotingService {
 	// TODO:shared handler or one handler per channel?
 	private static RemotingClientChannelHandler channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
 
+	// not understandable
+	public static void setLoggerFactory(LoggerFactory loggerFactory) {
+		RemotingService.loggerFactory = loggerFactory;
+		channelSelector = new ClientChannelPooledSelector(loggerFactory);
+		channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
+	}
+
 	public static void setChannelSelector(ClientChannelSelector selector) {
 		channelSelector = selector;
 	}

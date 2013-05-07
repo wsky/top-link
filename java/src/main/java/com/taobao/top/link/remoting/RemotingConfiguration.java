@@ -1,5 +1,7 @@
 package com.taobao.top.link.remoting;
 
+import com.taobao.top.link.DefaultLoggerFactory;
+import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ServerChannel;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
@@ -13,9 +15,11 @@ public class RemotingConfiguration {
 		return configuration;
 	}
 
+	private LoggerFactory loggerFactory;
 	private DefaultRemotingServerChannelHandler defaultHandler;
 
 	public RemotingConfiguration() {
+		this.loggerFactory = new DefaultLoggerFactory();
 		this.defaultHandler = new DefaultRemotingServerChannelHandler();
 	}
 
@@ -26,8 +30,13 @@ public class RemotingConfiguration {
 		return this;
 	}
 
+	public RemotingConfiguration loggerFactory(LoggerFactory loggerFactory) {
+		this.loggerFactory = loggerFactory;
+		return this;
+	}
+
 	public RemotingConfiguration websocket(int port) {
-		return this.bind(new WebSocketServerChannel(port));
+		return this.bind(new WebSocketServerChannel(this.loggerFactory, port));
 	}
 
 	public RemotingConfiguration tcp(int port) {

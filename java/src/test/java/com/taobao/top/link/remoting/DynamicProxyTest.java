@@ -4,10 +4,21 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.taobao.top.link.DefaultLoggerFactory;
+import com.taobao.top.link.LoggerFactory;
 
 // high-level abstract remoting test
 public class DynamicProxyTest {
+	private static LoggerFactory loggerFactory = new DefaultLoggerFactory(true, true, true, true, true);
+	
+	@BeforeClass
+	public static void init() {
+		RemotingService.setLoggerFactory(loggerFactory);
+	}
+	
 	@Test
 	public void dynamicProxy_test() throws Throwable {
 		String uriString = "ws://localhost:9020/";
@@ -57,6 +68,7 @@ public class DynamicProxyTest {
 	private RemotingConfiguration runDefaultServer(URI uri) {
 		return RemotingConfiguration.
 				configure().
+				loggerFactory(loggerFactory).
 				websocket(uri.getPort()).
 				addProcessor("sample", new SampleService());
 	}

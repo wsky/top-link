@@ -19,6 +19,7 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.NamedThreadFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
@@ -74,8 +75,8 @@ public class WebSocketClient {
 
 	protected static ClientBootstrap prepareBootstrap(Logger logger, WebSocketClientUpstreamHandler wsHandler) {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
-				Executors.newCachedThreadPool(),
-				Executors.newCachedThreadPool()));
+				Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-CLIENT-BOSS-")),
+				Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-CLIENT-WORKER-"))));
 		final ChannelPipeline pipeline = Channels.pipeline();
 		pipeline.addLast("decoder", new HttpResponseDecoder());
 		pipeline.addLast("encoder", new HttpRequestEncoder());

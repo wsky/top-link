@@ -18,6 +18,7 @@ import org.jboss.netty.util.Timer;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.NamedThreadFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ServerChannel;
 
@@ -38,8 +39,8 @@ public class WebSocketServerChannel extends ServerChannel {
 	public void run() {
 		this.bootstrap = new ServerBootstrap(
 				new NioServerSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
+						Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-SERVER-BOSS-")),
+						Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-SERVER-WORKER-"))));
 		// shared timer for idle
 		final Timer timer = new HashedWheelTimer();
 		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
