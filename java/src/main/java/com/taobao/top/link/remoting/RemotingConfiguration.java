@@ -1,5 +1,7 @@
 package com.taobao.top.link.remoting;
 
+import java.util.concurrent.ExecutorService;
+
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ServerChannel;
@@ -20,7 +22,7 @@ public class RemotingConfiguration {
 
 	public RemotingConfiguration() {
 		this.loggerFactory = new DefaultLoggerFactory();
-		this.defaultHandler = new DefaultRemotingServerChannelHandler();
+		this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
 	}
 
 	// bind to custom channel
@@ -30,6 +32,7 @@ public class RemotingConfiguration {
 		return this;
 	}
 
+	// should be set first
 	public RemotingConfiguration loggerFactory(LoggerFactory loggerFactory) {
 		this.loggerFactory = loggerFactory;
 		return this;
@@ -51,5 +54,9 @@ public class RemotingConfiguration {
 			String objectUri, MethodCallProcessor processor) {
 		this.defaultHandler.addProcessor(objectUri, processor);
 		return this;
+	}
+
+	public void businessThreadPool(ExecutorService threadPool) {
+		this.defaultHandler.setThreadPool(threadPool);
 	}
 }

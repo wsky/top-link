@@ -14,7 +14,7 @@ import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
 public class RemotingTest {
-	private static LoggerFactory loggerFactory = new DefaultLoggerFactory(true, true, true, true, true);
+	private static LoggerFactory loggerFactory = new DefaultLoggerFactory(false, true, true, true, true);
 
 	@BeforeClass
 	public static void init() {
@@ -25,7 +25,7 @@ public class RemotingTest {
 	public void send_test() throws URISyntaxException, ChannelException {
 		URI uri = new URI("ws://localhost:9001/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				MethodReturn methodReturn = new MethodReturn();
@@ -53,7 +53,7 @@ public class RemotingTest {
 	public void execution_timeout_test() throws URISyntaxException, ChannelException, RemotingException, FormatterException {
 		URI uri = new URI("ws://localhost:9003/link");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {
@@ -80,7 +80,7 @@ public class RemotingTest {
 	public void channel_broken_while_calling_test() throws Throwable {
 		URI uri = new URI("ws://localhost:9004/link");
 		final WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {

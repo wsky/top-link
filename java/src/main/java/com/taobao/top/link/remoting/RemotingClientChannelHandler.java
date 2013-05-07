@@ -96,7 +96,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		try {
 			transportHeaders = protocol.ReadTransportHeaders();
 		} catch (NotSupportedException e) {
-			e.printStackTrace();
+			this.logger.error(e);
 		}
 		Object flag;
 		if (transportHeaders == null ||
@@ -130,7 +130,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		try {
 			callback.onMethodReturn(methodReturn);
 		} catch (Exception e) {
-			e.printStackTrace();
+			this.logger.error(e);
 		}
 	}
 

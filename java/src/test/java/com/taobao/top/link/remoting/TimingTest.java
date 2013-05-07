@@ -90,7 +90,7 @@ public class TimingTest {
 
 	private void runServer(URI uri) {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler(new DefaultLoggerFactory()) {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				MethodReturn methodReturn = new MethodReturn();
