@@ -8,16 +8,29 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
 
 public class PerfTest {
-	private int total = 10000;
+	private static int total = 10000;
+	private static URI uri;
+	private static DynamicProxy proxy;
+
+	static {
+		RemotingService.setChannelSelector(new ClientChannelSharedSelector(new DefaultLoggerFactory()));
+		try {
+			uri = new URI("ws://localhost:9000/");
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		proxy = RemotingService.connect(uri);
+	}
 
 	@Test
 	public void remoting_test() throws FormatterException, URISyntaxException, RemotingException {
 		// jmeter
-		// RemotingService.connect(new URI("ws://localhost:9000/")).invoke(new
-		// MethodCall());
+		// proxy.invoke(new MethodCall());
 	}
 
 	// @Test

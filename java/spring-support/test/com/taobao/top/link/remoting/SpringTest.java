@@ -15,12 +15,12 @@ public class SpringTest {
 			+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
 			+ "<beans>"
 			+ "	<bean name=\"test\" class=\"com.taobao.top.link.remoting.SpringServiceProxyBean\">"
-			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.TestInterface\" />"
+			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.SampleInterface\" />"
 			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
 			+ "		<property name=\"executionTimeout\" value=\"5000\" />"
 			+ "	</bean>"
 
-			+ "	<bean name=\"testService\" class=\"com.taobao.top.link.remoting.TestService\" />"
+			+ "	<bean name=\"sampleService\" class=\"com.taobao.top.link.remoting.SampleService\" />"
 
 			+ "	<bean name=\"server\" class=\"com.taobao.top.link.remoting.SpringServerBean\">"
 			+ "		<property name=\"port\" value=\"8889\" />"
@@ -29,9 +29,9 @@ public class SpringTest {
 			+ "</bean>"
 
 			+ "	<bean class=\"com.taobao.top.link.remoting.ServiceBean\">"
-			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.TestInterface\" />"
+			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.SampleInterface\" />"
 			+ "		<property name=\"target\">"
-			+ "			<ref bean=\"testService\" />"
+			+ "			<ref bean=\"sampleService\" />"
 			+ "		</property>"
 			+ "	</bean>"
 			+ "</beans>";
@@ -48,8 +48,8 @@ public class SpringTest {
 
 	@Test
 	public void get_class_test() throws ClassNotFoundException {
-		Class.forName("com.taobao.top.link.remoting.TestInterface");
-		Class.forName("com.taobao.top.link.remoting.TestService");
+		Class.forName("com.taobao.top.link.remoting.SampleInterface");
+		Class.forName("com.taobao.top.link.remoting.SampleService");
 	}
 
 	@Test
@@ -61,12 +61,12 @@ public class SpringTest {
 	public void get_proxy_test() {
 		Object proxy = beanFactory.getBean("test");
 		assertNotNull(proxy);
-		assertNotNull((TestInterface) proxy);
+		assertNotNull((SampleInterface) proxy);
 	}
 
 	@Test
 	public void invoke_proxy_test() {
-		TestInterface testInterface = (TestInterface) beanFactory.getBean("test");
-		assertEquals("hi", testInterface.echo("hi"));
+		SampleInterface sampleInterface = (SampleInterface) beanFactory.getBean("test");
+		assertEquals("hi", sampleInterface.echo("hi"));
 	}
 }
