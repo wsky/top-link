@@ -40,7 +40,9 @@ public class WebSocketServerChannel extends ServerChannel {
 		this.bootstrap = new ServerBootstrap(
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-SERVER-BOSS-")),
-						Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-SERVER-WORKER-"))));
+						Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-SERVER-WORKER-"))));		
+		bootstrap.setOption("tcpNoDelay", true);
+		bootstrap.setOption("reuseAddress", true);
 		// shared timer for idle
 		final Timer timer = new HashedWheelTimer();
 		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {

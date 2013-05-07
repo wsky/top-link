@@ -77,6 +77,8 @@ public class WebSocketClient {
 		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-CLIENT-BOSS-")),
 				Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-CLIENT-WORKER-"))));
+		bootstrap.setOption("tcpNoDelay", true);
+		bootstrap.setOption("reuseAddress", true);
 		final ChannelPipeline pipeline = Channels.pipeline();
 		pipeline.addLast("decoder", new HttpResponseDecoder());
 		pipeline.addLast("encoder", new HttpRequestEncoder());
