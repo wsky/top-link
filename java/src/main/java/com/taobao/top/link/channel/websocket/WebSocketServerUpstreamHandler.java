@@ -21,6 +21,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -89,8 +90,9 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		}
 
 		String subprotocols = "mqtt";
+		boolean allowExtensions = false;
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-				req.getUri(), subprotocols, false);
+				req.getUri(), subprotocols, allowExtensions);
 		this.handshaker = wsFactory.newHandshaker(req);
 		if (this.handshaker == null) {
 			wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
@@ -100,6 +102,12 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		// FIXME:maybe not finish
 		this.handshaker.handshake(ctx.getChannel(),
 				req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
+
+		// use custom decoder
+		ctx.getPipeline().replace(WebSocket13FrameDecoder.class, "wsdecoder-custom", 
+				new CustomWebSocket13FrameDecoder(true, 
+						allowExtensions,
+						this.handshaker.getMaxFramePayloadLength()));
 
 		if (this.channelHandler != null) {
 			this.channelHandler.onConnect(this.createContext(req.getHeaders()));
