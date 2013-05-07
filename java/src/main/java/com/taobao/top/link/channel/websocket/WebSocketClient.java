@@ -66,10 +66,14 @@ public class WebSocketClient {
 
 	protected static ChannelFuture connect(ClientBootstrap bootstrap, URI uri) throws ChannelException {
 		try {
-			return bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort() > 0 ? uri.getPort() : 80)).sync();
+			return bootstrap.connect(parse(uri)).sync();
 		} catch (Exception e) {
 			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
 		}
+	}
+
+	protected static InetSocketAddress parse(URI uri) {
+		return new InetSocketAddress(uri.getHost(), uri.getPort() > 0 ? uri.getPort() : 80);
 	}
 
 	protected static ClientBootstrap prepareBootstrap(Logger logger, WebSocketClientUpstreamHandler wsHandler) {

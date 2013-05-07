@@ -2,6 +2,9 @@ package com.taobao.top.link.remoting;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -68,7 +71,11 @@ public class PerfTest {
 	}
 
 	private void runDefaultServer(URI uri) {
-		RemotingConfiguration.configure().websocket(uri.getPort()).addProcessor("sample", new SampleService());
+		RemotingConfiguration.
+				configure().
+				businessThreadPool(new ThreadPoolExecutor(20, 100, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>())).
+				websocket(uri.getPort()).
+				addProcessor("sample", new SampleService());
 	}
 
 	public interface SampleServiceInterface {

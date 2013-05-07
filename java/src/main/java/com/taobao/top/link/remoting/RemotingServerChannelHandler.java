@@ -8,9 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import remoting.protocol.NotSupportedException;
 import remoting.protocol.tcp.TcpContentDelimiter;
@@ -32,8 +30,6 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 	public RemotingServerChannelHandler(LoggerFactory loggerFactory) {
 		this.logger = loggerFactory.create(this);
-		this.setThreadPool(new ThreadPoolExecutor(
-				20, 100, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
 	}
 
 	public void setThreadPool(ExecutorService threadPool) {

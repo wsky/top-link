@@ -56,7 +56,8 @@ public class RemotingConfiguration {
 		return this;
 	}
 
-	public void businessThreadPool(ExecutorService threadPool) {
+	public RemotingConfiguration businessThreadPool(ExecutorService threadPool) {
 		this.defaultHandler.setThreadPool(threadPool);
+		return this;
 	}
 }
