@@ -18,7 +18,6 @@ import org.jboss.netty.util.Timer;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
-import com.taobao.top.link.NamedThreadFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ServerChannel;
 
@@ -39,8 +38,8 @@ public class WebSocketServerChannel extends ServerChannel {
 	public void run() {
 		this.bootstrap = new ServerBootstrap(
 				new NioServerSocketChannelFactory(
-						Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-SERVER-BOSS-")),
-						Executors.newCachedThreadPool(new NamedThreadFactory("NETTY-SERVER-WORKER-"))));		
+						Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()));		
 		bootstrap.setOption("tcpNoDelay", true);
 		bootstrap.setOption("reuseAddress", true);
 		// shared timer for idle
