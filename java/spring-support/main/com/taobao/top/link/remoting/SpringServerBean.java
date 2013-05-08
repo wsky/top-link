@@ -1,5 +1,9 @@
 package com.taobao.top.link.remoting;
 
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -15,6 +19,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 	private int port;
 	private String path;
 	private int maxMessageSize;
+	private int maxThreadCount = 200;
 
 	public void setPort(String port) {
 		this.port = Integer.parseInt(port);
@@ -26,6 +31,10 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 
 	public void setMaxMessageSize(String maxMessageSize) {
 		this.maxMessageSize = Integer.parseInt(maxMessageSize);
+	}
+
+	public void setMaxBusinessThreadCount(String maxThreadCount) {
+		this.maxThreadCount = Integer.parseInt(maxThreadCount);
 	}
 
 	@Override
@@ -42,10 +51,15 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 	public void afterPropertiesSet() throws Exception {
 		if (this.maxMessageSize > 0)
 			BufferManager.setBufferSize(this.maxMessageSize);
-		
+
 		RemotingConfiguration.
 				configure().
 				websocket(this.port).
-				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory));
+				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory)).
+				businessThreadPool(new ThreadPoolExecutor(20, 
+						this.maxThreadCount,
+						300,
+						TimeUnit.SECONDS,
+						new SynchronousQueue<Runnable>()));
 	}
 }
