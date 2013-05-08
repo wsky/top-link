@@ -44,19 +44,35 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	private WebSocketServerHandshaker handshaker;
 	private ChannelGroup allChannels;
 	private ChannelSender sender;
+	private boolean cumulative;
 
 	public WebSocketServerUpstreamHandler(LoggerFactory loggerFactory,
 			ChannelHandler channelHandler,
-			ChannelGroup channelGroup) {
+			ChannelGroup channelGroup,
+			boolean cumulative) {
 		this.logger = loggerFactory.create(this);
 		this.channelHandler = channelHandler;
 		this.allChannels = channelGroup;
+		this.cumulative = cumulative;
 	}
 
 	@Override
 	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		this.allChannels.add(e.getChannel());
 		this.sender = new WebSocketChannelSender(ctx);
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+			throws Exception {
+		if (this.channelHandler != null)
+			this.channelHandler.onError(this.createContext(e.getCause()));
+
+		// TODO:when to send close frame?
+		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
+		e.getChannel().close();
+
+		this.logger.error(Text.WS_ERROR_AT_SERVER, e.getCause());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -71,22 +87,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 			this.handleWebSocketFrame(ctx, (WebSocketFrame) msg);
 		} else if (msg instanceof List<?>) {
 			this.handleWebSocketFrame(ctx, (List<WebSocketFrame>) msg);
-		} else {
-			this.logger.warn("unknown message: %s", msg);
 		}
-	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-			throws Exception {
-		if (this.channelHandler != null)
-			this.channelHandler.onError(this.createContext(e.getCause()));
-
-		// TODO:when to send close frame?
-		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
-		e.getChannel().close();
-
-		this.logger.error(Text.WS_ERROR_AT_SERVER, e.getCause());
 	}
 
 	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
@@ -108,15 +109,16 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 			return;
 		}
 
-		// FIXME:maybe not finish
+		// FIXME: maybe not finish for later work
 		this.handshaker.handshake(ctx.getChannel(),
 				req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
 
-		// use custom decoder
-		ctx.getPipeline().replace(WebSocket13FrameDecoder.class, "wsdecoder-custom",
-				new CustomWebSocket13FrameDecoder(true,
-						allowExtensions,
-						this.handshaker.getMaxFramePayloadLength()));
+		if (this.cumulative)
+			// use custom decoder for cumulative
+			ctx.getPipeline().replace(WebSocket13FrameDecoder.class, "wsdecoder-custom",
+					new CustomWebSocket13FrameDecoder(true,
+							allowExtensions,
+							this.handshaker.getMaxFramePayloadLength()));
 
 		if (this.channelHandler != null) {
 			this.channelHandler.onConnect(this.createContext(req.getHeaders()));

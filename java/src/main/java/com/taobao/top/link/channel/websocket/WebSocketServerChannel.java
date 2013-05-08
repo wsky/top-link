@@ -24,14 +24,24 @@ import com.taobao.top.link.channel.ServerChannel;
 public class WebSocketServerChannel extends ServerChannel {
 	private ServerBootstrap bootstrap;
 	private ChannelGroup allChannels;
+	private boolean cumulative;
 
 	public WebSocketServerChannel(int port) {
-		this(new DefaultLoggerFactory(), port);
+		this(port, false);
+	}
+
+	public WebSocketServerChannel(int port, boolean cumulative) {
+		this(new DefaultLoggerFactory(), port, cumulative);
 	}
 
 	public WebSocketServerChannel(LoggerFactory factory, int port) {
+		this(factory, port, false);
+	}
+
+	public WebSocketServerChannel(LoggerFactory factory, int port, boolean cumulative) {
 		super(factory, port);
 		this.allChannels = new DefaultChannelGroup();
+		this.cumulative = cumulative;
 	}
 
 	@Override
@@ -39,7 +49,7 @@ public class WebSocketServerChannel extends ServerChannel {
 		this.bootstrap = new ServerBootstrap(
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));		
+						Executors.newCachedThreadPool()));
 		bootstrap.setOption("tcpNoDelay", true);
 		bootstrap.setOption("reuseAddress", true);
 		// shared timer for idle
@@ -54,7 +64,7 @@ public class WebSocketServerChannel extends ServerChannel {
 				}
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("encoder", new HttpResponseEncoder());
-				pipeline.addLast("handler", new WebSocketServerUpstreamHandler(loggerFactory, channelHandler, allChannels));
+				pipeline.addLast("handler", new WebSocketServerUpstreamHandler(loggerFactory, channelHandler, allChannels, cumulative));
 				return pipeline;
 			}
 		});
