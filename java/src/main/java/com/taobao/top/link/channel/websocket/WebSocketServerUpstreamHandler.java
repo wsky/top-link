@@ -89,13 +89,24 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		}
 	}
 
-	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
+	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) {
 		this.dump(req);
 
 		if (req.getMethod() != HttpMethod.GET) {
-			sendHttpResponse(ctx, req,
+			this.sendHttpResponse(ctx, req,
 					new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN));
 			return;
+		}
+
+		if (this.channelHandler != null) {
+			try {
+				this.channelHandler.onConnect(this.createContext(req.getHeaders()));
+			} catch (Exception e) {
+				this.logger.error(e);
+				this.sendHttpResponse(ctx, req,
+						new DefaultHttpResponse(HttpVersion.HTTP_1_1, 
+								new HttpResponseStatus(401, e.getMessage())));
+			}
 		}
 
 		String subprotocols = null;
@@ -118,10 +129,6 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 					new CustomWebSocket13FrameDecoder(true,
 							allowExtensions,
 							this.handshaker.getMaxFramePayloadLength()));
-
-		if (this.channelHandler != null) {
-			this.channelHandler.onConnect(this.createContext(req.getHeaders()));
-		}
 	}
 
 	private void handleWebSocketFrame(final ChannelHandlerContext ctx,
