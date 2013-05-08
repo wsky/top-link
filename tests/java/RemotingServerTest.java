@@ -25,7 +25,9 @@ public class RemotingServerTest {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(9000, true);
 		serverChannel.setChannelHandler(handler);
 		serverChannel.run();
-		System.out.println("cumulative=true|threadpool=true");
+		System.out.println(String.format(
+			"cumulative=true|threadpool=true|processors=%s", 
+			Runtime.getRuntime().availableProcessors()));
 		System.in.read();
 	}
 }
