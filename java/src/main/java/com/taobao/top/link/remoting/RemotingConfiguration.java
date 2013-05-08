@@ -39,7 +39,7 @@ public class RemotingConfiguration {
 	}
 
 	public RemotingConfiguration websocket(int port) {
-		return this.bind(new WebSocketServerChannel(this.loggerFactory, port));
+		return this.bind(new WebSocketServerChannel(this.loggerFactory, port, true));
 	}
 
 	public RemotingConfiguration tcp(int port) {
