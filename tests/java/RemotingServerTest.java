@@ -20,11 +20,12 @@ public class RemotingServerTest {
 				return methodReturn;
 			}
 		};
-		handler.setThreadPool(new ThreadPoolExecutor(20, 100, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
+		handler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
 		
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(9000);
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(9000, true);
 		serverChannel.setChannelHandler(handler);
 		serverChannel.run();
+		System.out.println("cumulative=true|threadpool=true");
 		System.in.read();
 	}
 }

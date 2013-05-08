@@ -16,6 +16,7 @@ public class PerfTest {
 	private static int total = 10000;
 	private static URI uri;
 	private static DynamicProxy proxy;
+	private static MethodCall call;
 
 	static {
 		RemotingService.setChannelSelector(new ClientChannelSharedSelector(new DefaultLoggerFactory()));
@@ -25,13 +26,15 @@ public class PerfTest {
 			e.printStackTrace();
 		}
 		proxy = RemotingService.connect(uri);
+		call = new MethodCall();
+		call.Args = new Object[] { "hello1234567890123456789123456789hello1234567890123456789123456789" };
 	}
 
 	@Test
 	public void remoting_test() throws FormatterException, URISyntaxException, RemotingException {
 		// jmeter
 		proxy.toString();
-		// proxy.invoke(new MethodCall());
+		//proxy.invoke(call);
 	}
 
 	// @Test
