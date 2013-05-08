@@ -80,7 +80,6 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
 		Object msg = e.getMessage();
-		System.out.println(msg);
 		if (msg instanceof HttpRequest) {
 			this.handleHttpRequest(ctx, (HttpRequest) msg);
 		} else if (msg instanceof WebSocketFrame) {

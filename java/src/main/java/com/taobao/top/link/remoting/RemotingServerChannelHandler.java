@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,9 +39,22 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 	public abstract MethodReturn onMethodCall(MethodCall methodCall) throws Throwable;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onMessage(final ChannelContext context) throws ChannelException, NotSupportedException {
-		final TcpProtocolHandle protocol = new TcpProtocolHandle((ByteBuffer) context.getMessage());
+		Object msg = context.getMessage();
+
+		if (msg instanceof ByteBuffer) {
+			this.onMessage(context, (ByteBuffer) msg);
+			return;
+		}
+
+		for (ByteBuffer buffer : (List<ByteBuffer>) msg)
+			this.onMessage(context, buffer);
+	}
+
+	private void onMessage(final ChannelContext context, ByteBuffer buffer) throws ChannelException, NotSupportedException {
+		final TcpProtocolHandle protocol = new TcpProtocolHandle(buffer);
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();

@@ -20,33 +20,17 @@ public class RemotingTest {
 	public static void init() {
 		RemotingService.setLoggerFactory(loggerFactory);
 	}
-	
+
 	@Test
 	public void send_test() throws URISyntaxException, ChannelException {
 		URI uri = new URI("ws://localhost:9001/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
-			@Override
-			public MethodReturn onMethodCall(MethodCall methodCall) {
-				MethodReturn methodReturn = new MethodReturn();
-				methodReturn.ReturnValue = "ok";
-				return methodReturn;
-			}
-		});
-		serverChannel.run();
+		send_test(uri, false);
+	}
 
-		DynamicProxy proxy = RemotingService.connect(uri);
-		MethodCall methodCall = new MethodCall();
-		MethodReturn methodReturn = null;
-		try {
-			methodReturn = proxy.invoke(methodCall);
-		} catch (RemotingException e) {
-			e.printStackTrace();
-		} catch (FormatterException e) {
-			e.printStackTrace();
-		}
-		assertNull(methodReturn.Exception);
-		assertEquals("ok", methodReturn.ReturnValue);
+	@Test
+	public void cumulative_test() throws URISyntaxException, ChannelException {
+		URI uri = new URI("ws://localhost:9002/link");
+		send_test(uri, true);
 	}
 
 	@Test(expected = RemotingException.class)
@@ -119,5 +103,31 @@ public class RemotingTest {
 	@Test
 	public void transportHeaders_got_error_statusCode_test() {
 
+	}
+
+	private void send_test(URI uri, boolean cumulative) throws URISyntaxException, ChannelException {
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort(), cumulative);
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
+			@Override
+			public MethodReturn onMethodCall(MethodCall methodCall) {
+				MethodReturn methodReturn = new MethodReturn();
+				methodReturn.ReturnValue = "ok";
+				return methodReturn;
+			}
+		});
+		serverChannel.run();
+
+		DynamicProxy proxy = RemotingService.connect(uri);
+		MethodCall methodCall = new MethodCall();
+		MethodReturn methodReturn = null;
+		try {
+			methodReturn = proxy.invoke(methodCall);
+		} catch (RemotingException e) {
+			e.printStackTrace();
+		} catch (FormatterException e) {
+			e.printStackTrace();
+		}
+		assertNull(methodReturn.Exception);
+		assertEquals("ok", methodReturn.ReturnValue);
 	}
 }
