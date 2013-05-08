@@ -1,5 +1,8 @@
 package com.taobao.top.link.channel.websocket;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -56,14 +59,20 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		this.sender = new WebSocketChannelSender(ctx);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
 		Object msg = e.getMessage();
+		System.out.println(msg);
 		if (msg instanceof HttpRequest) {
 			this.handleHttpRequest(ctx, (HttpRequest) msg);
 		} else if (msg instanceof WebSocketFrame) {
 			this.handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+		} else if (msg instanceof List<?>) {
+			this.handleWebSocketFrame(ctx, (List<WebSocketFrame>) msg);
+		} else {
+			this.logger.warn("unknown message: %s", msg);
 		}
 	}
 
@@ -104,8 +113,8 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 				req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
 
 		// use custom decoder
-		ctx.getPipeline().replace(WebSocket13FrameDecoder.class, "wsdecoder-custom", 
-				new CustomWebSocket13FrameDecoder(true, 
+		ctx.getPipeline().replace(WebSocket13FrameDecoder.class, "wsdecoder-custom",
+				new CustomWebSocket13FrameDecoder(true,
 						allowExtensions,
 						this.handshaker.getMaxFramePayloadLength()));
 
@@ -132,7 +141,15 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 				this.channelHandler.onMessage(this.createContext(buffer.toByteBuffer()));
 			}
 		}
+	}
 
+	private void handleWebSocketFrame(final ChannelHandlerContext ctx,
+			List<WebSocketFrame> frames) throws Exception {
+		List<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
+		for (WebSocketFrame f : frames) {
+			buffers.add(f.getBinaryData().toByteBuffer());
+		}
+		this.channelHandler.onMessage(this.createContext(buffers));
 	}
 
 	private void sendHttpResponse(ChannelHandlerContext ctx,
