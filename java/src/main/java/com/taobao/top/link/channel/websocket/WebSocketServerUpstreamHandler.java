@@ -104,7 +104,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 			} catch (Exception e) {
 				this.logger.error(e);
 				this.sendHttpResponse(ctx, req,
-						new DefaultHttpResponse(HttpVersion.HTTP_1_1, 
+						new DefaultHttpResponse(HttpVersion.HTTP_1_1,
 								new HttpResponseStatus(401, e.getMessage())));
 			}
 		}
