@@ -98,7 +98,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 			return;
 		}
 
-		String subprotocols = "mqtt";
+		String subprotocols = null;
 		boolean allowExtensions = false;
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
 				req.getUri(), subprotocols, allowExtensions);
