@@ -19,3 +19,5 @@ packages
 bin
 obj
 *.user
+
+temp_*
