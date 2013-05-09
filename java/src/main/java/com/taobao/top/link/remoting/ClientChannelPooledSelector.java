@@ -20,7 +20,6 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 	}
 
 	public ClientChannelPooledSelector(LoggerFactory factory) {
-		super(factory);
 		this.channels = new Hashtable<String, Pool<ClientChannel>>();
 	}
 
@@ -30,7 +29,7 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 		if (this.channels.get(url) == null) {
 			synchronized (this.lockObject) {
 				if (this.channels.get(url) == null) {
-					this.channels.put(url, new ChannelPool(uri, this.loggerFactory));
+					this.channels.put(url, new ChannelPool(uri));
 				}
 			}
 		}
@@ -49,12 +48,10 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 
 	class ChannelPool extends Pool<ClientChannel> {
 		private URI uri;
-		private LoggerFactory loggerFactory;
 
-		public ChannelPool(URI uri, LoggerFactory loggerFactory) {
+		public ChannelPool(URI uri) {
 			super(10, 10);
 			this.uri = uri;
-			this.loggerFactory = loggerFactory;
 		}
 
 		public ClientChannel checkout() throws Throwable {
@@ -66,7 +63,7 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 
 		@Override
 		public ClientChannel create() throws ChannelException {
-			return WebSocketClient.connect(this.loggerFactory, this.uri, 5000);
+			return WebSocketClient.connect(this.uri, 5000);
 		}
 
 		@Override
