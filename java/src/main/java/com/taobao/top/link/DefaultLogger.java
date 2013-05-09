@@ -2,49 +2,49 @@ package com.taobao.top.link;
 
 public class DefaultLogger implements Logger {
 	private String type;
-	private boolean isDebugEnable;
-	private boolean isInfoEnable;
-	private boolean isWarnEnable;
-	private boolean isErrorEnable;
-	private boolean isFatalEnable;
+	private boolean isDebugEnabled;
+	private boolean isInfoEnabled;
+	private boolean isWarnEnabled;
+	private boolean isErrorEnabled;
+	private boolean isFatalEnabled;
 
 	public DefaultLogger(String type,
-			boolean isDebugEnable,
-			boolean isInfoEnable,
-			boolean isWarnEnable,
-			boolean isErrorEnable,
-			boolean isFatalEnable) {
+			boolean isDebugEnabled,
+			boolean isInfoEnabled,
+			boolean isWarnEnabled,
+			boolean isErrorEnabled,
+			boolean isFatalEnabled) {
 		this.type = type;
-		this.isDebugEnable = isDebugEnable;
-		this.isInfoEnable = isInfoEnable;
-		this.isWarnEnable = isWarnEnable;
-		this.isErrorEnable = isErrorEnable;
-		this.isFatalEnable = isFatalEnable;
+		this.isDebugEnabled = isDebugEnabled;
+		this.isInfoEnabled = isInfoEnabled;
+		this.isWarnEnabled = isWarnEnabled;
+		this.isErrorEnabled = isErrorEnabled;
+		this.isFatalEnabled = isFatalEnabled;
 	}
 
 	@Override
-	public boolean isDebugEnable() {
-		return this.isDebugEnable;
+	public boolean isDebugEnabled() {
+		return this.isDebugEnabled;
 	}
 
 	@Override
-	public boolean isInfoEnable() {
-		return this.isInfoEnable;
+	public boolean isInfoEnabled() {
+		return this.isInfoEnabled;
 	}
 
 	@Override
-	public boolean isWarnEnable() {
-		return this.isWarnEnable;
+	public boolean isWarnEnabled() {
+		return this.isWarnEnabled;
 	}
 
 	@Override
-	public boolean isErrorEnable() {
-		return this.isErrorEnable;
+	public boolean isErrorEnabled() {
+		return this.isErrorEnabled;
 	}
 
 	@Override
-	public boolean isFatalEnable() {
-		return this.isFatalEnable;
+	public boolean isFatalEnabled() {
+		return this.isFatalEnabled;
 	}
 
 	@Override

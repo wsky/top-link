@@ -1,15 +1,15 @@
 package com.taobao.top.link;
 
 public interface Logger {
-	public boolean isDebugEnable();
+	public boolean isDebugEnabled();
 
-	public boolean isInfoEnable();
+	public boolean isInfoEnabled();
 
-	public boolean isWarnEnable();
+	public boolean isWarnEnabled();
 
-	public boolean isErrorEnable();
+	public boolean isErrorEnabled();
 
-	public boolean isFatalEnable();
+	public boolean isFatalEnabled();
 
 	public void debug(String message);
 

@@ -148,7 +148,7 @@ public class Endpoint {
 	private EndpointProxy createProxy(String reason) {
 		EndpointProxy e = new EndpointProxy(this);
 		this.connected.add(e);
-		if (this.logger.isDebugEnable())
+		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.E_CREATE_NEW + ": " + reason);
 		return e;
 	}

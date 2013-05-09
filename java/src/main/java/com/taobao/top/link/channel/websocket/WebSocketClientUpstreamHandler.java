@@ -128,7 +128,7 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 	}
 
 	private void dump(HttpResponse response) {
-		if (!this.logger.isDebugEnable())
+		if (!this.logger.isDebugEnabled())
 			return;
 		this.logger.debug("%s|%s",
 				response.getStatus().getCode(),

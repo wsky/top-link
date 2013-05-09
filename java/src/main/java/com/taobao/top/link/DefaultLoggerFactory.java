@@ -11,68 +11,68 @@ public class DefaultLoggerFactory implements LoggerFactory {
 		return _default;
 	}
 
-	public static void setDefault(boolean isDebugEnable,
-			boolean isInfoEnable,
-			boolean isWarnEnable,
-			boolean isErrorEnable,
-			boolean isFatalEnable) {
-		_default = new DefaultLoggerFactory(isDebugEnable,
-				isInfoEnable,
-				isWarnEnable,
-				isErrorEnable,
-				isFatalEnable);
+	public static void setDefault(boolean isDebugEnabled,
+			boolean isInfoEnabled,
+			boolean isWarnEnabled,
+			boolean isErrorEnabled,
+			boolean isFatalEnabled) {
+		_default = new DefaultLoggerFactory(isDebugEnabled,
+				isInfoEnabled,
+				isWarnEnabled,
+				isErrorEnabled,
+				isFatalEnabled);
 	}
 
-	private boolean isDebugEnable;
-	private boolean isInfoEnable;
-	private boolean isWarnEnable;
-	private boolean isErrorEnable;
-	private boolean isFatalEnable;
+	private boolean isDebugEnabled;
+	private boolean isInfoEnabled;
+	private boolean isWarnEnabled;
+	private boolean isErrorEnabled;
+	private boolean isFatalEnabled;
 
 	public DefaultLoggerFactory() {
 		this(false, true, true, true, true);
 	}
 
-	public DefaultLoggerFactory(boolean isDebugEnable,
-			boolean isInfoEnable,
-			boolean isWarnEnable,
-			boolean isErrorEnable,
-			boolean isFatalEnable) {
-		this.isDebugEnable = isDebugEnable;
-		this.isInfoEnable = isInfoEnable;
-		this.isWarnEnable = isWarnEnable;
-		this.isErrorEnable = isErrorEnable;
-		this.isFatalEnable = isFatalEnable;
+	public DefaultLoggerFactory(boolean isDebugEnabled,
+			boolean isInfoEnabled,
+			boolean isWarnEnabled,
+			boolean isErrorEnabled,
+			boolean isFatalEnabled) {
+		this.isDebugEnabled = isDebugEnabled;
+		this.isInfoEnabled = isInfoEnabled;
+		this.isWarnEnabled = isWarnEnabled;
+		this.isErrorEnabled = isErrorEnabled;
+		this.isFatalEnabled = isFatalEnabled;
 	}
 
 	@Override
 	public Logger create(String type) {
 		return new DefaultLogger(type,
-				this.isDebugEnable,
-				this.isInfoEnable,
-				this.isWarnEnable,
-				this.isErrorEnable,
-				this.isFatalEnable);
+				this.isDebugEnabled,
+				this.isInfoEnabled,
+				this.isWarnEnabled,
+				this.isErrorEnabled,
+				this.isFatalEnabled);
 	}
 
 	@Override
 	public Logger create(Class<?> type) {
 		return new DefaultLogger(type.getSimpleName(),
-				this.isDebugEnable,
-				this.isInfoEnable,
-				this.isWarnEnable,
-				this.isErrorEnable,
-				this.isFatalEnable);
+				this.isDebugEnabled,
+				this.isInfoEnabled,
+				this.isWarnEnabled,
+				this.isErrorEnabled,
+				this.isFatalEnabled);
 	}
 
 	@Override
 	public Logger create(Object object) {
 		return new DefaultLogger(object.getClass().getSimpleName(),
-				this.isDebugEnable,
-				this.isInfoEnable,
-				this.isWarnEnable,
-				this.isErrorEnable,
-				this.isFatalEnable);
+				this.isDebugEnabled,
+				this.isInfoEnabled,
+				this.isWarnEnabled,
+				this.isErrorEnabled,
+				this.isFatalEnabled);
 	}
 
 }

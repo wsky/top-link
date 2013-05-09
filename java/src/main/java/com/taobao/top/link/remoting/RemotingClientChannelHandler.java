@@ -64,7 +64,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 
 		handler.flag = flag;
 		this.callbacks.put(handler.flag, handler);// concurrent?
-		if (this.logger.isDebugEnable())
+		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.RPC_PENDING_CALL, flag);
 
 		return requestBuffer;
@@ -103,7 +103,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 				(flag = transportHeaders.get(RemotingTransportHeader.Flag)) == null)
 			return;
 
-		if (this.logger.isDebugEnable())
+		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.RPC_GET_RETURN, flag);
 
 		RemotingCallback callback = this.callbacks.remove(flag);

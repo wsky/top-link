@@ -190,7 +190,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	}
 
 	private void dump(HttpRequest request) {
-		if (!this.logger.isDebugEnable())
+		if (!this.logger.isDebugEnabled())
 			return;
 		this.logger.debug(request.getMethod().getName());
 		this.logger.debug(request.getUri());
