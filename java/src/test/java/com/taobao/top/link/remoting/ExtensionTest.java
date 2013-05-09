@@ -4,25 +4,37 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.taobao.top.link.DefaultLoggerFactory;
+import com.taobao.top.link.channel.websocket.WebSocketClient;
+
 public class ExtensionTest {
-	private static URI remoteUri;
+	private static URI remoteUri1;
+	private static URI remoteUri2;
 	private static CustomServerChannelHandler serverChannelHandler = new CustomServerChannelHandler();
 
 	@BeforeClass
 	public static void init() throws URISyntaxException {
+		DefaultLoggerFactory.setDefault(true, true, true, true, true);
+		
 		String uriString = "ws://localhost:9030/";
 		URI uri = new URI(uriString);
-		remoteUri = new URI(uriString + "sample");
+		
 		RemotingConfiguration.
 				configure().
 				defaultServerChannelHandler(serverChannelHandler).
 				websocket(uri.getPort()).
-				addProcessor("sample", new SampleService());
+				addProcessor("sample1", new SampleService()).
+				addProcessor("sample2", new SampleService());
+
+		remoteUri1 = new URI(uriString + "sample1");
+		remoteUri2 = new URI(uriString + "sample2");
 	}
 
 	@AfterClass
@@ -34,15 +46,18 @@ public class ExtensionTest {
 
 	@Test
 	public void cutsom_serverChannel_test() throws URISyntaxException {
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put(CustomServerChannelHandler.ID, "abc");
+		WebSocketClient.setHeaders(remoteUri1, headers);
 		SampleInterface sampleService = (SampleInterface)
-				RemotingService.connect(remoteUri, SampleInterface.class);
-		sampleService.echo("hi");
+				RemotingService.connect(remoteUri1, SampleInterface.class);
+		assertEquals("hi", sampleService.echo("hi"));
 	}
 
 	@Test(expected = Exception.class)
 	public void cutsom_serverChannel_auth_fail_test() throws URISyntaxException {
 		SampleInterface sampleService = (SampleInterface)
-				RemotingService.connect(remoteUri, SampleInterface.class);
+				RemotingService.connect(remoteUri2, SampleInterface.class);
 		sampleService.echo("hi");
 	}
 }
