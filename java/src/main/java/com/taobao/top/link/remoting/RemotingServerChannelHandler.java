@@ -46,7 +46,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void onMessage(final ChannelContext context) throws ChannelException, NotSupportedException {
+	public final void onMessage(final ChannelContext context) throws ChannelException, NotSupportedException {
 		Object msg = context.getMessage();
 
 		if (msg instanceof ByteBuffer) {

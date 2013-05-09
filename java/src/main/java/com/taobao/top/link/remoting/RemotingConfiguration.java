@@ -30,7 +30,13 @@ public class RemotingConfiguration {
 		this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
 		return this;
 	}
-	
+
+	// shold be set before bind()
+	public RemotingConfiguration defaultServerChannelHandler(DefaultRemotingServerChannelHandler channelHandler) {
+		this.defaultHandler = channelHandler;
+		return this;
+	}
+
 	// bind to custom channel
 	public RemotingConfiguration bind(ServerChannel channel) {
 		channel.setChannelHandler(this.defaultHandler);

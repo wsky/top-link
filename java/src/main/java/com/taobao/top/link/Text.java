@@ -6,7 +6,7 @@ public class Text {
 	public static String WS_REACH_MAX_IDLE_AND_CLOSE = "reach maxIdleTimeSeconds=%s, close client channel";
 
 	public static String WS_HANDSHAKE_ERROR = "handshake error";
-	public static String WS_HANDSHAKE_INVALID = "Invalid handshake response";
+	public static String WS_HANDSHAKE_INVALID = "Invalid handshake response: %s";
 
 	public static String WS_CONNECT_ERROR = "connect error";
 	public static String WS_CONNECT_FAIL = "connect fail";

@@ -106,6 +106,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 				this.sendHttpResponse(ctx, req,
 						new DefaultHttpResponse(HttpVersion.HTTP_1_1,
 								new HttpResponseStatus(401, e.getMessage())));
+				return;
 			}
 		}
 

@@ -1,5 +1,6 @@
 package com.taobao.top.link.channel.websocket;
 
+import java.nio.charset.Charset;
 import java.util.Map.Entry;
 
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -69,7 +70,10 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 				response.getHeader(Names.CONNECTION).equalsIgnoreCase(Values.UPGRADE);
 
 		if (!validStatus || !validUpgrade || !validConnection) {
-			throw new LinkException(Text.WS_HANDSHAKE_INVALID);
+			throw new LinkException(response.getStatus().getCode(),
+					String.format(Text.WS_HANDSHAKE_INVALID, 
+							response.getContent().readable() ?
+									response.getContent().toString(Charset.forName("UTF-8")) : ""));
 		}
 
 		this.handshaker.finishHandshake(ctx.getChannel(), response);

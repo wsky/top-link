@@ -18,12 +18,12 @@ public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHa
 		this.services = new HashMap<String, MethodCallProcessor>();
 	}
 
-	public void addProcessor(String objectUri, MethodCallProcessor processor) {
+	public final void addProcessor(String objectUri, MethodCallProcessor processor) {
 		this.services.put("/" + objectUri.toLowerCase(), processor);
 	}
 
 	@Override
-	public MethodReturn onMethodCall(MethodCall methodCall) throws Throwable {
+	public final MethodReturn onMethodCall(MethodCall methodCall) throws Throwable {
 		// dispatch methodCall to service
 		String objectUri = new URI(methodCall.Uri).getRawPath().trim();
 		MethodCallProcessor processor = this.services.get(objectUri);
