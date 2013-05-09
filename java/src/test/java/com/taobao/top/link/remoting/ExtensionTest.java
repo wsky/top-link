@@ -11,7 +11,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.websocket.WebSocketClient;
 
 public class ExtensionTest {
@@ -21,8 +20,6 @@ public class ExtensionTest {
 
 	@BeforeClass
 	public static void init() throws URISyntaxException {
-		DefaultLoggerFactory.setDefault(true, true, true, true, true);
-		
 		String uriString = "ws://localhost:9030/";
 		URI uri = new URI(uriString);
 		

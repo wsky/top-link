@@ -4,19 +4,11 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.taobao.top.link.DefaultLoggerFactory;
 
 // high-level abstract remoting test
 public class DynamicProxyTest {
-	
-	@BeforeClass
-	public static void init() {
-		DefaultLoggerFactory.setDefault(true, true, true, true, true);
-	}
-	
+
 	@Test
 	public void dynamicProxy_test() throws Throwable {
 		String uriString = "ws://localhost:9020/";

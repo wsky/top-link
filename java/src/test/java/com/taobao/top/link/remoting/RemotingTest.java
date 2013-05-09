@@ -5,19 +5,12 @@ import static org.junit.Assert.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
 public class RemotingTest {
-
-	@BeforeClass
-	public static void init() {
-		DefaultLoggerFactory.setDefault(false, true, true, true, true);
-	}
 
 	@Test
 	public void send_test() throws URISyntaxException, ChannelException {
