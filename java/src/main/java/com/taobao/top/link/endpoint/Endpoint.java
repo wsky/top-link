@@ -41,7 +41,7 @@ public class Endpoint {
 		this.logger = loggerFactory.create(this);
 		this.identity = identity;
 		this.channelSelector = new ClientChannelSharedSelector(loggerFactory);
-		this.channelHandler = new EndpointChannelHandler(loggerFactory, this);
+		this.setChannelHandler(new EndpointChannelHandler(loggerFactory));
 
 		if (this.identity == null)
 			throw new NullPointerException("identity");
@@ -57,6 +57,13 @@ public class Endpoint {
 
 	public MessageHandler getMessageHandler() {
 		return this.messageHandler;
+	}
+
+	public void setChannelHandler(EndpointChannelHandler channelHandler) {
+		this.channelHandler = channelHandler;
+		this.channelHandler.setEndpoint(this);
+		for (ServerChannel channel : this.serverChannels)
+			channel.setChannelHandler(this.channelHandler);
 	}
 
 	public void bind(ServerChannel channel) {

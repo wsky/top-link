@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.taobao.top.link.BufferManager;
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
@@ -25,20 +26,27 @@ public class EndpointChannelHandler implements ChannelHandler {
 	// all connect in/out endpoints
 	private HashMap<String, Identity> idByToken;
 
-	public EndpointChannelHandler(LoggerFactory loggerFactory, Endpoint endpoint) {
+	public EndpointChannelHandler() {
+		this(DefaultLoggerFactory.getDefault());
+	}
+
+	public EndpointChannelHandler(LoggerFactory loggerFactory) {
 		this.logger = loggerFactory.create(this);
 		this.flag = new AtomicInteger();
 		this.callbackByFlag = new HashMap<String, SendCallback>();
 		this.idByToken = new HashMap<String, Identity>();
+	}
+
+	protected void setEndpoint(Endpoint endpoint) {
 		this.endpoint = endpoint;
 	}
 
-	public void pending(Message msg, ChannelSender sender) throws ChannelException {
+	public final void pending(Message msg, ChannelSender sender) throws ChannelException {
 		this.pending(msg, sender, null);
 	}
 
 	// all send in Endpoint module must call here
-	public void pending(Message msg, ChannelSender sender, SendCallback callback) throws ChannelException {
+	public final void pending(Message msg, ChannelSender sender, SendCallback callback) throws ChannelException {
 		if (callback != null) {
 			msg.flag = this.flag.incrementAndGet();
 			this.callbackByFlag.put(Integer.toString(msg.flag), callback);
@@ -49,11 +57,11 @@ public class EndpointChannelHandler implements ChannelHandler {
 	}
 
 	@Override
-	public void onConnect(ChannelContext context) {
+	public void onConnect(ChannelContext context) throws Exception {
 	}
 
 	@Override
-	public void onMessage(ChannelContext context) throws Exception {
+	public final void onMessage(ChannelContext context) throws Exception {
 		Message msg = MessageIO.readMessage((ByteBuffer) context.getMessage());
 
 		if (msg.messageType == MessageType.CONNECT) {

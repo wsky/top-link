@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -12,9 +13,11 @@ import org.junit.Test;
 
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.websocket.WebSocketClient;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.Endpoint;
 import com.taobao.top.link.endpoint.EndpointProxy;
+import com.taobao.top.link.remoting.CustomServerChannelHandler;
 
 public class EndpointTest {
 	private static Identity id1 = new DefaultIdentity("test1");
@@ -154,6 +157,30 @@ public class EndpointTest {
 			throw e;
 		}
 
+	}
+
+	@Test
+	public void auth_onConnect_test() throws ChannelException, LinkException, URISyntaxException {
+		auth_onConnect_test(new URI(URI.toASCIIString() + "-0"), true);
+	}
+
+	@Test(expected = LinkException.class)
+	public void auth_fail_onConnect_test() throws ChannelException, LinkException, URISyntaxException {
+		auth_onConnect_test(new URI(URI.toASCIIString() + "-1"), false);
+	}
+
+	private void auth_onConnect_test(URI uri, boolean pass) throws ChannelException, LinkException {
+		// custom channelHandler
+		e1.setChannelHandler(new CustomEndpointChannelHandler());
+		// set headers
+		if (pass) {
+			Map<String, String> headers = new HashMap<String, String>();
+			headers.put(CustomServerChannelHandler.ID, "abc");
+			WebSocketClient.setHeaders(uri, headers);
+		}
+		new Endpoint(id2).getEndpoint(id1, uri).send(new HashMap<String, String>());
+		// reset
+		e1.setChannelHandler(new EndpointChannelHandler());
 	}
 
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {
