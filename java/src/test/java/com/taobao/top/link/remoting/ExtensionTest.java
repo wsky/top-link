@@ -11,6 +11,7 @@ import org.junit.Test;
 
 public class ExtensionTest {
 	private static URI remoteUri;
+	private static CustomServerChannelHandler serverChannelHandler = new CustomServerChannelHandler();
 
 	@BeforeClass
 	public static void init() throws URISyntaxException {
@@ -19,7 +20,7 @@ public class ExtensionTest {
 		remoteUri = new URI(uriString + "sample");
 		RemotingConfiguration.
 				configure().
-				defaultServerChannelHandler(new CustomServerChannelHandler()).
+				defaultServerChannelHandler(serverChannelHandler).
 				websocket(uri.getPort()).
 				addProcessor("sample", new SampleService());
 	}
@@ -29,6 +30,13 @@ public class ExtensionTest {
 		RemotingConfiguration.
 				configure().
 				defaultServerChannelHandler(new DefaultRemotingServerChannelHandler());
+	}
+
+	@Test
+	public void cutsom_serverChannel_test() throws URISyntaxException {
+		SampleInterface sampleService = (SampleInterface)
+				RemotingService.connect(remoteUri, SampleInterface.class);
+		sampleService.echo("hi");
 	}
 
 	@Test(expected = Exception.class)
