@@ -9,16 +9,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.taobao.top.link.DefaultLoggerFactory;
-import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
 public class RemotingTest {
-	private static LoggerFactory loggerFactory = new DefaultLoggerFactory(false, true, true, true, true);
 
 	@BeforeClass
 	public static void init() {
-		RemotingService.setLoggerFactory(loggerFactory);
+		DefaultLoggerFactory.setDefault(false, true, true, true, true);
 	}
 
 	@Test
@@ -36,8 +34,8 @@ public class RemotingTest {
 	@Test(expected = RemotingException.class)
 	public void execution_timeout_test() throws URISyntaxException, ChannelException, RemotingException, FormatterException {
 		URI uri = new URI("ws://localhost:9003/link");
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {
@@ -63,8 +61,8 @@ public class RemotingTest {
 	@Test(expected = RemotingException.class)
 	public void channel_broken_while_calling_test() throws Throwable {
 		URI uri = new URI("ws://localhost:9004/link");
-		final WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
+		final WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				try {
@@ -106,8 +104,8 @@ public class RemotingTest {
 	}
 
 	private void send_test(URI uri, boolean cumulative) throws URISyntaxException, ChannelException {
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(loggerFactory, uri.getPort(), cumulative);
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler(loggerFactory) {
+		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort(), cumulative);
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				MethodReturn methodReturn = new MethodReturn();

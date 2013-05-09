@@ -1,6 +1,28 @@
 package com.taobao.top.link;
 
 public class DefaultLoggerFactory implements LoggerFactory {
+	private static LoggerFactory _default;
+
+	static {
+		setDefault(false, true, true, true, true);
+	}
+
+	public static LoggerFactory getDefault() {
+		return _default;
+	}
+
+	public static void setDefault(boolean isDebugEnable,
+			boolean isInfoEnable,
+			boolean isWarnEnable,
+			boolean isErrorEnable,
+			boolean isFatalEnable) {
+		_default = new DefaultLoggerFactory(isDebugEnable,
+				isInfoEnable,
+				isWarnEnable,
+				isErrorEnable,
+				isFatalEnable);
+	}
+
 	private boolean isDebugEnable;
 	private boolean isInfoEnable;
 	private boolean isWarnEnable;

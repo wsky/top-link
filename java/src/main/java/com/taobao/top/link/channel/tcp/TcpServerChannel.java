@@ -25,7 +25,7 @@ public class TcpServerChannel extends ServerChannel {
 	private int port;
 
 	public TcpServerChannel(int port) {
-		this(new DefaultLoggerFactory(), port);
+		this(DefaultLoggerFactory.getDefault(), port);
 	}
 
 	public TcpServerChannel(LoggerFactory factory, int port) {

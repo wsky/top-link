@@ -31,7 +31,7 @@ public class WebSocketServerChannel extends ServerChannel {
 	}
 
 	public WebSocketServerChannel(int port, boolean cumulative) {
-		this(new DefaultLoggerFactory(), port, cumulative);
+		this(DefaultLoggerFactory.getDefault(), port, cumulative);
 	}
 
 	public WebSocketServerChannel(LoggerFactory factory, int port) {

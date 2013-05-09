@@ -3,6 +3,7 @@ package com.taobao.top.link.remoting;
 import java.net.URI;
 import java.util.Hashtable;
 
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Pool;
 import com.taobao.top.link.Text;
@@ -13,6 +14,10 @@ import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
 
 public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 	private Hashtable<String, Pool<ClientChannel>> channels;
+
+	public ClientChannelPooledSelector() {
+		this(DefaultLoggerFactory.getDefault());
+	}
 
 	public ClientChannelPooledSelector(LoggerFactory factory) {
 		super(factory);

@@ -32,7 +32,7 @@ public class Endpoint {
 	private List<EndpointProxy> connected;
 
 	public Endpoint(Identity identity) {
-		this(new DefaultLoggerFactory(), identity);
+		this(DefaultLoggerFactory.getDefault(), identity);
 	}
 
 	public Endpoint(LoggerFactory loggerFactory, Identity identity) {

@@ -7,15 +7,14 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
 
 // rpc timing is important for overlay-io/reused-channel
 public class TimingTest {
-	private ClientChannelSharedSelector sharedSelector = new ClientChannelSharedSelector(new DefaultLoggerFactory());
-	private ClientChannelPooledSelector pooledSelector = new ClientChannelPooledSelector(new DefaultLoggerFactory());
+	private ClientChannelSharedSelector sharedSelector = new ClientChannelSharedSelector();
+	private ClientChannelPooledSelector pooledSelector = new ClientChannelPooledSelector();
 
 	@Test
 	public void timing_test() throws URISyntaxException, RemotingException, FormatterException, ChannelException {
@@ -90,7 +89,7 @@ public class TimingTest {
 
 	private void runServer(URI uri) {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler(new DefaultLoggerFactory()) {
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall) {
 				MethodReturn methodReturn = new MethodReturn();

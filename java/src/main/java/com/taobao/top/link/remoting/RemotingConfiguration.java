@@ -21,7 +21,7 @@ public class RemotingConfiguration {
 	private DefaultRemotingServerChannelHandler defaultHandler;
 
 	public RemotingConfiguration() {
-		this.loggerFactory = new DefaultLoggerFactory();
+		this.loggerFactory = DefaultLoggerFactory.getDefault();
 		this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
 	}
 

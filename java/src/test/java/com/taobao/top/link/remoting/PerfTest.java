@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
 
@@ -19,7 +18,7 @@ public class PerfTest {
 	private static MethodCall call;
 
 	static {
-		RemotingService.setChannelSelector(new ClientChannelSharedSelector(new DefaultLoggerFactory()));
+		RemotingService.setChannelSelector(new ClientChannelSharedSelector());
 		try {
 			uri = new URI("ws://localhost:9000/");
 		} catch (URISyntaxException e) {

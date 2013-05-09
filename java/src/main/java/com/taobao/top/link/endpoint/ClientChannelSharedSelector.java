@@ -3,6 +3,7 @@ package com.taobao.top.link.endpoint;
 import java.net.URI;
 import java.util.Hashtable;
 
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
@@ -14,6 +15,10 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 	private Hashtable<String, ClientChannel> channels;
 	protected LoggerFactory loggerFactory;
 	protected Object lockObject;
+
+	public ClientChannelSharedSelector() {
+		this(DefaultLoggerFactory.getDefault());
+	}
 
 	public ClientChannelSharedSelector(LoggerFactory factory) {
 		this.loggerFactory = factory;
@@ -32,7 +37,7 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 			synchronized (this.lockObject) {
 				if (channels.get(url) == null ||
 						!channels.get(url).isConnected()) {
-					channels.put(url, 
+					channels.put(url,
 							WebSocketClient.connect(loggerFactory, uri, CONNECT_TIMEOUT));
 				}
 			}

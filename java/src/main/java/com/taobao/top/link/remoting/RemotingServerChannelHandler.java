@@ -18,6 +18,7 @@ import remoting.protocol.tcp.TcpProtocolHandle;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ChannelContext;
@@ -28,6 +29,10 @@ import com.taobao.top.link.channel.ChannelSender.SendHandler;
 public abstract class RemotingServerChannelHandler extends SimpleChannelHandler {
 	protected Logger logger;
 	private ExecutorService threadPool;
+
+	public RemotingServerChannelHandler() {
+		this(DefaultLoggerFactory.getDefault());
+	}
 
 	public RemotingServerChannelHandler(LoggerFactory loggerFactory) {
 		this.logger = loggerFactory.create(this);
