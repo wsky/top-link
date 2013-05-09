@@ -1,14 +1,15 @@
 package com.taobao.top.link.remoting;
 
-import org.apache.commons.logging.Log;
+import org.apache.log4j.Level;
 
 import com.taobao.top.link.Logger;
 
-public class CommonsLogger implements Logger {
-	private Log logger;
+public class Log4jLogger implements Logger {
 
-	public CommonsLogger(Log log) {
-		this.logger = log;
+	private org.apache.log4j.Logger logger;
+
+	public Log4jLogger(org.apache.log4j.Logger logger) {
+		this.logger = logger;
 	}
 
 	@Override
@@ -23,17 +24,17 @@ public class CommonsLogger implements Logger {
 
 	@Override
 	public boolean isWarnEnabled() {
-		return this.logger.isWarnEnabled();
+		return this.logger.isEnabledFor(Level.WARN);
 	}
 
 	@Override
 	public boolean isErrorEnabled() {
-		return this.logger.isErrorEnabled();
+		return this.logger.isEnabledFor(Level.ERROR);
 	}
 
 	@Override
 	public boolean isFatalEnabled() {
-		return this.logger.isFatalEnabled();
+		return this.logger.isEnabledFor(Level.FATAL);
 	}
 
 	@Override
@@ -135,5 +136,4 @@ public class CommonsLogger implements Logger {
 	public void fatal(String format, Object... args) {
 		this.logger.fatal(String.format(format, args));
 	}
-
 }
