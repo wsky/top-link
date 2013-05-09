@@ -11,10 +11,6 @@ public class DefaultLoggerFactory implements LoggerFactory {
 		return _default;
 	}
 
-	public static void setDefault(LoggerFactory loggerFactory) {
-		_default = loggerFactory;
-	}
-
 	public static void setDefault(boolean isDebugEnabled,
 			boolean isInfoEnabled,
 			boolean isWarnEnabled,

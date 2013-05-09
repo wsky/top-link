@@ -19,8 +19,8 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 
-import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.Logger;
+import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
@@ -38,9 +38,9 @@ public class WebSocketClient {
 		return headersByUri.get(uri.toASCIIString());
 	}
 
-	public static ClientChannel connect(URI uri, int timeout)
+	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout)
 			throws ChannelException {
-		Logger logger = DefaultLoggerFactory.getDefault().create(String.format("WebSocketClientHandler-%s", uri));
+		Logger logger = loggerFactory.create(String.format("WebSocketClientHandler-%s", uri));
 
 		WebSocketClientChannel clientChannel = new WebSocketClientChannel();
 		clientChannel.setUri(uri);

@@ -18,8 +18,9 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 	public ClientChannelPooledSelector() {
 		this(DefaultLoggerFactory.getDefault());
 	}
-
-	public ClientChannelPooledSelector(LoggerFactory factory) {
+	
+	public ClientChannelPooledSelector(LoggerFactory loggerFactory) {
+		super(loggerFactory);
 		this.channels = new Hashtable<String, Pool<ClientChannel>>();
 	}
 
@@ -63,7 +64,7 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 
 		@Override
 		public ClientChannel create() throws ChannelException {
-			return WebSocketClient.connect(this.uri, 5000);
+			return WebSocketClient.connect(loggerFactory, this.uri, 5000);
 		}
 
 		@Override

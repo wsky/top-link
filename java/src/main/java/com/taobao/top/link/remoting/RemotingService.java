@@ -8,20 +8,15 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ClientChannelSelector;
 
 public class RemotingService {
-	private static AtomicInteger flag = new AtomicInteger(0);
 	private static LoggerFactory loggerFactory = DefaultLoggerFactory.getDefault();
-	private static ClientChannelSelector channelSelector = new ClientChannelPooledSelector(loggerFactory);
-	// TODO:shared handler or one handler per channel?
-	private static RemotingClientChannelHandler channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
+	private static ClientChannelSelector channelSelector;
+	private static RemotingClientChannelHandler channelHandler;
 
-	// not understandable
 	protected static void setLoggerFactory(LoggerFactory loggerFactory) {
 		RemotingService.loggerFactory = loggerFactory;
-		channelSelector = new ClientChannelPooledSelector(loggerFactory);
-		channelHandler = new RemotingClientChannelHandler(loggerFactory, flag);
 	}
 
-	public static void setChannelSelector(ClientChannelSelector selector) {
+	protected static void setChannelSelector(ClientChannelSelector selector) {
 		channelSelector = selector;
 	}
 
@@ -30,6 +25,18 @@ public class RemotingService {
 	}
 
 	public static DynamicProxy connect(URI remoteUri) {
-		return new DynamicProxy(remoteUri, channelSelector, channelHandler);
+		return new DynamicProxy(remoteUri, getChannelSelector(), getChannelHandler());
+	}
+
+	private synchronized static RemotingClientChannelHandler getChannelHandler() {
+		if (channelHandler == null)
+			channelHandler = new RemotingClientChannelHandler(loggerFactory, new AtomicInteger(0));
+		return channelHandler;
+	}
+
+	private synchronized static ClientChannelSelector getChannelSelector() {
+		if (channelSelector == null)
+			channelSelector = new ClientChannelPooledSelector(loggerFactory);
+		return channelSelector;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.channel.ClientChannelSelector;
 import com.taobao.top.link.channel.ServerChannel;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
@@ -27,7 +28,12 @@ public class RemotingConfiguration {
 	// should be set first
 	public RemotingConfiguration loggerFactory(LoggerFactory loggerFactory) {
 		this.loggerFactory = loggerFactory;
-		this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
+		RemotingService.setLoggerFactory(loggerFactory);
+		return this;
+	}
+
+	public RemotingConfiguration clientChannelSelector(ClientChannelSelector selector) {
+		RemotingService.setChannelSelector(selector);
 		return this;
 	}
 
@@ -39,7 +45,7 @@ public class RemotingConfiguration {
 
 	// bind to custom channel
 	public RemotingConfiguration bind(ServerChannel channel) {
-		channel.setChannelHandler(this.defaultHandler);
+		channel.setChannelHandler(this.getChannelHandler());
 		channel.run();
 		return this;
 	}
@@ -65,5 +71,11 @@ public class RemotingConfiguration {
 	public RemotingConfiguration businessThreadPool(ExecutorService threadPool) {
 		this.defaultHandler.setThreadPool(threadPool);
 		return this;
+	}
+
+	private synchronized DefaultRemotingServerChannelHandler getChannelHandler() {
+		if (this.defaultHandler == null)
+			this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
+		return this.defaultHandler;
 	}
 }
