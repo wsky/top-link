@@ -21,20 +21,20 @@ public class RemotingConfiguration {
 	private DefaultRemotingServerChannelHandler defaultHandler;
 
 	public RemotingConfiguration() {
-		this.loggerFactory = DefaultLoggerFactory.getDefault();
-		this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
-	}
-
-	// bind to custom channel
-	public RemotingConfiguration bind(ServerChannel channel) {
-		channel.setChannelHandler(this.defaultHandler);
-		channel.run();
-		return this;
+		this.loggerFactory(DefaultLoggerFactory.getDefault());
 	}
 
 	// should be set first
 	public RemotingConfiguration loggerFactory(LoggerFactory loggerFactory) {
 		this.loggerFactory = loggerFactory;
+		this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
+		return this;
+	}
+	
+	// bind to custom channel
+	public RemotingConfiguration bind(ServerChannel channel) {
+		channel.setChannelHandler(this.defaultHandler);
+		channel.run();
 		return this;
 	}
 

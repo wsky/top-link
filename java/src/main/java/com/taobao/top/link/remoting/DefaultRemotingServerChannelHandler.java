@@ -3,10 +3,15 @@ package com.taobao.top.link.remoting;
 import java.net.URI;
 import java.util.HashMap;
 
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 
 public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHandler {
 	private HashMap<String, MethodCallProcessor> services;
+
+	public DefaultRemotingServerChannelHandler() {
+		this(DefaultLoggerFactory.getDefault());
+	}
 
 	public DefaultRemotingServerChannelHandler(LoggerFactory loggerFactory) {
 		super(loggerFactory);
