@@ -59,7 +59,7 @@ public class RemotingTest {
 	}
 
 	@Test(expected = RemotingException.class)
-	public void channel_broken_while_calling_test() throws Throwable {
+	public void channel_broken_while_calling_then_recall_test() throws Throwable {
 		URI uri = new URI("ws://localhost:9004/link");
 		final WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
@@ -96,6 +96,10 @@ public class RemotingTest {
 			assertEquals("channel broken with unknown error", e.getMessage());
 			throw e;
 		}
+		
+		//redo
+		serverChannel.run();
+		proxy.invoke(new MethodCall());
 	}
 
 	@Test
