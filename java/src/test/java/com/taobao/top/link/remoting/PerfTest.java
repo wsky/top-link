@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
+import com.taobao.top.link.channel.ClientChannelSharedSelector;
 
 public class PerfTest {
 	private static int total = 10000;

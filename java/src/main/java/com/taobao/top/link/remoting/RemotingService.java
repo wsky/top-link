@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.channel.ClientChannelPooledSelector;
 import com.taobao.top.link.channel.ClientChannelSelector;
 
 public class RemotingService {

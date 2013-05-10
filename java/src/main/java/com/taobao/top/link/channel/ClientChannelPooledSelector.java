@@ -1,4 +1,4 @@
-package com.taobao.top.link.remoting;
+package com.taobao.top.link.channel;
 
 import java.net.URI;
 import java.util.Hashtable;
@@ -7,21 +7,22 @@ import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Pool;
 import com.taobao.top.link.Text;
-import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.websocket.WebSocketClient;
-import com.taobao.top.link.endpoint.ClientChannelSharedSelector;
 
-public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
+public class ClientChannelPooledSelector implements ClientChannelSelector {
+	private final static int CONNECT_TIMEOUT = 5000;
 	private Hashtable<String, Pool<ClientChannel>> channels;
+	private LoggerFactory loggerFactory;
+	private Object lockObject;
 
 	public ClientChannelPooledSelector() {
 		this(DefaultLoggerFactory.getDefault());
 	}
-	
+
 	public ClientChannelPooledSelector(LoggerFactory loggerFactory) {
-		super(loggerFactory);
+		this.loggerFactory = loggerFactory;
 		this.channels = new Hashtable<String, Pool<ClientChannel>>();
+		this.lockObject = new Object();
 	}
 
 	@Override
@@ -30,7 +31,8 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 		if (this.channels.get(url) == null) {
 			synchronized (this.lockObject) {
 				if (this.channels.get(url) == null) {
-					this.channels.put(url, new ChannelPool(uri));
+					this.channels.put(url, 
+							this.createChannelPool(this.loggerFactory, uri, CONNECT_TIMEOUT));
 				}
 			}
 		}
@@ -47,12 +49,20 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 		this.channels.get(channel.getUri().toString()).checkIn(channel);
 	}
 
-	class ChannelPool extends Pool<ClientChannel> {
-		private URI uri;
+	protected ChannelPool createChannelPool(LoggerFactory loggerFactory, URI uri, int timeout) {
+		return new ChannelPool(loggerFactory, uri, timeout);
+	}
 
-		public ChannelPool(URI uri) {
+	public class ChannelPool extends Pool<ClientChannel> {
+		protected LoggerFactory loggerFactory;
+		protected URI uri;
+		protected int timeout;
+
+		public ChannelPool(LoggerFactory loggerFactory, URI uri, int timeout) {
 			super(10, 10);
+			this.loggerFactory = loggerFactory;
 			this.uri = uri;
+			this.timeout = timeout;
 		}
 
 		public ClientChannel checkout() throws Throwable {
@@ -64,7 +74,7 @@ public class ClientChannelPooledSelector extends ClientChannelSharedSelector {
 
 		@Override
 		public ClientChannel create() throws ChannelException {
-			return WebSocketClient.connect(loggerFactory, this.uri, 5000);
+			return WebSocketClient.connect(this.loggerFactory, this.uri, this.timeout);
 		}
 
 		@Override

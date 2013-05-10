@@ -15,6 +15,7 @@ import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ClientChannelSelector;
+import com.taobao.top.link.channel.ClientChannelSharedSelector;
 import com.taobao.top.link.channel.ServerChannel;
 
 // Abstract network model
