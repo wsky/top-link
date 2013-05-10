@@ -1,12 +1,48 @@
 package com.taobao.top.link.channel.embedded;
 
 import java.net.URI;
+import java.util.Map;
 
+import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.Text;
+import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
+import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.embedded.websocket.WebSocket;
+import com.taobao.top.link.embedded.websocket.WebSockets;
+import com.taobao.top.link.embedded.websocket.impl.WebSocketImpl;
 
 public class EmbeddedWebSocketClient {
-	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout) {
-		return null;
+	private final static String[] subprotocol = new String[0];
+
+	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout) throws ChannelException {
+		Logger logger = loggerFactory.create(String.format("EmbeddedWebSocketHandler-%s", uri));
+		EmbeddedWebSocketClientChannel clientChannel = new EmbeddedWebSocketClientChannel();
+		try {
+			WebSocket socket = WebSockets.create(
+					uri.toASCIIString(),
+					new EmbeddedWebSocketHandler(logger, clientChannel),
+					subprotocol);
+			socket.setBlockingMode(false);
+			// socket's timeunit is second
+			socket.setConnectionTimeout(timeout / 1000);
+			// also use default headers setting
+			Map<String, String> headers = WebSocketClient.getHeaders(uri);
+			if (headers != null) {
+				for (String h : headers.keySet())
+					((WebSocketImpl) socket).getRequestHeader().addHeader(h, headers.get(h));
+			}
+			// startSocket.connect(); is sync
+			// https://github.com/wsky/top-push-client/issues/20
+			socket.connect();
+		} catch (Exception e) {
+			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
+		}
+
+		if (clientChannel.error != null)
+			throw new ChannelException(Text.WS_HANDSHAKE_ERROR, clientChannel.error);
+
+		return clientChannel;
 	}
 }

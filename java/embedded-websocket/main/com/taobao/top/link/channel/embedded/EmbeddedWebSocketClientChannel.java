@@ -14,7 +14,11 @@ import com.taobao.top.link.embedded.websocket.frame.rfc6455.FrameRfc6455;
 public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	private URI uri;
 	protected WebSocket socket;
+	protected Exception error;
 	private ChannelHandler channelHandler;
+
+	public EmbeddedWebSocketClientChannel() {
+	}
 
 	public ChannelHandler getChannelHandler() {
 		return this.channelHandler;
