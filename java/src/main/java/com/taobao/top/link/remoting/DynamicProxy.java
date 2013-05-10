@@ -105,9 +105,6 @@ public class DynamicProxy implements InvocationHandler {
 			final ByteBuffer buffer,
 			SynchronizedRemotingCallback syncCallback,
 			int executionTimeoutMillisecond) throws RemotingException {
-		// reset buffer limit and position for send
-		buffer.flip();
-
 		try {
 			clientChannel.send(buffer, new SendHandler() {
 				@Override

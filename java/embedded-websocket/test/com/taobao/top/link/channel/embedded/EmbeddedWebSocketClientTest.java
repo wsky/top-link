@@ -5,16 +5,14 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.remoting.CustomServerChannelHandler;
-import com.taobao.top.link.remoting.DefaultRemotingServerChannelHandler;
-import com.taobao.top.link.remoting.RemotingConfiguration;
 
 public class EmbeddedWebSocketClientTest {
 	private static URI uri1;
@@ -24,17 +22,10 @@ public class EmbeddedWebSocketClientTest {
 	public static void init() throws URISyntaxException {
 		uri1 = new URI("ws://localhost:9040/");
 		uri2 = new URI("ws://localhost:9041/");
-		RemotingConfiguration.configure().websocket(uri1.getPort());
-		RemotingConfiguration.configure().
-				defaultServerChannelHandler(new CustomServerChannelHandler()).
-				websocket(uri2.getPort());
-	}
-
-	@AfterClass
-	public static void clear() {
-		RemotingConfiguration.
-				configure().
-				defaultServerChannelHandler(new DefaultRemotingServerChannelHandler());
+		new WebSocketServerChannel(uri1.getPort()).run();
+		WebSocketServerChannel serverChannel= new WebSocketServerChannel(uri2.getPort());
+		serverChannel.setChannelHandler(new CustomServerChannelHandler());
+		serverChannel.run();
 	}
 
 	@Test
