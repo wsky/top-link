@@ -185,3 +185,9 @@ assertEquals("hi", testInterface.echo("hi"));
 
 	https://github.com/wsky/RemotingProtocolParser/blob/master/README.md#license
 
+- websocket-client, MIT License
+
+	https://github.com/wsky/websocket-client/tree/top-link
+
+	https://github.com/wsky/websocket-client/blob/top-link/LICENSE
+
