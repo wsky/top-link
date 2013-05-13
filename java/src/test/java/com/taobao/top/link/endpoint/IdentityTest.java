@@ -22,7 +22,7 @@ public class IdentityTest {
 	public static void init() throws InterruptedException, URISyntaxException {
 		id1 = new TopIdentity("app1");
 		id2 = new TopIdentity("app2");
-		URI = new URI("ws://localhost:9040/");
+		URI = new URI("ws://localhost:8010/");
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(URI.getPort());
 		e1 = new Endpoint(id1);
 		e1.setMessageHandler(new MessageHandlerWrapper());
