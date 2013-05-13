@@ -16,20 +16,8 @@ import com.taobao.top.link.embedded.websocket.impl.WebSocketImpl;
 public class EmbeddedWebSocketClient {
 	private final static String[] subprotocol = new String[0];
 
-	// websocket-client settings
-	static {
-		// read buffer, for reading inbound bytes
-		// 32767
-		// System.setProperty("websocket.bufferSize", "0x7FFF");
-		
-		// outgoing queue size
-		System.setProperty("websocket.upstreamQueueSize", "10000");
-		
-		// dump for test
-		// System.setProperty("websocket.packatdump", "0");
-	}
-
 	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout) throws ChannelException {
+		resetSettings();
 		Logger logger = loggerFactory.create(String.format("EmbeddedWebSocketHandler-%s", uri));
 		EmbeddedWebSocketClientChannel clientChannel = new EmbeddedWebSocketClientChannel();
 		clientChannel.setUri(uri);
@@ -58,5 +46,18 @@ public class EmbeddedWebSocketClient {
 			throw new ChannelException(Text.WS_HANDSHAKE_ERROR, clientChannel.error);
 
 		return clientChannel;
+	}
+
+	// websocket-client settings
+	private static void resetSettings() {
+		// read buffer, for reading inbound bytes
+		// 32767
+		// System.setProperty("websocket.bufferSize", "0x7FFF");
+
+		// outgoing queue size
+		System.setProperty("websocket.upstreamQueueSize", "10000");
+
+		// dump for test
+		System.setProperty("websocket.packatdump", "0");
 	}
 }
