@@ -9,7 +9,10 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
+import com.taobao.top.link.ResetableTimer;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelHandler;
@@ -19,8 +22,10 @@ public class WebSocketClientChannel implements ClientChannel {
 	private URI uri;
 	protected Channel channel;
 	private ChannelHandler channelHandler;
-	
+	private ResetableTimer timer;
+
 	public ChannelHandler getChannelHandler() {
+		this.delayPing();
 		return this.channelHandler;
 	}
 
@@ -46,6 +51,19 @@ public class WebSocketClientChannel implements ClientChannel {
 	}
 
 	@Override
+	public void setHeartbeatTimer(ResetableTimer timer) {
+		this.timer = timer;
+		this.timer.setTask(new Runnable() {
+			@Override
+			public void run() {
+				if (isConnected())
+					channel.write(new PingWebSocketFrame());
+			}
+		});
+		this.timer.start();
+	}
+
+	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		this.checkChannel();
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
@@ -61,9 +79,9 @@ public class WebSocketClientChannel implements ClientChannel {
 		this.send(frame, null);
 	}
 
-	private void send(BinaryWebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
+	private void send(WebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
 		frame.setFinalFragment(true);
-		channel.write(frame).addListener(new ChannelFutureListener() {
+		this.channel.write(frame).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture arg0) throws Exception {
 				if (sendHandler != null)
@@ -75,7 +93,19 @@ public class WebSocketClientChannel implements ClientChannel {
 	private void checkChannel() throws ChannelException {
 		// prevent unknown exception after connected and get channel
 		// channel.write is async default
-		if (!channel.isConnected())
+		if (!this.channel.isConnected()) {
+			if (this.timer != null)
+				try {
+					this.timer.stop();
+				} catch (InterruptedException e) {
+				}
 			throw new ChannelException(Text.WS_CHANNEL_CLOSED);
+		}
+		this.delayPing();
+	}
+
+	private void delayPing() {
+		if (this.timer != null)
+			this.timer.delay();
 	}
 }

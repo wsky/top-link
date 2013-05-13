@@ -3,6 +3,7 @@ package com.taobao.top.link.channel.embedded;
 import java.net.URI;
 import java.nio.ByteBuffer;
 
+import com.taobao.top.link.ResetableTimer;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelHandler;
@@ -10,17 +11,20 @@ import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.embedded.websocket.WebSocket;
 import com.taobao.top.link.embedded.websocket.exception.WebSocketException;
 import com.taobao.top.link.embedded.websocket.frame.rfc6455.FrameRfc6455;
+import com.taobao.top.link.embedded.websocket.frame.rfc6455.PingFrame;
 
 public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	private URI uri;
 	protected WebSocket socket;
 	protected Exception error;
 	private ChannelHandler channelHandler;
+	private ResetableTimer timer;
 
 	public EmbeddedWebSocketClientChannel() {
 	}
 
 	public ChannelHandler getChannelHandler() {
+		this.delayPing();
 		return this.channelHandler;
 	}
 
@@ -42,6 +46,25 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	@Override
 	public boolean isConnected() {
 		return socket.isConnected();
+	}
+
+	@Override
+	public void setHeartbeatTimer(ResetableTimer timer) {
+		this.timer = timer;
+		this.timer.setTask(new Runnable() {
+			@Override
+			public void run() {
+				if (!isConnected())
+					return;
+				PingFrame pingFrame = new PingFrame();
+				pingFrame.mask();
+				try {
+					socket.send(pingFrame);
+				} catch (WebSocketException e) {
+				}
+			}
+		});
+		this.timer.start();
 	}
 
 	@Override
@@ -68,7 +91,19 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	}
 
 	private void checkChannel() throws ChannelException {
-		if (!this.socket.isConnected())
+		if (!this.socket.isConnected()) {
+			if (this.timer != null)
+				try {
+					this.timer.stop();
+				} catch (InterruptedException e) {
+				}
 			throw new ChannelException(Text.WS_CHANNEL_CLOSED);
+		}
+		this.delayPing();
+	}
+
+	private void delayPing() {
+		if (this.timer != null)
+			this.timer.delay();
 	}
 }

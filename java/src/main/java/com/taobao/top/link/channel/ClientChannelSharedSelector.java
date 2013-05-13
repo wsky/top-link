@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.ResetableTimer;
 import com.taobao.top.link.channel.websocket.WebSocketClient;
 
 public class ClientChannelSharedSelector implements ClientChannelSelector {
@@ -12,6 +13,7 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 	private Hashtable<String, ClientChannel> channels;
 	private LoggerFactory loggerFactory;
 	private Object lockObject;
+	private int heartbeatInterval;
 
 	public ClientChannelSharedSelector() {
 		this(DefaultLoggerFactory.getDefault());
@@ -21,6 +23,10 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 		this.loggerFactory = loggerFactory;
 		this.channels = new Hashtable<String, ClientChannel>();
 		this.lockObject = new Object();
+	}
+
+	public void setHeartbeat(int interval) {
+		this.heartbeatInterval = interval;
 	}
 
 	@Override
@@ -34,8 +40,8 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 			synchronized (this.lockObject) {
 				if (channels.get(url) == null ||
 						!channels.get(url).isConnected()) {
-					channels.put(url,
-							this.connect(this.loggerFactory, uri, CONNECT_TIMEOUT));
+					channels.put(url, this.wrapChannel(
+							this.connect(this.loggerFactory, uri, CONNECT_TIMEOUT)));
 				}
 			}
 		}
@@ -49,5 +55,11 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 
 	protected ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout) throws ChannelException {
 		return WebSocketClient.connect(loggerFactory, uri, timeout);
+	}
+
+	private ClientChannel wrapChannel(final ClientChannel channel) {
+		if (this.heartbeatInterval > 0)
+			channel.setHeartbeatTimer(new ResetableTimer(this.heartbeatInterval));
+		return channel;
 	}
 }
