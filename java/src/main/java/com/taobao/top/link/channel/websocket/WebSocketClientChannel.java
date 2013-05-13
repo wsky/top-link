@@ -48,7 +48,6 @@ public class WebSocketClientChannel implements ClientChannel {
 	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		this.checkChannel();
-		dataBuffer.position(0);
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		this.send(frame, sendHandler);

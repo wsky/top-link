@@ -30,7 +30,7 @@ public class EmbeddedWebSocketHandler implements WebSocketHandler {
 			this.clientChannel.error = e;
 		if (this.haveHandler()) {
 			try {
-				this.getHandler().onError(this.createContext(e.getCause()));
+				this.getHandler().onError(this.createContext(e));
 			} catch (Exception unexpected) {
 				this.error(unexpected);
 			}

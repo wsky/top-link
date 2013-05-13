@@ -19,6 +19,7 @@ public class EmbeddedWebSocketClient {
 	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout) throws ChannelException {
 		Logger logger = loggerFactory.create(String.format("EmbeddedWebSocketHandler-%s", uri));
 		EmbeddedWebSocketClientChannel clientChannel = new EmbeddedWebSocketClientChannel();
+		clientChannel.setUri(uri);
 		try {
 			WebSocket socket = WebSockets.create(
 					uri.toASCIIString(),

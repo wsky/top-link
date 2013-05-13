@@ -12,20 +12,22 @@ public class MessageHandlerWrapper implements MessageHandler {
 
 	public boolean doError;
 	public boolean doReply;
+	public boolean print;
 
-	
 	@Override
 	public void onMessage(HashMap<String, String> message) {
 		lastMessage = message;
 		receive.incrementAndGet();
-		System.out.println("onMessage: " + message);
+		if (print)
+			System.out.println("MessageHandlerWrapper-onMessage: " + message);
 	}
-	
+
 	@Override
 	public void onMessage(EndpointContext context) throws Exception {
 		lastMessage = context.getMessage();
 		receive.incrementAndGet();
-		System.out.println("onMessage: " + context.getMessage());
+		if (print)
+			System.out.println("MessageHandlerWrapper-onMessage: " + context.getMessage());
 		if (doError) {
 			System.out.println("but doError=true");
 			throw new Exception("process error");

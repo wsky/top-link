@@ -41,7 +41,7 @@ public class Endpoint {
 		this.connected = new ArrayList<EndpointProxy>();
 		this.logger = loggerFactory.create(this);
 		this.identity = identity;
-		this.channelSelector = new ClientChannelSharedSelector(loggerFactory);
+		this.setClientChannelSelector(new ClientChannelSharedSelector(loggerFactory));
 		this.setChannelHandler(new EndpointChannelHandler(loggerFactory));
 
 		if (this.identity == null)
@@ -65,6 +65,10 @@ public class Endpoint {
 		this.channelHandler.setEndpoint(this);
 		for (ServerChannel channel : this.serverChannels)
 			channel.setChannelHandler(this.channelHandler);
+	}
+
+	public void setClientChannelSelector(ClientChannelSelector selector) {
+		this.channelSelector = selector;
 	}
 
 	public void bind(ServerChannel channel) {

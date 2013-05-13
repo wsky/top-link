@@ -47,7 +47,6 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		this.checkChannel();
-		dataBuffer.flip();
 		try {
 			// create will copy data to it's sendbuffers
 			FrameRfc6455 frame = (FrameRfc6455) this.socket.createFrame(dataBuffer);
