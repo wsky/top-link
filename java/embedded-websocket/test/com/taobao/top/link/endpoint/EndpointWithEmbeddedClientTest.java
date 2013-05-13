@@ -58,4 +58,29 @@ public class EndpointWithEmbeddedClientTest {
 		msg.put("key", k);
 		e2.getEndpoint(id1, uri).sendAndWait(msg);
 	}
+
+	//@Test
+	public void perf_simply_test() throws LinkException {
+		Endpoint e2 = new Endpoint(id2);
+		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
+		EndpointProxy proxy = e2.getEndpoint(id1, uri);
+		HashMap<String, String> msg = new HashMap<String, String>();
+		String k = "";
+		for (int i = 0; i < 128; i++) {
+			k += "i";
+		}
+		msg.put("key", k);
+		
+		int total = 100000;
+		long begin = System.currentTimeMillis();
+		for (int i = 0; i < total; i++) {
+			proxy.sendAndWait(msg);
+		}
+		long cost = System.currentTimeMillis() - begin;
+		System.out.println(String.format(
+				"total:%s, cost:%sms, tps:%scall/s, time:%sms", total, cost,
+				((float) total / (float) cost) * 1000,
+				(float) cost / (float) total));
+		// total:100000, cost:8296ms, tps:12054.002call/s, time:0.08296ms
+	}
 }
