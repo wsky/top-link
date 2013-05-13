@@ -1,5 +1,6 @@
 package com.taobao.top.link.channel.websocket;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ import com.taobao.top.link.channel.ChannelSender;
 //one handler per connection
 public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler {
 	private Logger logger;
+	private Logger ioErrorLogger;
 	private ChannelHandler channelHandler;
 	private WebSocketServerHandshaker handshaker;
 	private ChannelGroup allChannels;
@@ -51,6 +53,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 			ChannelGroup channelGroup,
 			boolean cumulative) {
 		this.logger = loggerFactory.create(this);
+		this.ioErrorLogger = loggerFactory.create("WebSocketServerUpstreamHandler.IOError");
 		this.channelHandler = channelHandler;
 		this.allChannels = channelGroup;
 		this.cumulative = cumulative;
@@ -65,14 +68,19 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
 			throws Exception {
+		Throwable t = e.getCause();
+
 		if (this.channelHandler != null)
-			this.channelHandler.onError(this.createContext(e.getCause()));
+			this.channelHandler.onError(this.createContext(t));
 
 		// TODO:when to send close frame?
 		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
 		e.getChannel().close();
 
-		this.logger.error(Text.WS_ERROR_AT_SERVER, e.getCause());
+		if (t instanceof IOException)
+			this.ioErrorLogger.error(Text.WS_ERROR_AT_SERVER, t);
+		else
+			this.logger.error(Text.WS_ERROR_AT_SERVER, t);
 	}
 
 	@SuppressWarnings("unchecked")
