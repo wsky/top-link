@@ -191,3 +191,7 @@ assertEquals("hi", testInterface.echo("hi"));
 
 	https://github.com/wsky/websocket-client/blob/top-link/LICENSE
 
+	Base64, Licence (BSD)
+
+	Copyright (c) 2004, Mikael Grev, MiG InfoCom AB. (base64 @ miginfocom . com) All rights reserved.
+
