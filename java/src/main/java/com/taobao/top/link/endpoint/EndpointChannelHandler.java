@@ -2,6 +2,7 @@ package com.taobao.top.link.endpoint;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,6 +17,7 @@ import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.ChannelSender.SendHandler;
+import com.taobao.top.link.schedule.Scheduler;
 
 // make timing
 public class EndpointChannelHandler implements ChannelHandler {
@@ -25,6 +27,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 	private HashMap<String, SendCallback> callbackByFlag;
 	// all connect in/out endpoints
 	private HashMap<String, Identity> idByToken;
+	private Scheduler<Identity> scheduler;
 
 	public EndpointChannelHandler() {
 		this(DefaultLoggerFactory.getDefault());
@@ -39,6 +42,10 @@ public class EndpointChannelHandler implements ChannelHandler {
 
 	protected void setEndpoint(Endpoint endpoint) {
 		this.endpoint = endpoint;
+	}
+
+	public void setScheduler(Scheduler<Identity> scheduler) {
+		this.scheduler = scheduler;
 	}
 
 	public final void pending(Message msg, ChannelSender sender) throws ChannelException {
@@ -60,9 +67,22 @@ public class EndpointChannelHandler implements ChannelHandler {
 	public void onConnect(ChannelContext context) throws Exception {
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public final void onMessage(ChannelContext context) throws Exception {
-		Message msg = MessageIO.readMessage((ByteBuffer) context.getMessage());
+		Object msg = context.getMessage();
+
+		if (msg instanceof ByteBuffer) {
+			this.onMessage(context, (ByteBuffer) msg);
+			return;
+		}
+
+		for (ByteBuffer buffer : (List<ByteBuffer>) msg)
+			this.onMessage(context, buffer);
+	}
+
+	private void onMessage(final ChannelContext context, ByteBuffer buffer) throws LinkException {
+		final Message msg = MessageIO.readMessage(buffer);
 
 		if (msg.messageType == MessageType.CONNECT) {
 			this.handleConnect(context, msg);
@@ -76,7 +96,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 			return;
 		}
 
-		Identity msgFrom = this.idByToken.get(msg.token);
+		final Identity msgFrom = this.idByToken.get(msg.token);
 		// must CONNECT/CONNECTACK for got token before SEND
 		if (msgFrom == null) {
 			LinkException error = new LinkException(Text.E_UNKNOWN_MSG_FROM);
@@ -98,7 +118,25 @@ public class EndpointChannelHandler implements ChannelHandler {
 		// raise onMessage for async receive mode
 		if (this.endpoint.getMessageHandler() == null)
 			return;
+		// exec directly
+		if (this.scheduler == null) {
+			this.internalOnMessage(context, msg, msgFrom);
+			return;
+		}
+		// dispatch
+		this.scheduler.schedule(msgFrom, new Runnable() {
+			@Override
+			public void run() {
+				try {
+					internalOnMessage(context, msg, msgFrom);
+				} catch (LinkException e) {
+					logger.error(e);
+				}
+			}
+		});
+	}
 
+	private void internalOnMessage(ChannelContext context, Message msg, Identity msgFrom) throws LinkException {
 		if (msg.messageType == MessageType.SENDACK) {
 			this.endpoint.getMessageHandler().onMessage(msg.content);
 			return;
