@@ -171,6 +171,8 @@ TestInterface testInterface = (TestInterface) beanFactory.getBean("test");
 assertEquals("hi", testInterface.echo("hi"));
 ```
 
+More settings see: https://github.com/wsky/top-link/blob/master/java/spring-support/test/com/taobao/top/link/remoting/SpringTest.java
+
 ## License
 
 - Netty, Apache License Version 2.0
