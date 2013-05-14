@@ -59,7 +59,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 			BufferManager.setBufferSize(this.maxMessageSize);
 
 		LoggerFactory loggerFactory = Util.getLoggerFactory(this);
-
+		
 		RemotingConfiguration.
 				configure().
 				loggerFactory(loggerFactory).

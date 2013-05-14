@@ -1,5 +1,9 @@
 package com.taobao.top.link.remoting;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PatternLayout;
+
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 
@@ -8,8 +12,7 @@ public class Util {
 		LoggerFactory loggerFactory = null;
 		ClassLoader current = obj.getClass().getClassLoader();
 
-		// LogManager.getRootLogger().addAppender(new ConsoleAppender(new
-		// PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN)));
+		LogManager.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN)));
 		try {
 			Class.forName("org.apache.log4j.LogManager", false, current);
 			loggerFactory = new Log4jLoggerFactory();

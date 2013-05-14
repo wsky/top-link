@@ -14,10 +14,23 @@ public class SpringTest {
 	private static String beansXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
 			+ "<beans>"
+			
+			+ "	<bean name=\"headers\" class=\"com.taobao.top.link.remoting.HandshakingHeadersBean\">"
+			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
+			+ "		<property name=\"headers\">"
+			+ "			<map>"
+			+ "				<entry key=\"id\"><value>test</value></entry>"
+			+ "			</map>"
+			+ "		</property>"
+			+ "	</bean>"
+
 			+ "	<bean name=\"test\" class=\"com.taobao.top.link.remoting.SpringServiceProxyBean\">"
 			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.SampleInterface\" />"
 			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
 			+ "		<property name=\"executionTimeout\" value=\"5000\" />"
+			+ "		<property name=\"headers\">"
+			+ "			<ref bean=\"headers\" />"
+			+ "		</property>"
 			+ "	</bean>"
 
 			+ "	<bean name=\"sampleService\" class=\"com.taobao.top.link.remoting.SampleService\" />"

@@ -26,6 +26,10 @@ public class SpringServiceProxyBean implements FactoryBean {
 		this.executionTimeout = Integer.parseInt(executionTimeout);
 	}
 
+	public void setHeaders(HandshakingHeadersBean headersBean) {
+		headersBean.setUri(this.uri);
+	}
+
 	@Override
 	public Object getObject() throws Exception {
 		// TODO:find better way to init
