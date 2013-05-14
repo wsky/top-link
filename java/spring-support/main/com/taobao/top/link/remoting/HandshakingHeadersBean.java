@@ -3,7 +3,7 @@ package com.taobao.top.link.remoting;
 import java.net.URI;
 import java.util.Map;
 
-import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 
 public class HandshakingHeadersBean {
 	
@@ -14,6 +14,6 @@ public class HandshakingHeadersBean {
 	}
 	
 	public void setUri(URI uri) {
-		WebSocketClient.setHeaders(uri, this.headers);
+		WebSocketClientHelper.setHeaders(uri, this.headers);
 	}
 }

@@ -11,7 +11,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 
 public class ExtensionTest {
 	private static URI remoteUri1;
@@ -45,7 +45,7 @@ public class ExtensionTest {
 	public void cutsom_serverChannel_test() throws URISyntaxException {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put(CustomServerChannelHandler.ID, "abc");
-		WebSocketClient.setHeaders(remoteUri1, headers);
+		WebSocketClientHelper.setHeaders(remoteUri1, headers);
 		SampleInterface sampleService = (SampleInterface)
 				RemotingService.connect(remoteUri1, SampleInterface.class);
 		assertEquals("hi", sampleService.echo("hi"));

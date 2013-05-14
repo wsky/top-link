@@ -8,7 +8,7 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
-import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 import com.taobao.top.link.embedded.websocket.WebSocket;
 import com.taobao.top.link.embedded.websocket.WebSockets;
 import com.taobao.top.link.embedded.websocket.impl.WebSocketImpl;
@@ -30,7 +30,7 @@ public class EmbeddedWebSocketClient {
 			// socket's timeunit is second
 			socket.setConnectionTimeout(timeout / 1000);
 			// also use default headers setting
-			Map<String, String> headers = WebSocketClient.getHeaders(uri);
+			Map<String, String> headers = WebSocketClientHelper.getHeaders(uri);
 			if (headers != null) {
 				for (String h : headers.keySet())
 					((WebSocketImpl) socket).getRequestHeader().addHeader(h, headers.get(h));

@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.Endpoint;
 import com.taobao.top.link.endpoint.EndpointProxy;
@@ -176,7 +176,7 @@ public class EndpointTest {
 		if (pass) {
 			Map<String, String> headers = new HashMap<String, String>();
 			headers.put(CustomServerChannelHandler.ID, "abc");
-			WebSocketClient.setHeaders(uri, headers);
+			WebSocketClientHelper.setHeaders(uri, headers);
 		}
 		new Endpoint(id2).getEndpoint(id1, uri).send(new HashMap<String, String>());
 		// reset

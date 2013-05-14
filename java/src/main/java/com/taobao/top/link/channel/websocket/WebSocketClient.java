@@ -2,8 +2,6 @@ package com.taobao.top.link.channel.websocket;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -28,15 +26,6 @@ import com.taobao.top.link.channel.ConnectingChannelHandler;
 
 public class WebSocketClient {
 	private static WebSocketClientHandshakerFactory wsFactory = new WebSocketClientHandshakerFactory();
-	private static Map<String, Map<String, String>> headersByUri = new HashMap<String, Map<String, String>>();
-
-	public static void setHeaders(URI uri, Map<String, String> headers) {
-		headersByUri.put(uri.toASCIIString(), headers);
-	}
-
-	public static Map<String, String> getHeaders(URI uri) {
-		return headersByUri.get(uri.toASCIIString());
-	}
 
 	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout)
 			throws ChannelException {
@@ -56,7 +45,7 @@ public class WebSocketClient {
 		// handshake
 		try {
 			WebSocketClientHandshaker handshaker = wsFactory.
-					newHandshaker(uri, WebSocketVersion.V13, null, true, getHeaders(uri));
+					newHandshaker(uri, WebSocketVersion.V13, null, true, WebSocketClientHelper.getHeaders(uri));
 			wsHandler.handshaker = handshaker;
 			handshaker.handshake(channel);
 			synchronized (handler.syncObject) {

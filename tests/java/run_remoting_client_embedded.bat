@@ -1,0 +1,1 @@
+java -Xmx128m -cp ".\*;." RemotingClientEmbeddedTest %1

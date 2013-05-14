@@ -24,7 +24,7 @@ import com.taobao.top.link.ResetableTimer;
 import com.taobao.top.link.WebSocketServerUpstreamHandlerWrapper;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ClientChannel;
-import com.taobao.top.link.channel.websocket.WebSocketClient;
+import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.remoting.CustomServerChannelHandler;
 
@@ -79,13 +79,13 @@ public class EmbeddedWebSocketClientTest {
 	public void pass_header_test() throws ChannelException, URISyntaxException {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put(CustomServerChannelHandler.ID, "id");
-		WebSocketClient.setHeaders(uri2, headers);
+		WebSocketClientHelper.setHeaders(uri2, headers);
 		EmbeddedWebSocketClient.connect(DefaultLoggerFactory.getDefault(), uri2, 1000);
 	}
 
 	@Test(expected = ChannelException.class)
 	public void pass_wrong_header_test() throws ChannelException, URISyntaxException {
-		WebSocketClient.setHeaders(uri2, null);
+		WebSocketClientHelper.setHeaders(uri2, null);
 		EmbeddedWebSocketClient.connect(DefaultLoggerFactory.getDefault(), uri2, 1000);
 	}
 
