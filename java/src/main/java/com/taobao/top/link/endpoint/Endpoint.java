@@ -17,6 +17,7 @@ import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ClientChannelSelector;
 import com.taobao.top.link.channel.ClientChannelSharedSelector;
 import com.taobao.top.link.channel.ServerChannel;
+import com.taobao.top.link.schedule.Scheduler;
 
 // Abstract network model
 // https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit
@@ -69,6 +70,10 @@ public class Endpoint {
 
 	public void setClientChannelSelector(ClientChannelSelector selector) {
 		this.channelSelector = selector;
+	}
+
+	public void setScheduler(Scheduler<Identity> scheduler) {
+		this.channelHandler.setScheduler(scheduler);
 	}
 
 	public void bind(ServerChannel channel) {
