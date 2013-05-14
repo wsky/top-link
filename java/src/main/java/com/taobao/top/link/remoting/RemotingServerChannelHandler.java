@@ -35,11 +35,15 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	}
 
 	public RemotingServerChannelHandler(LoggerFactory loggerFactory) {
-		this.logger = loggerFactory.create(this);
+		this.setLoggerFactory(loggerFactory);
 	}
 
 	public void setThreadPool(ExecutorService threadPool) {
 		this.threadPool = threadPool;
+	}
+
+	public void setLoggerFactory(LoggerFactory loggerFactory) {
+		this.logger = loggerFactory.create(this);
 	}
 
 	public abstract MethodReturn onMethodCall(MethodCall methodCall) throws Throwable;

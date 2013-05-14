@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.taobao.top.link.BufferManager;
+import com.taobao.top.link.LoggerFactory;
 
 public class SpringServerBean implements InitializingBean, BeanFactoryAware, ApplicationContextAware {
 	private ListableBeanFactory beanFactory;
@@ -20,6 +21,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 	private String path;
 	private int maxMessageSize;
 	private int maxThreadCount = 200;
+	private DefaultRemotingServerChannelHandler handler;
 
 	public void setPort(String port) {
 		this.port = Integer.parseInt(port);
@@ -37,6 +39,10 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 		this.maxThreadCount = Integer.parseInt(maxThreadCount);
 	}
 
+	public void setServerHandler(DefaultRemotingServerChannelHandler handler) {
+		this.handler = handler;
+	}
+
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = (ListableBeanFactory) beanFactory;
@@ -52,9 +58,12 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 		if (this.maxMessageSize > 0)
 			BufferManager.setBufferSize(this.maxMessageSize);
 
+		LoggerFactory loggerFactory = Util.getLoggerFactory(this);
+
 		RemotingConfiguration.
 				configure().
-				loggerFactory(Util.getLoggerFactory(this)).
+				loggerFactory(loggerFactory).
+				defaultServerChannelHandler(this.getServerHandler(loggerFactory)).
 				websocket(this.port).
 				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory)).
 				businessThreadPool(new ThreadPoolExecutor(20,
@@ -62,5 +71,13 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 						300,
 						TimeUnit.SECONDS,
 						new SynchronousQueue<Runnable>()));
+	}
+
+	private DefaultRemotingServerChannelHandler getServerHandler(LoggerFactory loggerFactory) {
+		if (this.handler != null) {
+			this.handler.setLoggerFactory(loggerFactory);
+			return this.handler;
+		}
+		return new DefaultRemotingServerChannelHandler(loggerFactory);
 	}
 }
