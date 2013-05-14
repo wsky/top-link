@@ -68,6 +68,31 @@ public class SchedulerTest {
 		scheduler.stop();
 	}
 
+	@Test
+	public void drop_test() throws InterruptedException, LinkException {
+		final Scheduler<String> scheduler = new Scheduler<String>();
+		scheduler.setUserMaxPendingCount(10000);
+		scheduler.start();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						scheduler.schedule("user", new Runnable() {
+							@Override
+							public void run() {
+							}
+						});
+					} catch (LinkException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}).start();
+		scheduler.drop("user");
+		scheduler.stop();
+	}
+
 	@Test(expected = LinkException.class)
 	public void got_max_test() throws InterruptedException, LinkException {
 		Scheduler<String> scheduler = new Scheduler<String>();
