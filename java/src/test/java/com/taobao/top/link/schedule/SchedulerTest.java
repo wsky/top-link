@@ -6,6 +6,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
@@ -73,10 +74,11 @@ public class SchedulerTest {
 		final Scheduler<String> scheduler = new Scheduler<String>();
 		scheduler.setUserMaxPendingCount(10000);
 		scheduler.start();
+		final AtomicBoolean flag = new AtomicBoolean(true);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (true) {
+				while (flag.get()) {
 					try {
 						scheduler.schedule("user", new Runnable() {
 							@Override
@@ -91,6 +93,7 @@ public class SchedulerTest {
 		}).start();
 		scheduler.drop("user");
 		scheduler.stop();
+		flag.set(false);
 	}
 
 	@Test(expected = LinkException.class)
