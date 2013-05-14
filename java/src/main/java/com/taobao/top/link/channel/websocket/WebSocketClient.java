@@ -48,8 +48,11 @@ public class WebSocketClient {
 					newHandshaker(uri, WebSocketVersion.V13, null, true, WebSocketClientHelper.getHeaders(uri));
 			wsHandler.handshaker = handshaker;
 			handshaker.handshake(channel);
-			synchronized (handler.syncObject) {
-				handler.syncObject.wait(timeout);
+			// return maybe fast than call
+			if (!wsHandler.handshaker.isHandshakeComplete() && handler.error == null) {
+				synchronized (handler.syncObject) {
+					handler.syncObject.wait(timeout);
+				}
 			}
 		} catch (Exception e) {
 			throw new ChannelException(Text.WS_HANDSHAKE_ERROR, e);
