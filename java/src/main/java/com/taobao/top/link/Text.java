@@ -47,4 +47,7 @@ public class Text {
 	public static String RPC_PENDING_CALL = "pending methodCall#%s";
 	public static String RPC_GET_RETURN = "receive methodReturn of methodCall#%s";
 	public static String RPC_RETURN_ERROR = "remote reutrn error#%s: %s";
+	
+	public static String SCHEDULE_GOT_MAX = "reach max task pending count %s";
+	public static String SCHEDULE_TASK_REFUSED = "task refused";
 }
