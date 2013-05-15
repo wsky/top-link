@@ -48,6 +48,10 @@ public class Text {
 	public static String RPC_GET_RETURN = "receive methodReturn of methodCall#%s";
 	public static String RPC_RETURN_ERROR = "remote reutrn error#%s: %s";
 	
+	public static String SCHEDULE_START = "scheduler start";
+	public static String SCHEDULE_STOP = "scheduler stop";
 	public static String SCHEDULE_GOT_MAX = "reach max task pending count %s";
 	public static String SCHEDULE_TASK_REFUSED = "task refused";
+	public static String SCHEDULE_TASK_DISPATCHED = "dispatch %s tasks";
+	public static String SCHEDULE_DISPATCHER_DOWN = "dispatcher down! restarting...";
 }

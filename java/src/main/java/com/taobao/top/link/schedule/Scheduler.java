@@ -3,8 +3,10 @@ package com.taobao.top.link.schedule;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,7 +26,8 @@ public class Scheduler<T> {
 	private Object lock;
 	private Semaphore semaphore;
 	private Thread dispatcher;
-	private boolean running;
+	protected boolean running;
+	private Timer checker;
 
 	private Map<T, Queue<Runnable>> tasks;
 	private ExecutorService threadPool;
@@ -69,14 +72,24 @@ public class Scheduler<T> {
 			}
 		});
 		this.dispatcher.start();
+		this.prepareChecker(10000, 10000);
+		
+		if (this.logger.isDebugEnabled())
+			this.logger.debug(Text.SCHEDULE_START);
 	}
 
 	public void stop() throws InterruptedException {
 		if (this.dispatcher == null)
 			return;
-		this.running = false;
-		this.semaphore.release();
-		this.dispatcher.join();
+
+		this.stopChecker();
+		this.checker = null;
+
+		this.disposeDispatcher();
+		this.dispatcher = null;
+
+		if (this.logger.isDebugEnabled())
+			this.logger.debug(Text.SCHEDULE_STOP);
 	}
 
 	public void schedule(T t, Runnable task) throws LinkException {
@@ -120,7 +133,7 @@ public class Scheduler<T> {
 		return false;
 	}
 
-	private void dispatch() {
+	protected final void dispatch() {
 		boolean flag;
 		int c = 0;
 		do {
@@ -164,6 +177,38 @@ public class Scheduler<T> {
 		} while (flag);
 
 		if (this.logger.isDebugEnabled() && c > 0)
-			this.logger.debug("dispatch %s tasks", c);
+			this.logger.debug(Text.SCHEDULE_TASK_DISPATCHED, c);
+	}
+
+	protected final void stopChecker() {
+		if (this.checker == null)
+			return;
+		this.checker.cancel();
+	}
+
+	protected final void disposeDispatcher() throws InterruptedException {
+		this.running = false;
+		this.semaphore.release();
+		this.dispatcher.join();
+	}
+
+	// necessarily?
+	protected final void prepareChecker(long delay, long period) {
+		this.stopChecker();
+		this.checker = new Timer();
+		this.checker.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (!running || dispatcher.isAlive())
+					return;
+				logger.fatal(Text.SCHEDULE_DISPATCHER_DOWN);
+				try {
+					stop();
+					start();
+				} catch (Exception e) {
+					logger.error(e);
+				}
+			}
+		}, delay, period);
 	}
 }

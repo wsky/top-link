@@ -30,7 +30,7 @@ public class ExtensionTest {
 
 	@BeforeClass
 	public static void init() throws InterruptedException, URISyntaxException {
-		uri = new URI("ws://localhost:8000/link");
+		uri = new URI("ws://localhost:8001/link");
 
 		handlerWrapper = new MessageHandlerWrapper();
 		handlerWrapper.doReply = true;

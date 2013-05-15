@@ -12,9 +12,12 @@ import org.junit.Test;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LinkException;
+import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 
 public class SchedulerTest {
+	private LoggerFactory loggerFactory = new DefaultLoggerFactory(true, true, true, true, true);
+
 	@Test
 	public void queue_test() {
 		Queue<String> queue = new ConcurrentLinkedQueue<String>();
@@ -47,10 +50,44 @@ public class SchedulerTest {
 	}
 
 	@Test
-	public void start_stop_test() throws InterruptedException {
-		Scheduler<String> scheduler = new Scheduler<String>();
+	public void start_stop_test() throws InterruptedException, LinkException {
+		final CountDownLatch latch = new CountDownLatch(2);
+		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
 		scheduler.start();
+		scheduler.schedule("user", new Runnable() {
+			@Override
+			public void run() {
+				latch.countDown();
+			}
+		});
 		Thread.sleep(500);
+		scheduler.stop();
+		scheduler.start();
+		scheduler.schedule("user", new Runnable() {
+			@Override
+			public void run() {
+				latch.countDown();
+			}
+		});
+		latch.await();
+		scheduler.stop();
+	}
+
+	@Test
+	public void checker_test() throws LinkException, InterruptedException {
+		final CountDownLatch latch = new CountDownLatch(1);
+		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
+		scheduler.start();
+		scheduler.prepareChecker(1, 100);
+		scheduler.disposeDispatcher();
+		scheduler.running = true;
+		scheduler.schedule("user", new Runnable() {
+			@Override
+			public void run() {
+				latch.countDown();
+			}
+		});
+		latch.await();
 		scheduler.stop();
 	}
 
@@ -118,7 +155,7 @@ public class SchedulerTest {
 
 	@Test
 	public void schedule_sequence_test() throws InterruptedException, LinkException {
-		final Scheduler<String> scheduler = new Scheduler<String>(new DefaultLoggerFactory(true, true, true, true, true));
+		final Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
 		scheduler.setUserMaxPendingCount(10000);
 		scheduler.start();
 		int count = 1000;
@@ -141,7 +178,7 @@ public class SchedulerTest {
 
 	@Test
 	public void schedule_threaded_test() throws InterruptedException, LinkException {
-		final Scheduler<String> scheduler = new Scheduler<String>(new DefaultLoggerFactory(true, true, true, true, true));
+		final Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
 		scheduler.setUserMaxPendingCount(1000000);
 		scheduler.start();
 		final int count = 1000;
