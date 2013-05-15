@@ -2,7 +2,11 @@
 
 changes:
 	- issues#22
-	
+
+top-link tech stack: https://docs.google.com/drawings/d/1VSP7Yq09F5ALWwH4GtvKU9YoraSOuoEWuPjT6QGcNJ8/edit?usp=sharing
+
+![stack](https://raw.github.com/wsky/top-link/master/doc/top-link-stack.png)
+
 
 ## Modules
 	
@@ -38,6 +42,8 @@ Managing in/out connections, thin layer and simple shield specific io-framewirk 
 Application exposure in a node on the network. They can talk with each other.
 
 https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit?usp=sharing
+
+![stack](https://raw.github.com/wsky/top-link/master/doc/top-link-endpoint.png)
 
 Know about all connect in/out endpoints:
 
