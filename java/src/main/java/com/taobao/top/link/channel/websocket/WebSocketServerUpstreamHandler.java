@@ -158,6 +158,8 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 				this.channelHandler.onMessage(this.createContext(buffer.toByteBuffer()));
 			}
 		}
+		if (this.logger.isDebugEnabled())
+			this.logger.debug("unhandled frame: %s", frame);
 	}
 
 	private void handleWebSocketFrame(final ChannelHandlerContext ctx,

@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ClientChannelSharedSelector;
 import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.remoting.CustomServerChannelHandler;
@@ -85,5 +86,15 @@ public class ExtensionTest {
 		EndpointProxy proxy = e2.getEndpoint(id1, uri);
 		proxy.send(new HashMap<String, String>());
 		proxy.sendAndWait(new HashMap<String, String>());
+	}
+
+	@Test
+	public void heartbeat_enable_test() throws LinkException, InterruptedException {
+		Endpoint e2 = new Endpoint(id2);
+		ClientChannelSharedSelector selector = new ClientChannelSharedSelector();
+		selector.setHeartbeat(100);
+		e2.setClientChannelSelector(selector);
+		e2.getEndpoint(id1, uri);
+		Thread.sleep(1000);
 	}
 }
