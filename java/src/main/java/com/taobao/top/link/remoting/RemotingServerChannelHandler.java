@@ -1,9 +1,5 @@
 package com.taobao.top.link.remoting;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +25,8 @@ import com.taobao.top.link.channel.ChannelSender.SendHandler;
 public abstract class RemotingServerChannelHandler extends SimpleChannelHandler {
 	protected Logger logger;
 	private ExecutorService threadPool;
-
+	private Serializer serializer = new Serializer();
+	
 	public RemotingServerChannelHandler() {
 		this(DefaultLoggerFactory.getDefault());
 	}
@@ -112,7 +109,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		MethodCall methodCall = null;
 		MethodReturn methodReturn = null;
 		try {
-			methodCall = this.deserializeMethodCall(protocol.ReadContent());
+			methodCall = this.serializer.deserializeMethodCall(protocol.ReadContent());
 			methodReturn = this.onMethodCall(methodCall);
 		} catch (Throwable e) {
 			methodReturn = new MethodReturn();
@@ -125,7 +122,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 		byte[] data = null;
 		try {
-			data = this.serializeMethodReturn(methodReturn);
+			data = this.serializer.serializeMethodReturn(methodReturn);
 		} catch (FormatterException e) {
 			transportHeaders.put(TcpTransportHeader.StatusCode, 400);
 			transportHeaders.put(TcpTransportHeader.StatusPhrase, e.getMessage());
@@ -155,26 +152,5 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 				BufferManager.returnBuffer(responseBuffer);
 			}
 		});
-	}
-
-	private byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
-		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(bos);
-			oos.writeObject(methodReturn);
-			return bos.toByteArray();
-		} catch (Exception e) {
-			throw new FormatterException("serialize MethodReturn error", e);
-		}
-	}
-
-	private MethodCall deserializeMethodCall(byte[] input) throws FormatterException {
-		try {
-			ByteArrayInputStream bis = new ByteArrayInputStream(input);
-			ObjectInputStream ois = new ObjectInputStream(bis);
-			return (MethodCall) ois.readObject();
-		} catch (Exception e) {
-			throw new FormatterException("deserialize MethodCall error", e);
-		}
 	}
 }
