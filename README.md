@@ -7,8 +7,6 @@ embedded duplex multi-channel endpoint and connection management for c#/java/...
 
 https://gist.github.com/4680940
 
-![stack](https://raw.github.com/wsky/top-link/master/doc/top-link-stack.png)
-
 [more](doc/arch.md)
 
 ## Build
