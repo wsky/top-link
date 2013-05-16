@@ -2,7 +2,7 @@ package com.taobao.top.link.remoting;
 
 import com.alibaba.fastjson.JSON;
 
-public class JsonSerializer implements Serializer {
+public class FastJsonSerializer implements Serializer {
 	@Override
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		MethodCallWrapper wrapper = new MethodCallWrapper(methodCall);

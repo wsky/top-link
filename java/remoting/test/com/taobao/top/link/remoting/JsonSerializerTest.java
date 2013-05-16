@@ -7,19 +7,11 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import com.alibaba.fastjson.JSON;
-
 public class JsonSerializerTest {
-	private Serializer serializer = new JsonSerializer();
+	private Serializer serializer = new FastJsonSerializer();
 
 	@Test
-	public void type_test() throws ClassNotFoundException {
-		System.out.println(JSON.toJSONString(JsonSerializerTest.class));
-		System.out.println(Class.forName(JSON.toJSONString(JsonSerializerTest.class), false, this.getClass().getClassLoader()));
-	}
-
-	@Test
-	public void serialize_methodCall_test() throws FormatterException, ClassNotFoundException {
+	public void methodCall_test() throws FormatterException, ClassNotFoundException {
 		MethodCall call1 = new MethodCall();
 		call1.MethodName = "echo";
 		call1.TypeName = "serviceType";
