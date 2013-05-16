@@ -7,7 +7,7 @@ embedded duplex multi-channel endpoint and connection management for c#/java/...
 
 https://gist.github.com/4680940
 
-[more](doc/arch.md)
+[More](doc/arch.md)
 
 ## Build
 
