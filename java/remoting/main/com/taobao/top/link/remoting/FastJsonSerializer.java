@@ -1,21 +1,26 @@
 package com.taobao.top.link.remoting;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 
+// design for cross-language
 public class FastJsonSerializer implements Serializer {
 	@Override
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		MethodCallWrapper wrapper = new MethodCallWrapper(methodCall);
 		if (methodCall.MethodSignature != null) {
-			wrapper.strMethodSignature = new String[methodCall.MethodSignature.length];
+			wrapper.MethodSignature = new String[methodCall.MethodSignature.length];
 			for (int i = 0; i < methodCall.MethodSignature.length; i++) {
-				wrapper.strMethodSignature[i] = methodCall.MethodSignature[i].getName();
+				wrapper.MethodSignature[i] = this.parseTypeName(methodCall.MethodSignature[i]);
 			}
 		}
 		if (methodCall.Args != null) {
-			wrapper.strArgs = new String[methodCall.Args.length];
+			wrapper.Args = new String[methodCall.Args.length];
 			for (int i = 0; i < methodCall.Args.length; i++) {
-				wrapper.strArgs[i] = JSON.toJSONString(methodCall.Args[i]);
+				wrapper.Args[i] = JSON.toJSONString(methodCall.Args[i]);
 			}
 		}
 		return JSON.toJSONBytes(wrapper);
@@ -31,33 +36,96 @@ public class FastJsonSerializer implements Serializer {
 		methodCall.TypeName = wrapper.TypeName;
 		methodCall.Uri = wrapper.Uri;
 
-		if (wrapper.strMethodSignature != null) {
-			methodCall.MethodSignature = new Class<?>[wrapper.strMethodSignature.length];
-			for (int i = 0; i < wrapper.strMethodSignature.length; i++) {
+		if (wrapper.MethodSignature != null) {
+			methodCall.MethodSignature = new Class<?>[wrapper.MethodSignature.length];
+			for (int i = 0; i < wrapper.MethodSignature.length; i++) {
 				try {
-					methodCall.MethodSignature[i] = Class.forName(
-							wrapper.strMethodSignature[i], false, this.getClass().getClassLoader());
+					methodCall.MethodSignature[i] = this.parseType(wrapper.MethodSignature[i]);
 				} catch (ClassNotFoundException e) {
 					throw new FormatterException("parse MethodSignature error", e);
 				}
 			}
 		}
-		if (wrapper.strArgs != null) {
-			methodCall.Args = new Object[wrapper.strArgs.length];
-			for (int i = 0; i < wrapper.strArgs.length; i++) {
-				methodCall.Args[i] = JSON.parseObject(wrapper.strArgs[i], methodCall.MethodSignature[i]);
+		if (wrapper.Args != null) {
+			methodCall.Args = new Object[wrapper.Args.length];
+			for (int i = 0; i < wrapper.Args.length; i++) {
+				methodCall.Args[i] = JSON.parseObject(wrapper.Args[i], methodCall.MethodSignature[i]);
 			}
 		}
 		return methodCall;
 	}
 
 	@Override
-	public MethodReturn deserializeMethodReturn(byte[] input) throws FormatterException {
-		return JSON.parseObject(input, MethodReturn.class);
+	public byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
+		MethodReturnWrapper wrapper = new MethodReturnWrapper();
+		if (methodReturn.ReturnValue != null) {
+			wrapper.ReturnValue = JSON.toJSONString(methodReturn.ReturnValue);
+			wrapper.ReturnType = methodReturn.ReturnValue.getClass().getName();
+		}
+		if (methodReturn.Exception != null) {
+			wrapper.Exception = methodReturn.Exception.toString();
+		}
+		return JSON.toJSONBytes(wrapper);
 	}
 
 	@Override
-	public byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
-		return JSON.toJSONBytes(methodReturn);
+	public MethodReturn deserializeMethodReturn(byte[] input) throws FormatterException {
+		MethodReturnWrapper wrapper = JSON.parseObject(input, MethodReturnWrapper.class);
+		MethodReturn methodReturn = new MethodReturn();
+		if (wrapper.ReturnValue != null && wrapper.ReturnType != null) {
+			try {
+				methodReturn.ReturnValue = JSON.parseObject(wrapper.ReturnValue, this.parseType(wrapper.ReturnType));
+			} catch (ClassNotFoundException e) {
+				throw new FormatterException("parse ReturnValue error", e);
+			}
+		}
+		if (wrapper.Exception != null) {
+			methodReturn.Exception = new Exception(wrapper.Exception);
+		}
+		return methodReturn;
+	}
+
+	private String parseTypeName(Class<?> type) {
+		if (String.class.equals(type))
+			return "string";
+		if (Byte.class.equals(type))
+			return "byte";
+		if (Double.class.equals(type))
+			return "double";
+		if (Float.class.equals(type))
+			return "float";
+		if (Integer.class.equals(type))
+			return "int";
+		if (Long.class.equals(type))
+			return "long";
+		if (Short.class.equals(type))
+			return "short";
+		if (Date.class.equals(type))
+			return "date";
+		if (Map.class.equals(type) || Map.class.isAssignableFrom(type))
+			return "map";
+		return type.getName();
+	}
+
+	private Class<?> parseType(String typeName) throws ClassNotFoundException {
+		if ("string".equalsIgnoreCase(typeName))
+			return String.class;
+		if ("byte".equalsIgnoreCase(typeName))
+			return Byte.class;
+		if ("double".equalsIgnoreCase(typeName))
+			return Double.class;
+		if ("float".equalsIgnoreCase(typeName))
+			return Float.class;
+		if ("int".equalsIgnoreCase(typeName))
+			return Integer.class;
+		if ("long".equalsIgnoreCase(typeName))
+			return Long.class;
+		if ("short".equalsIgnoreCase(typeName))
+			return Short.class;
+		if ("date".equalsIgnoreCase(typeName))
+			return Date.class;
+		if ("map".equalsIgnoreCase(typeName))
+			return HashMap.class;
+		return Class.forName(typeName, false, this.getClass().getClassLoader());
 	}
 }

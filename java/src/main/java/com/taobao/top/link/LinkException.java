@@ -10,6 +10,10 @@ public class LinkException extends Exception {
 		return this.errorCode;
 	}
 
+	public LinkException() {
+		this("");
+	}
+
 	public LinkException(String message) {
 		super(message);
 	}
