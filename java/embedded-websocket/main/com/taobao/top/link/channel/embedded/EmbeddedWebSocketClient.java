@@ -11,6 +11,7 @@ import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 import com.taobao.top.link.embedded.websocket.WebSocket;
 import com.taobao.top.link.embedded.websocket.WebSockets;
+import com.taobao.top.link.embedded.websocket.impl.WebSocketBase;
 import com.taobao.top.link.embedded.websocket.impl.WebSocketImpl;
 
 public class EmbeddedWebSocketClient {
@@ -26,6 +27,7 @@ public class EmbeddedWebSocketClient {
 					uri.toASCIIString(),
 					new EmbeddedWebSocketHandler(logger, clientChannel),
 					subprotocol);
+			((WebSocketBase) socket).setPacketDumpMode(0);
 			socket.setBlockingMode(false);
 			// socket's timeunit is second
 			socket.setConnectionTimeout(timeout / 1000);

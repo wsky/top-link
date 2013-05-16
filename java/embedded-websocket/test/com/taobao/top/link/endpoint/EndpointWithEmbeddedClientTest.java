@@ -43,20 +43,21 @@ public class EndpointWithEmbeddedClientTest {
 		BufferManager.setBufferSize(1024 * 1024);
 		Endpoint e2 = new Endpoint(id2);
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
+		e2.getEndpoint(id1, uri);
+		
 		HashMap<String, String> msg = new HashMap<String, String>();
-
 		String k = "";
 		for (int i = 0; i < 128; i++) {
 			k += "i";
 		}
 		msg.put("key", k);
-		e2.getEndpoint(id1, uri).sendAndWait(msg);
+		e2.getEndpoint(id1).sendAndWait(msg);
 
 		for (int i = 0; i < 10; i++) {
 			k += k;
 		}
 		msg.put("key", k);
-		e2.getEndpoint(id1, uri).sendAndWait(msg);
+		e2.getEndpoint(id1).sendAndWait(msg);
 	}
 
 	//@Test

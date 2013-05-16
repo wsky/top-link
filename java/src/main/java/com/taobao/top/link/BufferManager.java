@@ -16,6 +16,7 @@ public class BufferManager {
 
 	public static void setBufferSize(int max) {
 		maxBufferSize = max;
+		buffers.clear();
 	}
 
 	public static ByteBuffer getBuffer() {
