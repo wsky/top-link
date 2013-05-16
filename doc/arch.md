@@ -41,23 +41,11 @@ Managing in/out connections, thin layer and simple shield specific io-framewirk 
 
 Application exposure in a node on the network. They can talk with each other.
 
-https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit?usp=sharing
-
-![stack](https://raw.github.com/wsky/top-link/master/doc/top-link-endpoint.png)
-
-Know about all connect in/out endpoints:
-
-```java
-public Iterator<EndpointProxy> getConnected();
-```
+Know about all connect in/out endpoints.
 
 - Identity:
 	- send or receive identity message after onConnect
 	- Endpoints know each other by identity
-	
-```java
-public EndpointProxy getEndpoint(Identity identity);
-```
 
 - MessageHandler
 	- onMessage
@@ -73,10 +61,13 @@ Message send/receive asynchronous
 	- List<ChannelSender> senders
 	- send()
 
+[More](endpoint.md)
+
 ### Remoting
 
 Just a RPC framework build on Channel, easy and efficient.
 
 - Low-Level
-
 - High-Level
+
+[More](remoting.md)
