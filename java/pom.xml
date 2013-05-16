@@ -77,6 +77,13 @@
       <version>1.4.9</version>
       <scope>test</scope>
     </dependency>
+
+    <!--remoting-->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.1.31</version>
+    </dependency>
     
   </dependencies>
 
@@ -95,6 +102,7 @@
                 <source>spring-support/main</source>
                 <source>external/websocket-client/src/main/java</source>
                 <source>embedded-websocket/main</source>
+                <source>remoting/main</source>
               </sources>
             </configuration>
           </execution>
@@ -107,6 +115,7 @@
                 <source>spring-support/test</source>
                 <source>external/websocket-client/src/test/java</source>
                 <source>embedded-websocket/test</source>
+                <source>remoting/test</source>
               </sources>
             </configuration>
           </execution>

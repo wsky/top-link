@@ -25,7 +25,7 @@ import com.taobao.top.link.channel.ChannelSender.SendHandler;
 public abstract class RemotingServerChannelHandler extends SimpleChannelHandler {
 	protected Logger logger;
 	private ExecutorService threadPool;
-	private Serializer serializer = new Serializer();
+	private Serializer serializer = new DefaultSerializer();
 	
 	public RemotingServerChannelHandler() {
 		this(DefaultLoggerFactory.getDefault());
@@ -41,6 +41,10 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 	public void setLoggerFactory(LoggerFactory loggerFactory) {
 		this.logger = loggerFactory.create(this);
+	}
+	
+	public void setSerializer(Serializer serializer) {
+		this.serializer = serializer;
 	}
 
 	public abstract MethodReturn onMethodCall(MethodCall methodCall) throws Throwable;

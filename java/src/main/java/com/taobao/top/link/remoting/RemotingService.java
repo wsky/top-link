@@ -12,6 +12,7 @@ public class RemotingService {
 	private static LoggerFactory loggerFactory = DefaultLoggerFactory.getDefault();
 	private static ClientChannelSelector channelSelector;
 	private static RemotingClientChannelHandler channelHandler;
+	private static Serializer serializer;
 
 	protected static void setLoggerFactory(LoggerFactory loggerFactory) {
 		RemotingService.loggerFactory = loggerFactory;
@@ -19,6 +20,10 @@ public class RemotingService {
 
 	protected static void setChannelSelector(ClientChannelSelector selector) {
 		channelSelector = selector;
+	}
+
+	protected static void setSerializer(Serializer serializer) {
+		RemotingService.serializer = serializer;
 	}
 
 	public static Object connect(URI remoteUri, Class<?> interfaceClass) {
@@ -32,6 +37,8 @@ public class RemotingService {
 	private synchronized static RemotingClientChannelHandler getChannelHandler() {
 		if (channelHandler == null)
 			channelHandler = new RemotingClientChannelHandler(loggerFactory, new AtomicInteger(0));
+		if (serializer != null)
+			channelHandler.setSerializer(serializer);
 		return channelHandler;
 	}
 

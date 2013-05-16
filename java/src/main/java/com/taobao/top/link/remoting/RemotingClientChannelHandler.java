@@ -22,11 +22,15 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 	private Logger logger;
 	private AtomicInteger flagAtomic;
 	private HashMap<String, RemotingCallback> callbacks = new HashMap<String, RemotingCallback>();
-	private Serializer serializer = new Serializer();
+	private Serializer serializer = new DefaultSerializer();
 
 	public RemotingClientChannelHandler(LoggerFactory loggerFactory, AtomicInteger flagAtomic) {
 		this.logger = loggerFactory.create(this);
 		this.flagAtomic = flagAtomic;
+	}
+
+	public void setSerializer(Serializer serializer) {
+		this.serializer = serializer;
 	}
 
 	public ByteBuffer pending(RemotingCallback handler,
