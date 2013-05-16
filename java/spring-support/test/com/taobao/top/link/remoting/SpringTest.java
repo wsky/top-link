@@ -2,6 +2,7 @@ package com.taobao.top.link.remoting;
 
 import static org.junit.Assert.*;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -14,7 +15,7 @@ public class SpringTest {
 	private static String beansXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
 			+ "<beans>"
-			
+
 			+ "	<bean name=\"headers\" class=\"com.taobao.top.link.remoting.HandshakingHeadersBean\">"
 			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
 			+ "		<property name=\"headers\">"
@@ -63,6 +64,13 @@ public class SpringTest {
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((BeanDefinitionRegistry) beanFactory);
 		reader.loadBeanDefinitions(new ByteArrayResource(beansXml.getBytes()));
 		beanFactory.getBean("server");
+	}
+
+	@AfterClass
+	public static void clear() {
+		RemotingConfiguration.
+				configure().
+				defaultServerChannelHandler(new DefaultRemotingServerChannelHandler());
 	}
 
 	@Test
