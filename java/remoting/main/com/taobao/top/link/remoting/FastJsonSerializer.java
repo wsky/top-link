@@ -26,8 +26,6 @@ public class FastJsonSerializer implements Serializer {
 		return JSON.toJSONBytes(wrapper);
 	}
 
-	// TODO: base type name, long,int,
-
 	@Override
 	public MethodCall deserializeMethodCall(byte[] input) throws FormatterException {
 		MethodCallWrapper wrapper = JSON.parseObject(input, MethodCallWrapper.class);
