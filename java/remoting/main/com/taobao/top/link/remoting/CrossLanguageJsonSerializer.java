@@ -63,9 +63,6 @@ public class CrossLanguageJsonSerializer implements Serializer {
 	public byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
 		MethodReturnWrapper wrapper = new MethodReturnWrapper();
 		wrapper.ReturnValue = methodReturn.ReturnValue;
-		wrapper.ReturnType = wrapper.ReturnValue != null ?
-				this.parseTypeName(methodReturn.ReturnValue.getClass()) :
-				null;
 		wrapper.Exception = methodReturn.Exception != null ?
 				methodReturn.Exception.toString() :
 				null;
@@ -73,18 +70,12 @@ public class CrossLanguageJsonSerializer implements Serializer {
 	}
 
 	@Override
-	public MethodReturn deserializeMethodReturn(byte[] input) throws FormatterException {
+	public MethodReturn deserializeMethodReturn(byte[] input, Class<?> returnType) throws FormatterException {
 		JSONObject obj = (JSONObject) JSON.parse(input);
 		MethodReturn methodReturn = new MethodReturn();
-
-		try {
-			String returnType = obj.getString("ReturnType");
-			methodReturn.ReturnValue = returnType != null ?
-					obj.getObject("ReturnValue", this.parseType(returnType)) : null;
-		} catch (ClassNotFoundException e) {
-			throw new FormatterException("parse ReturnValue error", e);
-		}
-
+		methodReturn.ReturnValue = obj.get("ReturnValue") != null ?
+				obj.getObject("ReturnValue", returnType) :
+				null;
 		// TODO:add error stack support
 		String exception = obj.getString("Exception");
 		if (exception != null && !exception.equals("")) {

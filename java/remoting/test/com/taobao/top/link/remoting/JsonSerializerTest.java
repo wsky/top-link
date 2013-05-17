@@ -74,7 +74,7 @@ public class JsonSerializerTest {
 		byte[] ret = serializer.serializeMethodReturn(_return1);
 		System.out.println(new String(ret, Charset.forName("UTF-8")));
 
-		MethodReturn _return2 = serializer.deserializeMethodReturn(ret);
+		MethodReturn _return2 = serializer.deserializeMethodReturn(ret, Entity.class);
 
 		System.err.println(_return2.Exception.getMessage());
 		_return2.Exception.printStackTrace();

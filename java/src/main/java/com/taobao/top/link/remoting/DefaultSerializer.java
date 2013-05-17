@@ -18,7 +18,7 @@ public class DefaultSerializer implements Serializer {
 		}
 	}
 
-	public MethodReturn deserializeMethodReturn(byte[] input) throws FormatterException {
+	public MethodReturn deserializeMethodReturn(byte[] input, Class<?> returnType) throws FormatterException {
 		try {
 			ByteArrayInputStream bis = new ByteArrayInputStream(input);
 			ObjectInputStream ois = new ObjectInputStream(bis);

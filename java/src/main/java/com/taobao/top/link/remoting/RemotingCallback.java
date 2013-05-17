@@ -4,6 +4,8 @@ package com.taobao.top.link.remoting;
 public abstract class RemotingCallback {
 
 	public String flag;
+	
+	public Class<?> returnType;
 
 	public abstract void onException(Throwable exception);
 

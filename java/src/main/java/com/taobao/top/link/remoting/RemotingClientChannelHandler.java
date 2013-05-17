@@ -122,7 +122,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 
 		MethodReturn methodReturn = null;
 		try {
-			methodReturn = this.serializer.deserializeMethodReturn(protocol.ReadContent());
+			methodReturn = this.serializer.deserializeMethodReturn(protocol.ReadContent(), callback.returnType);
 		} catch (FormatterException e) {
 			callback.onException(e);
 			return;

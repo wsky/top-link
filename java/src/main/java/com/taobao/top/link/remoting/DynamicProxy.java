@@ -56,7 +56,7 @@ public class DynamicProxy implements InvocationHandler {
 		methodCall.MethodSignature = method.getParameterTypes();
 		methodCall.Args = args;
 
-		MethodReturn methodReturn = this.invoke(methodCall);
+		MethodReturn methodReturn = this.invoke(methodCall, method.getReturnType());
 
 		if (methodReturn.Exception == null)
 			return methodReturn.ReturnValue;
@@ -69,12 +69,24 @@ public class DynamicProxy implements InvocationHandler {
 	}
 
 	public MethodReturn invoke(MethodCall methodCall) throws RemotingException, FormatterException {
-		return this.invoke(methodCall, this.defaultTimeout);
+		return this.invoke(methodCall, Object.class);
+	}
+
+	public MethodReturn invoke(MethodCall methodCall,
+			Class<?> returnType) throws RemotingException, FormatterException {
+		return this.invoke(methodCall, returnType, this.defaultTimeout);
 	}
 
 	public MethodReturn invoke(MethodCall methodCall,
 			int executionTimeoutMillisecond) throws RemotingException, FormatterException {
+		return this.invoke(methodCall, Object.class, executionTimeoutMillisecond);
+	}
+
+	public MethodReturn invoke(MethodCall methodCall,
+			Class<?> returnType,
+			int executionTimeoutMillisecond) throws RemotingException, FormatterException {
 		SynchronizedRemotingCallback syncCallback = new SynchronizedRemotingCallback();
+		syncCallback.returnType = returnType;
 
 		HashMap<String, Object> transportHeaders = new HashMap<String, Object>();
 		transportHeaders.put(TcpTransportHeader.RequestUri, this.uriString);
