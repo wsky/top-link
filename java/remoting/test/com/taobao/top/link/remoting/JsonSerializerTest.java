@@ -8,19 +8,9 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.taobao.top.link.LinkException;
 
 public class JsonSerializerTest {
-	// @Test
-	public void null_test() {
-		String json = JSON.toJSONString(new MethodReturn(), SerializerFeature.WriteMapNullValue, SerializerFeature.WriteClassName);
-		System.out.println(json);
-		JSON.parseObject(JSON.toJSONString(new MethodReturn(), SerializerFeature.WriteClassName), MethodReturn.class);
-		JSON.parseObject(JSON.toJSONString(new MethodReturn(), SerializerFeature.WriteMapNullValue), MethodReturn.class);
-	}
-
 	@Test
 	public void cross_methodCall_test() throws FormatterException {
 		methodCall_test(new CrossLanguageJsonSerializer());
@@ -30,16 +20,6 @@ public class JsonSerializerTest {
 	public void cross_methodReturn_test() throws FormatterException {
 		methodReturn_test(new CrossLanguageJsonSerializer());
 	}
-
-	// @Test
-	// public void simple_methodCall_test() throws FormatterException {
-	// methodCall_test(new SimpleJsonSerializer());
-	// }
-	//
-	// @Test
-	// public void simple_methodReturn_test() throws FormatterException {
-	// methodReturn_test(new SimpleJsonSerializer());
-	// }
 
 	private void methodCall_test(Serializer serializer) throws FormatterException {
 		MethodCall call1 = new MethodCall();
@@ -55,8 +35,9 @@ public class JsonSerializerTest {
 				1L,
 				(short) 1,
 				new Date(),
-				this.getMap(),
-				new MethodCall() };
+				getMap(),
+				getEntity(),
+				new String[] { "abc" } };
 		call1.MethodSignature = new Class<?>[] {
 				String.class,
 				byte.class,
@@ -67,7 +48,8 @@ public class JsonSerializerTest {
 				short.class,
 				Date.class,
 				HashMap.class,
-				MethodCall.class };
+				Entity.class,
+				String[].class };
 
 		byte[] ret = serializer.serializeMethodCall(call1);
 		System.out.println(new String(ret, Charset.forName("UTF-8")));
@@ -87,31 +69,35 @@ public class JsonSerializerTest {
 	private void methodReturn_test(Serializer serializer) throws FormatterException {
 		MethodReturn _return1 = new MethodReturn();
 		_return1.Exception = new LinkException("error", new NullPointerException());
-		MethodReturn returnValue = new MethodReturn();
-		returnValue.ReturnValue = "abc";
-		_return1.ReturnValue = returnValue;
+		_return1.ReturnValue = getEntity();
 
 		byte[] ret = serializer.serializeMethodReturn(_return1);
 		System.out.println(new String(ret, Charset.forName("UTF-8")));
 
 		MethodReturn _return2 = serializer.deserializeMethodReturn(ret);
-		assertEquals(_return1.ReturnValue.getClass(), _return2.ReturnValue.getClass());
-		assertEquals(((MethodReturn) _return1.ReturnValue).ReturnValue, ((MethodReturn) _return2.ReturnValue).ReturnValue);
+
 		System.err.println(_return2.Exception.getMessage());
 		_return2.Exception.printStackTrace();
-		// assertEquals(_return1.Exception.getMessage(),
-		// _return2.Exception.getMessage());
-		// assertEquals(_return1.Exception.getClass(),
-		// _return2.Exception.getClass());
-		// assertEquals(_return1.Exception.getCause().getClass(),
-		// _return2.Exception.getCause().getClass());
-		// assertEquals(_return1.Exception.getCause().getMessage(),
-		// _return2.Exception.getCause().getMessage());
+
+		assertEquals(_return1.ReturnValue.getClass(), _return2.ReturnValue.getClass());
+		assertEquals(((Entity) _return1.ReturnValue).getString(), ((Entity) _return2.ReturnValue).getString());
+		System.out.println(((Entity) _return2.ReturnValue).getMap());
+		assertEquals(((Entity) _return1.ReturnValue).getMap(), ((Entity) _return2.ReturnValue).getMap());
+		assertEquals(((Entity) _return1.ReturnValue).getMap().size(), ((Entity) _return2.ReturnValue).getMap().size());
+		assertEquals(((Entity) _return1.ReturnValue).getArray()[0], ((Entity) _return2.ReturnValue).getArray()[0]);
 	}
 
 	private HashMap<String, String> getMap() {
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("k", "k");
 		return map;
+	}
+
+	private Entity getEntity() {
+		Entity e = new Entity();
+		e.setString("string");
+		e.setMap(getMap());
+		e.setArray(new String[] { "abc" });
+		return e;
 	}
 }

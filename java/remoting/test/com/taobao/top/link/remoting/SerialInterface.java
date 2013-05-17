@@ -14,5 +14,6 @@ public interface SerialInterface {
 			short arg7,
 			Date arg8,
 			HashMap<String, String> arg9,
-			Entity arg10);
+			Entity arg10,
+			String[] arg11);
 }

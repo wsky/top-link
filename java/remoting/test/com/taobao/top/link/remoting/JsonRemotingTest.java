@@ -51,10 +51,12 @@ public class JsonRemotingTest {
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("k", "k");
 		Entity entity = new Entity();
-		entity.String = "abc中文";
-		entity.Long = 10;
-		entity.Date = new Date();
-		entity.Map = map;
+		entity.setString("abc中文");
+		entity.setLong(10);
+		entity.setDate(new Date());
+		entity.setMap(map);
+		entity.setArray(new String[] { "abc" });
+		
 		Entity ret = serialInterface.echo("string",
 				(byte) 0,
 				(double) 0,
@@ -64,11 +66,14 @@ public class JsonRemotingTest {
 				(short) 0,
 				new Date(),
 				map,
-				entity);
-		assertEquals(entity.String, ret.String);
-		assertEquals(entity.Long, ret.Long);
-		assertEquals(entity.Date, ret.Date);
-		assertEquals(entity.Map.size(), ret.Map.size());
-		assertEquals(entity.Map.get("k"), ret.Map.get("k"));
+				entity,
+				new String[] { "abc" });
+		
+		assertEquals(entity.getString(), ret.getString());
+		assertEquals(entity.getLong(), ret.getLong());
+		assertEquals(entity.getDate(), ret.getDate());
+		assertEquals(entity.getMap().size(), ret.getMap().size());
+		assertEquals(entity.getMap().get("k"), ret.getMap().get("k"));
+		assertEquals(entity.getArray()[0], ret.getArray()[0]);
 	}
 }

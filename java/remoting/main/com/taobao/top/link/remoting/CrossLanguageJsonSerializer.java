@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 // design for cross-language
@@ -13,49 +15,46 @@ public class CrossLanguageJsonSerializer implements Serializer {
 			// SerializerFeature.WriteMapNullValue,
 			SerializerFeature.WriteNullNumberAsZero,
 			SerializerFeature.WriteNullBooleanAsFalse,
+			// wrapper.Args = methodCall.Args; maybe raise it
+			SerializerFeature.DisableCircularReferenceDetect
 	};
 
 	@Override
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		MethodCallWrapper wrapper = new MethodCallWrapper(methodCall);
-		if (methodCall.MethodSignature != null) {
-			wrapper.MethodSignature = new String[methodCall.MethodSignature.length];
-			for (int i = 0; i < methodCall.MethodSignature.length; i++) {
-				wrapper.MethodSignature[i] = this.parseTypeName(methodCall.MethodSignature[i]);
-			}
-		}
-		if (methodCall.Args != null) {
-			wrapper.Args = new String[methodCall.Args.length];
-			for (int i = 0; i < methodCall.Args.length; i++) {
-				wrapper.Args[i] = JSON.toJSONString(methodCall.Args[i], features);
-			}
-		}
+		wrapper.Args = methodCall.Args;
+		wrapper.MethodSignature = new String[
+				methodCall.MethodSignature != null ? methodCall.MethodSignature.length : 0];
+		for (int i = 0; i < methodCall.MethodSignature.length; i++)
+			wrapper.MethodSignature[i] = this.parseTypeName(methodCall.MethodSignature[i]);
 		return JSON.toJSONBytes(wrapper, features);
 	}
 
 	@Override
 	public MethodCall deserializeMethodCall(byte[] input) throws FormatterException {
-		MethodCallWrapper wrapper = JSON.parseObject(input, MethodCallWrapper.class);
+		JSONObject obj = (JSONObject) JSON.parse(input);
 		MethodCall methodCall = new MethodCall();
-		methodCall.MethodName = wrapper.MethodName;
-		methodCall.TypeName = wrapper.TypeName;
-		methodCall.Uri = wrapper.Uri;
+		methodCall.MethodName = obj.getString("MethodName");
+		methodCall.TypeName = obj.getString("TypeName");
+		methodCall.Uri = obj.getString("Uri");
 
-		if (wrapper.MethodSignature != null) {
-			methodCall.MethodSignature = new Class<?>[wrapper.MethodSignature.length];
-			for (int i = 0; i < wrapper.MethodSignature.length; i++) {
+		JSONArray methodSignature = obj.getJSONArray("MethodSignature");
+		if (methodSignature != null) {
+			methodCall.MethodSignature = new Class<?>[methodSignature.size()];
+			for (int i = 0; i < methodCall.MethodSignature.length; i++) {
 				try {
-					methodCall.MethodSignature[i] = this.parseType(wrapper.MethodSignature[i]);
+					methodCall.MethodSignature[i] = this.parseType(methodSignature.getString(i));
 				} catch (ClassNotFoundException e) {
 					throw new FormatterException("parse MethodSignature error", e);
 				}
 			}
 		}
-		if (wrapper.Args != null) {
-			methodCall.Args = new Object[wrapper.Args.length];
-			for (int i = 0; i < wrapper.Args.length; i++) {
-				methodCall.Args[i] = JSON.parseObject(wrapper.Args[i], methodCall.MethodSignature[i]);
-			}
+
+		JSONArray args = obj.getJSONArray("Args");
+		if (args != null) {
+			methodCall.Args = new Object[args.size()];
+			for (int i = 0; i < methodCall.Args.length; i++)
+				methodCall.Args[i] = args.getObject(i, methodCall.MethodSignature[i]);
 		}
 		return methodCall;
 	}
@@ -63,29 +62,33 @@ public class CrossLanguageJsonSerializer implements Serializer {
 	@Override
 	public byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
 		MethodReturnWrapper wrapper = new MethodReturnWrapper();
-		if (methodReturn.ReturnValue != null) {
-			wrapper.ReturnValue = JSON.toJSONString(methodReturn.ReturnValue, features);
-			wrapper.ReturnType = methodReturn.ReturnValue.getClass().getName();
-		}
-		if (methodReturn.Exception != null) {
-			wrapper.Exception = methodReturn.Exception.toString();
-		}
+		wrapper.ReturnValue = methodReturn.ReturnValue;
+		wrapper.ReturnType = wrapper.ReturnValue != null ?
+				this.parseTypeName(methodReturn.ReturnValue.getClass()) :
+				null;
+		wrapper.Exception = methodReturn.Exception != null ?
+				methodReturn.Exception.toString() :
+				null;
 		return JSON.toJSONBytes(wrapper, features);
 	}
 
 	@Override
 	public MethodReturn deserializeMethodReturn(byte[] input) throws FormatterException {
-		MethodReturnWrapper wrapper = JSON.parseObject(input, MethodReturnWrapper.class);
+		JSONObject obj = (JSONObject) JSON.parse(input);
 		MethodReturn methodReturn = new MethodReturn();
-		if (wrapper.ReturnValue != null && wrapper.ReturnType != null) {
-			try {
-				methodReturn.ReturnValue = JSON.parseObject(wrapper.ReturnValue, this.parseType(wrapper.ReturnType));
-			} catch (ClassNotFoundException e) {
-				throw new FormatterException("parse ReturnValue error", e);
-			}
+
+		try {
+			String returnType = obj.getString("ReturnType");
+			methodReturn.ReturnValue = returnType != null ?
+					obj.getObject("ReturnValue", this.parseType(returnType)) : null;
+		} catch (ClassNotFoundException e) {
+			throw new FormatterException("parse ReturnValue error", e);
 		}
-		if (wrapper.Exception != null) {
-			methodReturn.Exception = new Exception(wrapper.Exception);
+
+		// TODO:add error stack support
+		String exception = obj.getString("Exception");
+		if (exception != null && !exception.equals("")) {
+			methodReturn.Exception = new Exception(exception);
 			methodReturn.Exception.setStackTrace(new StackTraceElement[0]);
 		}
 		return methodReturn;
@@ -110,6 +113,8 @@ public class CrossLanguageJsonSerializer implements Serializer {
 			return "date";
 		if (Map.class.equals(type) || Map.class.isAssignableFrom(type))
 			return "map";
+		if (type.isArray())
+			return String.format("%s[]", this.parseTypeName(type.getComponentType()));
 		return type.getName();
 	}
 
@@ -132,6 +137,14 @@ public class CrossLanguageJsonSerializer implements Serializer {
 			return Date.class;
 		if ("map".equalsIgnoreCase(typeName))
 			return HashMap.class;
+		// array
+		if (typeName.endsWith("[]"))
+			typeName = String.format("[L%s;",
+					this.parseType(this.getComponentTypeName(typeName)).getName());
 		return Class.forName(typeName, false, this.getClass().getClassLoader());
+	}
+
+	private String getComponentTypeName(String typeName) {
+		return typeName.substring(0, typeName.indexOf('['));
 	}
 }
