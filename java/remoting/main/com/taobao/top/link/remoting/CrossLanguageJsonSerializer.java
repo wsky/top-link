@@ -5,9 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 // design for cross-language
-public class FastJsonSerializer implements Serializer {
+public class CrossLanguageJsonSerializer implements Serializer {
+	private static final SerializerFeature[] features = {
+			// SerializerFeature.WriteMapNullValue,
+			SerializerFeature.WriteNullNumberAsZero,
+			SerializerFeature.WriteNullBooleanAsFalse,
+	};
+
 	@Override
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		MethodCallWrapper wrapper = new MethodCallWrapper(methodCall);
@@ -20,10 +27,10 @@ public class FastJsonSerializer implements Serializer {
 		if (methodCall.Args != null) {
 			wrapper.Args = new String[methodCall.Args.length];
 			for (int i = 0; i < methodCall.Args.length; i++) {
-				wrapper.Args[i] = JSON.toJSONString(methodCall.Args[i]);
+				wrapper.Args[i] = JSON.toJSONString(methodCall.Args[i], features);
 			}
 		}
-		return JSON.toJSONBytes(wrapper);
+		return JSON.toJSONBytes(wrapper, features);
 	}
 
 	@Override
@@ -57,13 +64,13 @@ public class FastJsonSerializer implements Serializer {
 	public byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
 		MethodReturnWrapper wrapper = new MethodReturnWrapper();
 		if (methodReturn.ReturnValue != null) {
-			wrapper.ReturnValue = JSON.toJSONString(methodReturn.ReturnValue);
+			wrapper.ReturnValue = JSON.toJSONString(methodReturn.ReturnValue, features);
 			wrapper.ReturnType = methodReturn.ReturnValue.getClass().getName();
 		}
 		if (methodReturn.Exception != null) {
 			wrapper.Exception = methodReturn.Exception.toString();
 		}
-		return JSON.toJSONBytes(wrapper);
+		return JSON.toJSONBytes(wrapper, features);
 	}
 
 	@Override
@@ -79,6 +86,7 @@ public class FastJsonSerializer implements Serializer {
 		}
 		if (wrapper.Exception != null) {
 			methodReturn.Exception = new Exception(wrapper.Exception);
+			methodReturn.Exception.setStackTrace(new StackTraceElement[0]);
 		}
 		return methodReturn;
 	}
@@ -109,17 +117,17 @@ public class FastJsonSerializer implements Serializer {
 		if ("string".equalsIgnoreCase(typeName))
 			return String.class;
 		if ("byte".equalsIgnoreCase(typeName))
-			return Byte.class;
+			return byte.class;
 		if ("double".equalsIgnoreCase(typeName))
-			return Double.class;
+			return double.class;
 		if ("float".equalsIgnoreCase(typeName))
-			return Float.class;
+			return float.class;
 		if ("int".equalsIgnoreCase(typeName))
-			return Integer.class;
+			return int.class;
 		if ("long".equalsIgnoreCase(typeName))
-			return Long.class;
+			return long.class;
 		if ("short".equalsIgnoreCase(typeName))
-			return Short.class;
+			return short.class;
 		if ("date".equalsIgnoreCase(typeName))
 			return Date.class;
 		if ("map".equalsIgnoreCase(typeName))

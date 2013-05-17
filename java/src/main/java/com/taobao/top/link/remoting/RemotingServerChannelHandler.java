@@ -26,7 +26,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	protected Logger logger;
 	private ExecutorService threadPool;
 	private Serializer serializer = new DefaultSerializer();
-	
+
 	public RemotingServerChannelHandler() {
 		this(DefaultLoggerFactory.getDefault());
 	}
@@ -42,7 +42,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	public void setLoggerFactory(LoggerFactory loggerFactory) {
 		this.logger = loggerFactory.create(this);
 	}
-	
+
 	public void setSerializer(Serializer serializer) {
 		this.serializer = serializer;
 	}
@@ -116,6 +116,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 			methodCall = this.serializer.deserializeMethodCall(protocol.ReadContent());
 			methodReturn = this.onMethodCall(methodCall);
 		} catch (Throwable e) {
+			this.logger.error(e);
 			methodReturn = new MethodReturn();
 			methodReturn.Exception = e;
 		}
@@ -128,6 +129,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		try {
 			data = this.serializer.serializeMethodReturn(methodReturn);
 		} catch (FormatterException e) {
+			this.logger.error(e);
 			transportHeaders.put(TcpTransportHeader.StatusCode, 400);
 			transportHeaders.put(TcpTransportHeader.StatusPhrase, e.getMessage());
 		}

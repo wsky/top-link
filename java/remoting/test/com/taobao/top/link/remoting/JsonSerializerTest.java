@@ -5,17 +5,43 @@ import static org.junit.Assert.*;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Test;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.taobao.top.link.LinkException;
 
 public class JsonSerializerTest {
-	private Serializer serializer = new FastJsonSerializer();
+	// @Test
+	public void null_test() {
+		String json = JSON.toJSONString(new MethodReturn(), SerializerFeature.WriteMapNullValue, SerializerFeature.WriteClassName);
+		System.out.println(json);
+		JSON.parseObject(JSON.toJSONString(new MethodReturn(), SerializerFeature.WriteClassName), MethodReturn.class);
+		JSON.parseObject(JSON.toJSONString(new MethodReturn(), SerializerFeature.WriteMapNullValue), MethodReturn.class);
+	}
 
 	@Test
-	public void methodCall_test() throws FormatterException, ClassNotFoundException {
+	public void cross_methodCall_test() throws FormatterException {
+		methodCall_test(new CrossLanguageJsonSerializer());
+	}
+
+	@Test
+	public void cross_methodReturn_test() throws FormatterException {
+		methodReturn_test(new CrossLanguageJsonSerializer());
+	}
+
+	// @Test
+	// public void simple_methodCall_test() throws FormatterException {
+	// methodCall_test(new SimpleJsonSerializer());
+	// }
+	//
+	// @Test
+	// public void simple_methodReturn_test() throws FormatterException {
+	// methodReturn_test(new SimpleJsonSerializer());
+	// }
+
+	private void methodCall_test(Serializer serializer) throws FormatterException {
 		MethodCall call1 = new MethodCall();
 		call1.MethodName = "echo";
 		call1.TypeName = "serviceType";
@@ -33,19 +59,18 @@ public class JsonSerializerTest {
 				new MethodCall() };
 		call1.MethodSignature = new Class<?>[] {
 				String.class,
-				Byte.class,
-				Double.class,
-				Float.class,
-				Integer.class,
-				Long.class,
-				Short.class,
+				byte.class,
+				double.class,
+				float.class,
+				int.class,
+				long.class,
+				short.class,
 				Date.class,
 				HashMap.class,
 				MethodCall.class };
 
 		byte[] ret = serializer.serializeMethodCall(call1);
 		System.out.println(new String(ret, Charset.forName("UTF-8")));
-		// {"Args":["\"abc\"","1","1","1368700907997","{}"],"MethodName":"echo","MethodSignature":["java.lang.String","java.lang.Integer","java.lang.Long","java.util.Date","com.taobao.top.link.remoting.MethodCall"],"TypeName":"serviceType","Uri":"uri"}
 		MethodCall call2 = serializer.deserializeMethodCall(ret);
 		assertEquals(call1.MethodName, call2.MethodName);
 		assertEquals(call1.TypeName, call2.TypeName);
@@ -59,8 +84,7 @@ public class JsonSerializerTest {
 			System.out.println(String.format("%s|%s", arg.getClass(), arg));
 	}
 
-	@Test
-	public void methodReturn_test() throws FormatterException {
+	private void methodReturn_test(Serializer serializer) throws FormatterException {
 		MethodReturn _return1 = new MethodReturn();
 		_return1.Exception = new LinkException("error", new NullPointerException());
 		MethodReturn returnValue = new MethodReturn();
@@ -73,6 +97,7 @@ public class JsonSerializerTest {
 		MethodReturn _return2 = serializer.deserializeMethodReturn(ret);
 		assertEquals(_return1.ReturnValue.getClass(), _return2.ReturnValue.getClass());
 		assertEquals(((MethodReturn) _return1.ReturnValue).ReturnValue, ((MethodReturn) _return2.ReturnValue).ReturnValue);
+		System.err.println(_return2.Exception.getMessage());
 		_return2.Exception.printStackTrace();
 		// assertEquals(_return1.Exception.getMessage(),
 		// _return2.Exception.getMessage());
@@ -84,8 +109,8 @@ public class JsonSerializerTest {
 		// _return2.Exception.getCause().getMessage());
 	}
 
-	private Map<String, String> getMap() {
-		Map<String, String> map = new HashMap<String, String>();
+	private HashMap<String, String> getMap() {
+		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("k", "k");
 		return map;
 	}
