@@ -1,9 +1,11 @@
 package com.taobao.top.link.remoting;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
-public class Entity {
+@SuppressWarnings("serial")
+public class Entity implements Serializable {
 	private String String;
 	private long Long;
 	private Date Date;

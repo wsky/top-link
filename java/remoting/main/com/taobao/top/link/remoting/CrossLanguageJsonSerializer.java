@@ -16,7 +16,7 @@ public class CrossLanguageJsonSerializer implements Serializer {
 			SerializerFeature.WriteNullNumberAsZero,
 			SerializerFeature.WriteNullBooleanAsFalse,
 			// wrapper.Args = methodCall.Args; maybe raise it
-			SerializerFeature.DisableCircularReferenceDetect
+			//SerializerFeature.DisableCircularReferenceDetect
 	};
 
 	@Override
