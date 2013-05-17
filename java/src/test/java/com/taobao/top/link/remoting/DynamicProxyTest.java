@@ -3,6 +3,9 @@ package com.taobao.top.link.remoting;
 import static org.junit.Assert.*;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
@@ -53,6 +56,34 @@ public class DynamicProxyTest {
 		methodCall.Args = new Object[] { "hi" };
 		MethodReturn methodReturn = proxy.invoke(methodCall);
 		throw new RemotingException("", methodReturn.Exception);
+	}
+
+	@Test
+	public void multi_thread_test() throws URISyntaxException, InterruptedException {
+		final URI uri = new URI("ws://localhost:9023/sample");
+		this.runDefaultServer(uri);
+
+		final CountDownLatch latch = new CountDownLatch(1000);
+		final AtomicBoolean flag = new AtomicBoolean(true);
+		for (int i = 0; i < 4; i++) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while (flag.get()) {
+						try {
+							SampleServiceInterface sampleService = (SampleServiceInterface)
+									RemotingService.connect(uri, SampleServiceInterface.class);
+							sampleService.echo("hi");
+							latch.countDown();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}).start();
+		}
+		latch.await();
+		flag.set(false);
 	}
 
 	private RemotingConfiguration runDefaultServer(URI uri) {
