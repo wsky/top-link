@@ -16,7 +16,7 @@ public class CrossLanguageJsonSerializer implements Serializer {
 			SerializerFeature.WriteNullNumberAsZero,
 			SerializerFeature.WriteNullBooleanAsFalse,
 			// wrapper.Args = methodCall.Args; maybe raise it
-			//SerializerFeature.DisableCircularReferenceDetect
+			// SerializerFeature.DisableCircularReferenceDetect
 	};
 
 	@Override
@@ -96,55 +96,55 @@ public class CrossLanguageJsonSerializer implements Serializer {
 
 	private String parseTypeName(Class<?> type) {
 		if (String.class.equals(type))
-			return "string";
-		if (Byte.class.equals(type))
-			return "byte";
-		if (Double.class.equals(type))
-			return "double";
-		if (Float.class.equals(type))
-			return "float";
-		if (Integer.class.equals(type))
-			return "int";
-		if (Long.class.equals(type))
-			return "long";
-		if (Short.class.equals(type))
-			return "short";
+			return "";
+		if (Byte.class.equals(type) || byte.class.equals(type))
+			return "b";
+		if (Double.class.equals(type) || double.class.equals(type))
+			return "d";
+		if (Float.class.equals(type) || float.class.equals(type))
+			return "f";
+		if (Integer.class.equals(type) || int.class.equals(type))
+			return "i";
+		if (Long.class.equals(type) || long.class.equals(type))
+			return "l";
+		if (Short.class.equals(type) || short.class.equals(type))
+			return "s";
 		if (Date.class.equals(type))
-			return "date";
+			return "t";
 		if (Map.class.equals(type) || Map.class.isAssignableFrom(type))
-			return "map";
+			return "m";
 		if (type.isArray())
-			return String.format("%s[]", this.parseTypeName(type.getComponentType()));
+			return String.format("[%s", this.parseTypeName(type.getComponentType()));
 		return type.getName();
 	}
 
 	private Class<?> parseType(String typeName) throws ClassNotFoundException {
-		if ("string".equalsIgnoreCase(typeName))
+		if ("".equalsIgnoreCase(typeName))
 			return String.class;
-		if ("byte".equalsIgnoreCase(typeName))
+		if ("b".equalsIgnoreCase(typeName))
 			return byte.class;
-		if ("double".equalsIgnoreCase(typeName))
+		if ("d".equalsIgnoreCase(typeName))
 			return double.class;
-		if ("float".equalsIgnoreCase(typeName))
+		if ("f".equalsIgnoreCase(typeName))
 			return float.class;
-		if ("int".equalsIgnoreCase(typeName))
+		if ("i".equalsIgnoreCase(typeName))
 			return int.class;
-		if ("long".equalsIgnoreCase(typeName))
+		if ("l".equalsIgnoreCase(typeName))
 			return long.class;
-		if ("short".equalsIgnoreCase(typeName))
+		if ("s".equalsIgnoreCase(typeName))
 			return short.class;
-		if ("date".equalsIgnoreCase(typeName))
+		if ("t".equalsIgnoreCase(typeName))
 			return Date.class;
-		if ("map".equalsIgnoreCase(typeName))
+		if ("m".equalsIgnoreCase(typeName))
 			return HashMap.class;
-		// array
-		if (typeName.endsWith("[]"))
+		if (typeName.charAt(0) == '[')
+			// java array: [Ljava.lang.String
 			typeName = String.format("[L%s;",
 					this.parseType(this.getComponentTypeName(typeName)).getName());
 		return Class.forName(typeName, false, this.getClass().getClassLoader());
 	}
 
 	private String getComponentTypeName(String typeName) {
-		return typeName.substring(0, typeName.indexOf('['));
+		return typeName.substring(1);
 	}
 }

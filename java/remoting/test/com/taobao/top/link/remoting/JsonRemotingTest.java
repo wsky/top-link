@@ -79,7 +79,7 @@ public class JsonRemotingTest {
 		assertEquals(entity.getArray()[0], ret.getArray()[0]);
 	}
 
-	@Test
+	// @Test
 	public void simply_perf_test() {
 		Entity entity = new Entity();
 		entity.setString("hello1234567890123456789123456789hello1234567890123456789123456789");
