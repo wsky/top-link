@@ -88,18 +88,30 @@ public class CrossLanguageJsonSerializer implements Serializer {
 	private String parseTypeName(Class<?> type) {
 		if (String.class.equals(type))
 			return "";
-		if (Byte.class.equals(type) || byte.class.equals(type))
+		if (byte.class.equals(type))
 			return "b";
-		if (Double.class.equals(type) || double.class.equals(type))
+		if (Byte.class.equals(type))
+			return "B";
+		if (double.class.equals(type))
 			return "d";
-		if (Float.class.equals(type) || float.class.equals(type))
+		if (Double.class.equals(type))
+			return "D";
+		if (float.class.equals(type))
 			return "f";
-		if (Integer.class.equals(type) || int.class.equals(type))
+		if (Float.class.equals(type))
+			return "F";
+		if (int.class.equals(type))
 			return "i";
-		if (Long.class.equals(type) || long.class.equals(type))
+		if (Integer.class.equals(type))
+			return "I";
+		if (long.class.equals(type))
 			return "l";
-		if (Short.class.equals(type) || short.class.equals(type))
+		if (Long.class.equals(type))
+			return "L";
+		if (short.class.equals(type))
 			return "s";
+		if (Short.class.equals(type))
+			return "S";
 		if (Date.class.equals(type))
 			return "t";
 		if (Map.class.equals(type) || Map.class.isAssignableFrom(type))
@@ -114,16 +126,28 @@ public class CrossLanguageJsonSerializer implements Serializer {
 			return String.class;
 		if ("b".equalsIgnoreCase(typeName))
 			return byte.class;
+		if ("B".equalsIgnoreCase(typeName))
+			return Byte.class;
 		if ("d".equalsIgnoreCase(typeName))
 			return double.class;
+		if ("D".equalsIgnoreCase(typeName))
+			return Double.class;
 		if ("f".equalsIgnoreCase(typeName))
 			return float.class;
+		if ("F".equalsIgnoreCase(typeName))
+			return Float.class;
 		if ("i".equalsIgnoreCase(typeName))
 			return int.class;
+		if ("I".equalsIgnoreCase(typeName))
+			return Integer.class;
 		if ("l".equalsIgnoreCase(typeName))
 			return long.class;
+		if ("L".equalsIgnoreCase(typeName))
+			return Long.class;
 		if ("s".equalsIgnoreCase(typeName))
 			return short.class;
+		if ("S".equalsIgnoreCase(typeName))
+			return Short.class;
 		if ("t".equalsIgnoreCase(typeName))
 			return Date.class;
 		if ("m".equalsIgnoreCase(typeName))
