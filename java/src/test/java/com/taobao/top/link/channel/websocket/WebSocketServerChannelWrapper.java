@@ -25,6 +25,10 @@ public class WebSocketServerChannelWrapper extends WebSocketServerChannel {
 		super(port);
 	}
 
+	public void ssl() {
+		this.setSSLContext(sslContext);
+	}
+
 	protected void preparePipeline(ChannelPipeline pipeline) {
 	}
 
@@ -39,7 +43,7 @@ public class WebSocketServerChannelWrapper extends WebSocketServerChannel {
 	private static void initSslEngine() throws Exception {
 		String keyStoreFilePassword = "123456";
 		KeyStore ks = KeyStore.getInstance("JKS");
-		ks.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("keystore"), 
+		ks.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("keystore"),
 				keyStoreFilePassword.toCharArray());
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
 		kmf.init(ks, keyStoreFilePassword.toCharArray());

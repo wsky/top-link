@@ -65,7 +65,7 @@ public class WebSocketChannelTest {
 
 	@Test
 	public void ssl_test() throws ChannelException {
-		serverChannelWrapper.setSSLContext(WebSocketServerChannelWrapper.sslContext);
+		serverChannelWrapper.ssl();
 		WebSocketClient.connect(DefaultLoggerFactory.getDefault(), uriSsl, 1000);
 	}
 }
