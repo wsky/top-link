@@ -63,6 +63,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 		RemotingConfiguration.
 				configure().
 				loggerFactory(loggerFactory).
+				serializer(new CrossLanguageJsonSerializer()).
 				defaultServerChannelHandler(this.getServerHandler(loggerFactory)).
 				websocket(this.port).
 				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory)).

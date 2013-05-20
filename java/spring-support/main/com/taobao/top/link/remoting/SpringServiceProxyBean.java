@@ -33,7 +33,9 @@ public class SpringServiceProxyBean implements FactoryBean {
 	@Override
 	public Object getObject() throws Exception {
 		// TODO:find better way to init
-		RemotingConfiguration.configure().loggerFactory(Util.getLoggerFactory(this));
+		RemotingConfiguration.configure().
+				loggerFactory(Util.getLoggerFactory(this)).
+				serializer(new CrossLanguageJsonSerializer());
 		// default set 2M max message size for client
 		// TODO:change to growing buffer
 		BufferManager.setBufferSize(1024 * 1024 * 2);
