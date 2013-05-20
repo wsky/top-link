@@ -35,13 +35,7 @@ public class DynamicProxyTest {
 
 	@Test
 	public void dynamicProxy_test() throws Throwable {
-		// java.lang.IllegalArgumentException:
-		// com.taobao.top.link.remoting.DynamicProxyTest$SampleService is not an
-		// interface
-		// SampleService sampleService = (SampleService)
-		// RemotingService.connect(uri, SampleService.class);
-		SampleInterface sampleService = (SampleInterface)
-				RemotingService.connect(uri, SampleInterface.class);
+		SampleInterface sampleService = (SampleInterface) RemotingUtil.connect(uri, SampleInterface.class);
 		assertEquals("hi", sampleService.echo("hi"));
 	}
 
@@ -49,7 +43,7 @@ public class DynamicProxyTest {
 	public void objectUri_empty_or_not_matched_processor_test() throws Throwable {
 		URI remoteUri = new URI(uri.toString() + "_wrong");
 		SampleInterface sampleService = (SampleInterface)
-				RemotingService.connect(remoteUri, SampleInterface.class);
+				RemotingUtil.connect(remoteUri, SampleInterface.class);
 		try {
 			sampleService.echo("hi");
 		} catch (Exception e) {
@@ -60,7 +54,7 @@ public class DynamicProxyTest {
 
 	@Test(expected = RemotingException.class)
 	public void invoke_throw_not_UndeclaredThrowable_test() throws RemotingException, Exception {
-		DynamicProxy proxy = RemotingService.connect(uri);
+		DynamicProxy proxy = RemotingUtil.connect(uri);
 		MethodCall methodCall = new MethodCall();
 		methodCall.Args = new Object[] { "hi" };
 		MethodReturn methodReturn = proxy.invoke(methodCall);
@@ -71,14 +65,13 @@ public class DynamicProxyTest {
 	public void multi_thread_test() throws URISyntaxException, InterruptedException {
 		final CountDownLatch latch = new CountDownLatch(1000);
 		final AtomicBoolean flag = new AtomicBoolean(true);
+		final SampleInterface sampleService = (SampleInterface) RemotingUtil.connect(uri, SampleInterface.class);
 		for (int i = 0; i < 4; i++) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					while (flag.get()) {
 						try {
-							SampleInterface sampleService = (SampleInterface)
-									RemotingService.connect(uri, SampleInterface.class);
 							sampleService.echo("hi");
 							latch.countDown();
 						} catch (Exception e) {

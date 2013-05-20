@@ -47,14 +47,14 @@ public class ExtensionTest {
 		headers.put(CustomServerChannelHandler.ID, "abc");
 		WebSocketClientHelper.setHeaders(remoteUri1, headers);
 		SampleInterface sampleService = (SampleInterface)
-				RemotingService.connect(remoteUri1, SampleInterface.class);
+				RemotingUtil.connect(remoteUri1, SampleInterface.class);
 		assertEquals("hi", sampleService.echo("hi"));
 	}
 
 	@Test(expected = Exception.class)
 	public void cutsom_serverChannel_auth_fail_test() throws URISyntaxException {
 		SampleInterface sampleService = (SampleInterface)
-				RemotingService.connect(remoteUri2, SampleInterface.class);
+				RemotingUtil.connect(remoteUri2, SampleInterface.class);
 		sampleService.echo("hi");
 	}
 }

@@ -41,7 +41,7 @@ public class RemotingTest {
 		});
 		serverChannel.run();
 
-		DynamicProxy proxy = RemotingService.connect(uri);
+		DynamicProxy proxy = RemotingUtil.connect(uri);
 
 		try {
 			proxy.invoke(new MethodCall(), 2000);
@@ -68,7 +68,7 @@ public class RemotingTest {
 		});
 		serverChannel.run();
 
-		DynamicProxy proxy = RemotingService.connect(uri);
+		DynamicProxy proxy = RemotingUtil.connect(uri);
 
 		// make server broken
 		new Thread(new Runnable() {
@@ -112,7 +112,7 @@ public class RemotingTest {
 		});
 		serverChannel.run();
 
-		DynamicProxy proxy = RemotingService.connect(uri);
+		DynamicProxy proxy = RemotingUtil.connect(uri);
 		MethodCall methodCall = new MethodCall();
 		MethodReturn methodReturn = null;
 		try {

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.taobao.top.link.channel.ChannelException;
@@ -14,15 +16,34 @@ import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
 // rpc timing is important for overlay-io/reused-channel
 public class TimingTest {
+	private static URI uri;
+	private static WebSocketServerChannel serverChannel;
 	private ClientChannelSharedSelector sharedSelector = new ClientChannelSharedSelector();
 	private ClientChannelPooledSelector pooledSelector = new ClientChannelPooledSelector();
 
+	@BeforeClass
+	public static void init() throws URISyntaxException {
+		uri = new URI("ws://localhost:8888/");
+		serverChannel = new WebSocketServerChannel(uri.getPort());
+		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
+			@Override
+			public MethodReturn onMethodCall(MethodCall methodCall) {
+				MethodReturn methodReturn = new MethodReturn();
+				methodReturn.ReturnValue = methodCall.Args[0];
+				return methodReturn;
+			}
+		});
+		serverChannel.run();
+	}
+
+	@AfterClass
+	public static void clear() {
+		serverChannel.stop();
+	}
+
 	@Test
 	public void timing_test() throws URISyntaxException, RemotingException, FormatterException, ChannelException {
-		final URI uri = new URI("ws://localhost:9010/link");
-		this.runServer(uri);
-
-		DynamicProxy proxy = RemotingService.connect(uri);
+		DynamicProxy proxy = RemotingUtil.connect(uri);
 		for (int i = 0; i < 10; i++) {
 			MethodCall methodCall = new MethodCall();
 			methodCall.Args = new Object[] { i };
@@ -32,14 +53,10 @@ public class TimingTest {
 
 	@Test
 	public void same_channel_timing_test() throws URISyntaxException, ChannelException, InterruptedException {
-		final URI uri = new URI("ws://localhost:9011/link");
-		this.runServer(uri);
-
-		RemotingService.setChannelSelector(sharedSelector);
 		// proxy1/2 will share same channel
 		sharedSelector.getChannel(uri);
-		final DynamicProxy proxy1 = RemotingService.connect(uri);
-		final DynamicProxy proxy2 = RemotingService.connect(uri);
+		final DynamicProxy proxy1 = RemotingUtil.connect(uri, sharedSelector);
+		final DynamicProxy proxy2 = RemotingUtil.connect(uri, sharedSelector);
 
 		this.runThread(proxy1, uri, 0, 100);
 		this.runThread(proxy2, uri, 100, 200);
@@ -51,13 +68,9 @@ public class TimingTest {
 
 	@Test
 	public void different_channel_timing_test() throws URISyntaxException, ChannelException, InterruptedException {
-		final URI uri = new URI("ws://localhost:9012/link");
-		this.runServer(uri);
-
-		RemotingService.setChannelSelector(pooledSelector);
 		// proxy1/2 use different channel but same remote server
-		final DynamicProxy proxy1 = RemotingService.connect(uri);
-		final DynamicProxy proxy2 = RemotingService.connect(uri);
+		final DynamicProxy proxy1 = RemotingUtil.connect(uri, pooledSelector);
+		final DynamicProxy proxy2 = RemotingUtil.connect(uri, pooledSelector);
 
 		this.runThread(proxy1, uri, 0, 100);
 		this.runThread(proxy2, uri, 100, 200);
@@ -86,18 +99,5 @@ public class TimingTest {
 				}
 			}
 		}).start();
-	}
-
-	private void runServer(URI uri) {
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
-		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
-			@Override
-			public MethodReturn onMethodCall(MethodCall methodCall) {
-				MethodReturn methodReturn = new MethodReturn();
-				methodReturn.ReturnValue = methodCall.Args[0];
-				return methodReturn;
-			}
-		});
-		serverChannel.run();
 	}
 }
