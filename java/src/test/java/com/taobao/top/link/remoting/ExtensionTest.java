@@ -12,49 +12,40 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
+import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
 public class ExtensionTest {
-	private static URI remoteUri1;
-	private static URI remoteUri2;
-	private static CustomServerChannelHandler serverChannelHandler = new CustomServerChannelHandler();
+	private static URI uri;
+	private static WebSocketServerChannel serverChannel;
+	private static CustomServerChannelHandler customServerChannelHandler = new CustomServerChannelHandler();
 
 	@BeforeClass
 	public static void init() throws URISyntaxException {
-		String uriString = "ws://localhost:9030/";
-		URI uri = new URI(uriString);
-		
-		RemotingConfiguration.
-				configure().
-				defaultServerChannelHandler(serverChannelHandler).
-				websocket(uri.getPort()).
-				addProcessor("sample1", new SampleService()).
-				addProcessor("sample2", new SampleService());
-
-		remoteUri1 = new URI(uriString + "sample1");
-		remoteUri2 = new URI(uriString + "sample2");
+		uri = new URI("ws://localhost:8888/sample");
+		customServerChannelHandler.addProcessor("sample", new SampleService());
+		serverChannel = new WebSocketServerChannel(uri.getPort());
+		serverChannel.setChannelHandler(customServerChannelHandler);
+		serverChannel.run();
 	}
 
 	@AfterClass
 	public static void clear() {
-		RemotingConfiguration.
-				configure().
-				defaultServerChannelHandler(new DefaultRemotingServerChannelHandler());
+		serverChannel.stop();
 	}
 
 	@Test
 	public void cutsom_serverChannel_test() throws URISyntaxException {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put(CustomServerChannelHandler.ID, "abc");
-		WebSocketClientHelper.setHeaders(remoteUri1, headers);
-		SampleInterface sampleService = (SampleInterface)
-				RemotingUtil.connect(remoteUri1, SampleInterface.class);
+		WebSocketClientHelper.setHeaders(uri, headers);
+		SampleInterface sampleService = (SampleInterface) RemotingUtil.connect(uri, SampleInterface.class);
 		assertEquals("hi", sampleService.echo("hi"));
 	}
 
 	@Test(expected = Exception.class)
 	public void cutsom_serverChannel_auth_fail_test() throws URISyntaxException {
-		SampleInterface sampleService = (SampleInterface)
-				RemotingUtil.connect(remoteUri2, SampleInterface.class);
+		WebSocketClientHelper.setHeaders(uri, null);
+		SampleInterface sampleService = (SampleInterface) RemotingUtil.connect(uri, SampleInterface.class);
 		sampleService.echo("hi");
 	}
 }
