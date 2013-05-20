@@ -27,7 +27,7 @@ public class JsonSerializerTest {
 		call1.TypeName = "serviceType";
 		call1.Uri = "uri";
 		call1.Args = new Object[] {
-				"abc",
+				"abc中文",// unicode support?
 				(byte) 1,
 				(double) 1.1,
 				(float) 1.2,
