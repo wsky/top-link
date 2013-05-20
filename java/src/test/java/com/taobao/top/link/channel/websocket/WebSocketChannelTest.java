@@ -55,17 +55,21 @@ public class WebSocketChannelTest {
 
 	@Test
 	public void heartbeat_test() throws ChannelException, InterruptedException {
+		heartbeat_test(uri);
+	}
+
+	@Test
+	public void ssl_test() throws ChannelException, InterruptedException {
+		serverChannelWrapper.ssl();
+		heartbeat_test(uriSsl);
+	}
+	
+	private void heartbeat_test(URI uri) throws ChannelException, InterruptedException {
 		ClientChannel clientChannel = WebSocketClient.connect(DefaultLoggerFactory.getDefault(), uri, 1000);
 		serverChannelWrapper.handlerWrapper.latch = new CountDownLatch(3);
 		ResetableTimer timer = new ResetableTimer(100);
 		clientChannel.setHeartbeatTimer(timer);
 		serverChannelWrapper.handlerWrapper.latch.await();
 		timer.stop();
-	}
-
-	@Test
-	public void ssl_test() throws ChannelException {
-		serverChannelWrapper.ssl();
-		WebSocketClient.connect(DefaultLoggerFactory.getDefault(), uriSsl, 1000);
 	}
 }
