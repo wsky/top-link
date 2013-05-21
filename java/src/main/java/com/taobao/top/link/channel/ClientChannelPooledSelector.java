@@ -59,13 +59,14 @@ public class ClientChannelPooledSelector implements ClientChannelSelector {
 		protected int timeout;
 
 		public ChannelPool(LoggerFactory loggerFactory, URI uri, int timeout) {
-			super(10, 10);
+			super(50, 10);
 			this.loggerFactory = loggerFactory;
 			this.uri = uri;
 			this.timeout = timeout;
 		}
 
-		public ClientChannel checkout() throws Throwable {
+		@Override
+		public ClientChannel chekOut() throws Throwable {
 			ClientChannel channel = super.chekOut();
 			if (channel == null)
 				throw new ChannelException(Text.RPC_POOL_BUSY);
