@@ -43,13 +43,13 @@ public class SendCallback {
 		this.setComplete();
 	}
 
-	public void waitReturn(int timeoutSecond) throws LinkException {
+	public void waitReturn(int timeout) throws LinkException {
 		int i = 0, wait = 10;
 		while (true) {
 			if (this.isComplete)
 				return;
 
-			if (timeoutSecond > 0 && (i++) * wait >= timeoutSecond * 1000)
+			if (timeout > 0 && (i++) * wait >= timeout)
 				throw new LinkException(Text.E_EXECUTE_TIMEOUT);
 
 			synchronized (this.sync) {

@@ -22,7 +22,7 @@ import com.taobao.top.link.schedule.Scheduler;
 // Abstract network model
 // https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit
 public class Endpoint {
-	protected static int TIMOUTSECOND = 5;
+	protected static int TIMOUT = 5000;
 	private Logger logger;
 	private Identity identity;
 	private List<ServerChannel> serverChannels;
@@ -120,7 +120,7 @@ public class Endpoint {
 		if (extras != null)
 			content.putAll(extras);
 		msg.content = content;
-		this.sendAndWait(e, channel, msg, TIMOUTSECOND);
+		this.sendAndWait(e, channel, msg, TIMOUT);
 		return e;
 	}
 
@@ -145,10 +145,10 @@ public class Endpoint {
 	protected HashMap<String, String> sendAndWait(EndpointProxy e,
 			ChannelSender sender,
 			Message message,
-			int timeoutSecond) throws LinkException {
+			int timeout) throws LinkException {
 		SendCallback callback = new SendCallback(e);
 		this.channelHandler.pending(message, sender, callback);
-		callback.waitReturn(timeoutSecond);
+		callback.waitReturn(timeout);
 		if (callback.getError() != null) {
 			throw callback.getError();
 		}

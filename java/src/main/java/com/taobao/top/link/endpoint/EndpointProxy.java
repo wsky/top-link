@@ -71,20 +71,20 @@ public class EndpointProxy {
 
 	public HashMap<String, String> sendAndWait(
 			HashMap<String, String> message) throws LinkException {
-		return this.sendAndWait(message, Endpoint.TIMOUTSECOND);
+		return this.sendAndWait(message, Endpoint.TIMOUT);
 	}
 
 	public HashMap<String, String> sendAndWait(
-			HashMap<String, String> message, int timeoutSecond) throws LinkException {
-		return this.sendAndWait(null, message, timeoutSecond);
+			HashMap<String, String> message, int timeout) throws LinkException {
+		return this.sendAndWait(null, message, timeout);
 	}
 
 	public HashMap<String, String> sendAndWait(ChannelSender sender,
-			HashMap<String, String> message, int timeoutSecond) throws LinkException {
+			HashMap<String, String> message, int timeout) throws LinkException {
 		return this.endpoint.sendAndWait(this,
 				this.getSenders(sender),
 				this.createMessage(message),
-				timeoutSecond);
+				timeout);
 	}
 
 	public void send(HashMap<String, String> message) throws ChannelException {
