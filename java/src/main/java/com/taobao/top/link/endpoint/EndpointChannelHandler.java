@@ -16,6 +16,7 @@ import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ChannelSender;
+import com.taobao.top.link.channel.ServerChannelSender;
 import com.taobao.top.link.channel.ChannelSender.SendHandler;
 import com.taobao.top.link.schedule.Scheduler;
 
@@ -187,7 +188,8 @@ public class EndpointChannelHandler implements ChannelHandler {
 			this.idByToken.put(proxy.getToken(), id);
 
 			if (this.stateHandler != null)
-				this.stateHandler.onConnected(proxy, context.getSender());
+				this.stateHandler.onConnected(proxy, 
+						(ServerChannelSender) context.getSender());
 
 			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());
 		} catch (LinkException e) {

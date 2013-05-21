@@ -36,7 +36,7 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelHandler;
-import com.taobao.top.link.channel.ChannelSender;
+import com.taobao.top.link.channel.ServerChannelSender;
 
 //one handler per connection
 public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler {
@@ -45,7 +45,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	private ChannelHandler channelHandler;
 	private WebSocketServerHandshaker handshaker;
 	private ChannelGroup allChannels;
-	private ChannelSender sender;
+	private ServerChannelSender sender;
 	private boolean cumulative;
 
 	public WebSocketServerUpstreamHandler(LoggerFactory loggerFactory,
