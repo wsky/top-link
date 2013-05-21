@@ -188,7 +188,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 			this.idByToken.put(proxy.getToken(), id);
 
 			if (this.stateHandler != null)
-				this.stateHandler.onConnected(proxy, 
+				this.stateHandler.onConnected(proxy,
 						(ServerChannelSender) context.getSender());
 
 			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());
@@ -219,8 +219,12 @@ public class EndpointChannelHandler implements ChannelHandler {
 	}
 
 	private void handleCallback(SendCallback callback, Message msg, Identity msgFrom) {
-		if (!callback.getTarget().getIdentity().equals(msgFrom))
+		if (!callback.getTarget().getIdentity().equals(msgFrom)) {
+			this.logger.warn(
+					Text.E_IDENTITY_NOT_MATCH_WITH_CALLBACK, 
+					msgFrom, callback.getTarget().getIdentity());
 			return;
+		}
 		if (this.isError(msg))
 			callback.setError(new LinkException(msg.statusCode, msg.statusPhase));
 		else
