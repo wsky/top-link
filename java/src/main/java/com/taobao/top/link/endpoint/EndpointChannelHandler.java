@@ -48,12 +48,12 @@ public class EndpointChannelHandler implements ChannelHandler {
 		this.scheduler = scheduler;
 	}
 
-	public final void pending(Message msg, ChannelSender sender) throws ChannelException {
+	protected final void pending(Message msg, ChannelSender sender) throws ChannelException {
 		this.pending(msg, sender, null);
 	}
 
 	// all send in Endpoint module must call here
-	public final void pending(Message msg, ChannelSender sender, SendCallback callback) throws ChannelException {
+	protected final void pending(Message msg, ChannelSender sender, SendCallback callback) throws ChannelException {
 		if (callback != null) {
 			msg.flag = this.flag.incrementAndGet();
 			this.callbackByFlag.put(Integer.toString(msg.flag), callback);
