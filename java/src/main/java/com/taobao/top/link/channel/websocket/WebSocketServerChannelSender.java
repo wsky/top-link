@@ -10,13 +10,18 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.ChannelSender;
+import com.taobao.top.link.channel.ServerChannelSender;
 
-public class WebSocketChannelSender implements ChannelSender {
+public class WebSocketServerChannelSender implements ServerChannelSender {
 	private ChannelHandlerContext ctx;
 
-	public WebSocketChannelSender(ChannelHandlerContext ctx) {
+	public WebSocketServerChannelSender(ChannelHandlerContext ctx) {
 		this.ctx = ctx;
+	}
+
+	@Override
+	public boolean isOpen() {
+		return this.ctx.getChannel().isOpen();
 	}
 
 	@Override
@@ -24,7 +29,7 @@ public class WebSocketChannelSender implements ChannelSender {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		frame.setFinalFragment(true);
-		ctx.getChannel().write(frame);
+		this.ctx.getChannel().write(frame);
 	}
 
 	@Override
@@ -32,9 +37,9 @@ public class WebSocketChannelSender implements ChannelSender {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		frame.setFinalFragment(true);
-		ctx.getChannel().write(frame).addListener(new ChannelFutureListener() {
+		this.ctx.getChannel().write(frame).addListener(new ChannelFutureListener() {
 			@Override
-			public void operationComplete(ChannelFuture arg0) throws Exception {
+			public void operationComplete(ChannelFuture future) throws Exception {
 				if (sendHandler != null)
 					sendHandler.onSendComplete();
 			}

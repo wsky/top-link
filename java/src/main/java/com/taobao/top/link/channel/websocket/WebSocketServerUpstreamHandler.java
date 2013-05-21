@@ -62,7 +62,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	@Override
 	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		this.allChannels.add(e.getChannel());
-		this.sender = new WebSocketChannelSender(ctx);
+		this.sender = new WebSocketServerChannelSender(ctx);
 	}
 
 	@Override
