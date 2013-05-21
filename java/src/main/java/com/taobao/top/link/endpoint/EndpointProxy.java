@@ -69,19 +69,30 @@ public class EndpointProxy {
 		return this.senders.size() > 0;
 	}
 
-	public HashMap<String, String> sendAndWait(HashMap<String, String> message) throws LinkException {
+	public HashMap<String, String> sendAndWait(
+			HashMap<String, String> message) throws LinkException {
 		return this.sendAndWait(message, Endpoint.TIMOUTSECOND);
 	}
 
-	public HashMap<String, String> sendAndWait(HashMap<String, String> message, int timeoutSecond) throws LinkException {
+	public HashMap<String, String> sendAndWait(
+			HashMap<String, String> message, int timeoutSecond) throws LinkException {
+		return this.sendAndWait(null, message, timeoutSecond);
+	}
+
+	public HashMap<String, String> sendAndWait(ChannelSender sender,
+			HashMap<String, String> message, int timeoutSecond) throws LinkException {
 		return this.endpoint.sendAndWait(this,
-				this.getSenders(),
+				this.getSenders(sender),
 				this.createMessage(message),
 				timeoutSecond);
 	}
 
 	public void send(HashMap<String, String> message) throws ChannelException {
-		this.endpoint.send(this.getSenders(), this.createMessage(message));
+		this.send(null, message);
+	}
+
+	public void send(ChannelSender sender, HashMap<String, String> message) throws ChannelException {
+		this.endpoint.send(this.getSenders(sender), this.createMessage(message));
 	}
 
 	private Message createMessage(HashMap<String, String> message) {
@@ -92,9 +103,11 @@ public class EndpointProxy {
 		return msg;
 	}
 
-	private ChannelSender getSenders() throws ChannelException {
+	private ChannelSender getSenders(ChannelSender sender) throws ChannelException {
 		if (this.senders.isEmpty())
 			throw new ChannelException(Text.E_NO_SENDER);
+		if (this.senders.contains(sender))
+			return sender;
 		return this.senders.get(0);
 	}
 }

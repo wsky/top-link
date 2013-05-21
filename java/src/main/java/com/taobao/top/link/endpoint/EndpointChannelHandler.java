@@ -28,6 +28,7 @@ public class EndpointChannelHandler implements ChannelHandler {
 	// all connect in/out endpoints
 	private HashMap<String, Identity> idByToken;
 	private Scheduler<Identity> scheduler;
+	private StateHandler stateHandler;
 
 	public EndpointChannelHandler() {
 		this(DefaultLoggerFactory.getDefault());
@@ -46,6 +47,10 @@ public class EndpointChannelHandler implements ChannelHandler {
 
 	public void setScheduler(Scheduler<Identity> scheduler) {
 		this.scheduler = scheduler;
+	}
+
+	public void setStateHandler(StateHandler stateHandler) {
+		this.stateHandler = stateHandler;
 	}
 
 	protected final void pending(Message msg, ChannelSender sender) throws ChannelException {
@@ -173,12 +178,17 @@ public class EndpointChannelHandler implements ChannelHandler {
 			Identity id = this.endpoint.getIdentity().parse(message.content);
 			EndpointProxy proxy = this.endpoint.getEndpoint(id);
 			proxy.add(context.getSender());
+			// FIXME:not thread-safe
 			if (proxy.getToken() == null) {
 				// uuid for token? or get from id?
 				proxy.setToken(UUID.randomUUID().toString());
 			}
 			ack.token = proxy.getToken();
 			this.idByToken.put(proxy.getToken(), id);
+
+			if (this.stateHandler != null)
+				this.stateHandler.onConnected(proxy, context.getSender());
+
 			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());
 		} catch (LinkException e) {
 			ack.statusCode = e.getErrorCode();
