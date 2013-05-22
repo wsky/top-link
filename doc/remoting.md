@@ -86,6 +86,7 @@ beanFactory.getBean("server");
 		<property name="interfaceName" value="TestInterface" />
 		<property name="uri" value="ws://localhost:8889/" />
 		<property name="executionTimeout" value="5000" />
+		<property name="serialization" value="json" />
 	</bean>
 </beans>
 ```

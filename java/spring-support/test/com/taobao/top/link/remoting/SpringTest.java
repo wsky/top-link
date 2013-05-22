@@ -29,6 +29,7 @@ public class SpringTest {
 			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.SampleInterface\" />"
 			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
 			+ "		<property name=\"executionTimeout\" value=\"5000\" />"
+			+ "		<property name=\"serialization\" value=\"json\" />"
 			+ "		<property name=\"headers\">"
 			+ "			<ref bean=\"headers\" />"
 			+ "		</property>"
