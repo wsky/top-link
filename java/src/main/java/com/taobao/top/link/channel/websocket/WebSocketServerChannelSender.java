@@ -8,6 +8,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ServerChannelSender;
@@ -22,6 +23,11 @@ public class WebSocketServerChannelSender implements ServerChannelSender {
 	@Override
 	public boolean isOpen() {
 		return this.ctx.getChannel().isOpen();
+	}
+
+	@Override
+	public void close(int statusCode, String reasonText) {
+		this.ctx.getChannel().write(new CloseWebSocketFrame(statusCode, reasonText));
 	}
 
 	@Override
