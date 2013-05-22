@@ -20,6 +20,11 @@ public class CrossLanguageJsonSerializer implements Serializer {
 	};
 
 	@Override
+	public String getName() {
+		return "json";
+	}
+	
+	@Override
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		MethodCallWrapper wrapper = new MethodCallWrapper(methodCall);
 		wrapper.Args = methodCall.Args;

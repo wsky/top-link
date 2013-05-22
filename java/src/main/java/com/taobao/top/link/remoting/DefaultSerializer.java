@@ -7,6 +7,11 @@ import java.io.ObjectOutputStream;
 
 // java build-in object read/write
 public class DefaultSerializer implements Serializer {
+	@Override
+	public String getName() {
+		return "java";
+	}
+
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();

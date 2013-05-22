@@ -1,15 +1,15 @@
 package com.taobao.top.link.remoting;
 
-//import org.apache.log4j.ConsoleAppender;
-//import org.apache.log4j.LogManager;
-//import org.apache.log4j.PatternLayout;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PatternLayout;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 
 public class Util {
 	static {
-		//LogManager.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN)));
+		LogManager.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN)));
 	}
 
 	public static LoggerFactory getLoggerFactory(Object obj) {

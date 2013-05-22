@@ -20,7 +20,7 @@ public class RemotingConfiguration {
 
 	private LoggerFactory loggerFactory;
 	private DefaultRemotingServerChannelHandler defaultHandler;
-	private Serializer serializer;
+	private SerializationFactory serializationFactory;
 
 	public RemotingConfiguration() {
 		this.loggerFactory(DefaultLoggerFactory.getDefault());
@@ -40,8 +40,12 @@ public class RemotingConfiguration {
 
 	// TODO:refact to sink desgion
 	public RemotingConfiguration serializer(Serializer serializer) {
-		this.serializer = serializer;
 		RemotingService.setSerializer(serializer);
+		return this;
+	}
+
+	public RemotingConfiguration SerializationFactory(SerializationFactory serializationFactory) {
+		this.serializationFactory = serializationFactory;
 		return this;
 	}
 
@@ -84,8 +88,8 @@ public class RemotingConfiguration {
 	private synchronized DefaultRemotingServerChannelHandler getChannelHandler() {
 		if (this.defaultHandler == null)
 			this.defaultHandler = new DefaultRemotingServerChannelHandler(this.loggerFactory);
-		if (this.serializer != null)
-			this.defaultHandler.setSerializer(this.serializer);
+		if (this.serializationFactory != null)
+			this.defaultHandler.setSerializationFactory(this.serializationFactory);
 		return this.defaultHandler;
 	}
 }

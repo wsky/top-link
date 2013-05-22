@@ -29,7 +29,7 @@ public class JsonRemotingTest {
 		CrossLanguageJsonSerializer serializer = new CrossLanguageJsonSerializer();
 
 		DefaultRemotingServerChannelHandler serverHandler = new DefaultRemotingServerChannelHandler();
-		serverHandler.setSerializer(serializer);
+		serverHandler.setSerializationFactory(new CrossLanguageSerializationFactory());
 		serverHandler.addProcessor("json", new SerialService());
 		serverChannel = new WebSocketServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(serverHandler);

@@ -60,6 +60,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		handle.WriteContentDelimiter(TcpContentDelimiter.ContentLength);
 		handle.WriteContentLength(data.length);
 		transportHeaders.put(RemotingTransportHeader.Flag, flag);
+		transportHeaders.put(RemotingTransportHeader.Format, this.serializer.getName());
 		handle.WriteTransportHeaders(transportHeaders);
 		handle.WriteContent(data);
 

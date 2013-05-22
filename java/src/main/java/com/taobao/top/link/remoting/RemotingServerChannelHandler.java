@@ -25,7 +25,7 @@ import com.taobao.top.link.channel.ChannelSender.SendHandler;
 public abstract class RemotingServerChannelHandler extends SimpleChannelHandler {
 	protected Logger logger;
 	private ExecutorService threadPool;
-	private Serializer serializer = new DefaultSerializer();
+	private SerializationFactory serializationFactory = new DefaultSerializationFactory();
 
 	public RemotingServerChannelHandler() {
 		this(DefaultLoggerFactory.getDefault());
@@ -43,8 +43,8 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		this.logger = loggerFactory.create(this);
 	}
 
-	public void setSerializer(Serializer serializer) {
-		this.serializer = serializer;
+	public void setSerializationFactory(SerializationFactory serializationFactory) {
+		this.serializationFactory = serializationFactory;
 	}
 
 	public abstract MethodReturn onMethodCall(MethodCall methodCall) throws Throwable;
@@ -72,13 +72,14 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		protocol.ReadContentDelimiter();
 		protocol.ReadContentLength();
 		final HashMap<String, Object> transportHeaders = protocol.ReadTransportHeaders();
+		final Serializer serializer = this.serializationFactory.get(transportHeaders.get(RemotingTransportHeader.Format));
 		Object flag = transportHeaders.get(RemotingTransportHeader.Flag);
 		transportHeaders.clear();
 		transportHeaders.put(RemotingTransportHeader.Flag, flag);
 
 		// just use netty io-woker thread, count=cpucore
 		if (this.threadPool == null) {
-			this.internalOnMessage(context, protocol, operation, transportHeaders);
+			this.internalOnMessage(context, protocol, operation, transportHeaders, serializer);
 			return;
 		}
 
@@ -88,7 +89,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 				@Override
 				public void run() {
 					try {
-						internalOnMessage(context, protocol, operation, transportHeaders);
+						internalOnMessage(context, protocol, operation, transportHeaders, serializer);
 					} catch (ChannelException e) {
 						logger.error(e);
 					}
@@ -108,12 +109,13 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	private void internalOnMessage(ChannelContext context,
 			TcpProtocolHandle protocol,
 			short operation,
-			HashMap<String, Object> transportHeaders) throws ChannelException {
+			HashMap<String, Object> transportHeaders,
+			Serializer serializer) throws ChannelException {
 		// get method return
 		MethodCall methodCall = null;
 		MethodReturn methodReturn = null;
 		try {
-			methodCall = this.serializer.deserializeMethodCall(protocol.ReadContent());
+			methodCall = serializer.deserializeMethodCall(protocol.ReadContent());
 			methodReturn = this.onMethodCall(methodCall);
 		} catch (Throwable e) {
 			this.logger.error(e);
@@ -127,7 +129,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 		byte[] data = null;
 		try {
-			data = this.serializer.serializeMethodReturn(methodReturn);
+			data = serializer.serializeMethodReturn(methodReturn);
 		} catch (FormatterException e) {
 			this.logger.error(e);
 			transportHeaders.put(TcpTransportHeader.StatusCode, 400);
