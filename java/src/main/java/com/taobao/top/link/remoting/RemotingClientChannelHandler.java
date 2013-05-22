@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import remoting.protocol.NotSupportedException;
 import remoting.protocol.tcp.TcpContentDelimiter;
 import remoting.protocol.tcp.TcpOperations;
-import remoting.protocol.tcp.TcpProtocolHandle;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
@@ -17,6 +16,8 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelHandler;
+import com.taobao.top.link.remoting.protocol.RemotingTcpProtocolHandle;
+import com.taobao.top.link.remoting.protocol.RemotingTransportHeader;
 
 public class RemotingClientChannelHandler implements ChannelHandler {
 	private Logger logger;
@@ -52,7 +53,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		String flag = Integer.toString(this.flagAtomic.incrementAndGet());
 
 		ByteBuffer requestBuffer = BufferManager.getBuffer();
-		TcpProtocolHandle handle = new TcpProtocolHandle(requestBuffer);
+		RemotingTcpProtocolHandle handle = new RemotingTcpProtocolHandle(requestBuffer);
 		handle.WritePreamble();
 		handle.WriteMajorVersion();
 		handle.WriteMinorVersion();
@@ -82,7 +83,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 
 	@Override
 	public void onMessage(ChannelContext context) {
-		TcpProtocolHandle protocol = new TcpProtocolHandle((ByteBuffer) context.getMessage());
+		RemotingTcpProtocolHandle protocol = new RemotingTcpProtocolHandle((ByteBuffer) context.getMessage());
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();

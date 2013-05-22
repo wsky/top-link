@@ -10,7 +10,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import remoting.protocol.NotSupportedException;
 import remoting.protocol.tcp.TcpContentDelimiter;
 import remoting.protocol.tcp.TcpOperations;
-import remoting.protocol.tcp.TcpProtocolHandle;
 import remoting.protocol.tcp.TcpTransportHeader;
 
 import com.taobao.top.link.BufferManager;
@@ -21,6 +20,8 @@ import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.SimpleChannelHandler;
 import com.taobao.top.link.channel.ChannelSender.SendHandler;
+import com.taobao.top.link.remoting.protocol.RemotingTcpProtocolHandle;
+import com.taobao.top.link.remoting.protocol.RemotingTransportHeader;
 
 public abstract class RemotingServerChannelHandler extends SimpleChannelHandler {
 	protected Logger logger;
@@ -64,7 +65,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	}
 
 	private void onMessage(final ChannelContext context, ByteBuffer buffer) throws ChannelException, NotSupportedException {
-		final TcpProtocolHandle protocol = new TcpProtocolHandle(buffer);
+		final RemotingTcpProtocolHandle protocol = new RemotingTcpProtocolHandle(buffer);
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();
@@ -107,7 +108,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	}
 
 	private void internalOnMessage(ChannelContext context,
-			TcpProtocolHandle protocol,
+			RemotingTcpProtocolHandle protocol,
 			short operation,
 			HashMap<String, Object> transportHeaders,
 			Serializer serializer) throws ChannelException {
@@ -142,7 +143,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 			HashMap<String, Object> transportHeaders,
 			byte[] data) throws ChannelException {
 		final ByteBuffer responseBuffer = BufferManager.getBuffer();
-		TcpProtocolHandle handle = new TcpProtocolHandle(responseBuffer);
+		RemotingTcpProtocolHandle handle = new RemotingTcpProtocolHandle(responseBuffer);
 		handle.WritePreamble();
 		handle.WriteMajorVersion();
 		handle.WriteMinorVersion();

@@ -1,4 +1,4 @@
-package com.taobao.top.link.remoting;
+package com.taobao.top.link.remoting.protocol;
 
 public class RemotingTransportHeader {
 	public final static String Flag = "Flag";
