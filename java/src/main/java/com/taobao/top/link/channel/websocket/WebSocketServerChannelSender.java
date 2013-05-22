@@ -26,8 +26,8 @@ public class WebSocketServerChannelSender implements ServerChannelSender {
 	}
 
 	@Override
-	public void close(int statusCode, String reasonText) {
-		this.ctx.getChannel().write(new CloseWebSocketFrame(statusCode, reasonText));
+	public void close(String reason) {
+		this.ctx.getChannel().write(new CloseWebSocketFrame(1000, reason));
 	}
 
 	@Override
