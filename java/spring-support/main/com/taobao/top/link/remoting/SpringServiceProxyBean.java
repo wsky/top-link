@@ -9,10 +9,11 @@ import com.taobao.top.link.BufferManager;
 
 // easy support spring bean
 public class SpringServiceProxyBean implements FactoryBean {
-
+	private static SerializationFactory serializationFactory = new CrossLanguageSerializationFactory();
 	private URI uri;
 	private Class<?> interfaceType;
 	private int executionTimeout;
+	private String format;
 
 	public void setInterfaceName(String interfaceName) throws ClassNotFoundException {
 		this.interfaceType = Class.forName(interfaceName);
@@ -30,12 +31,16 @@ public class SpringServiceProxyBean implements FactoryBean {
 		headersBean.setUri(this.uri);
 	}
 
+	public void setSerialization(String format) {
+		this.format = format;
+	}
+
 	@Override
 	public Object getObject() throws Exception {
 		// TODO:find better way to init
 		RemotingConfiguration.configure().
 				loggerFactory(Util.getLoggerFactory(this)).
-				serializer(new CrossLanguageJsonSerializer());
+				serializer(serializationFactory.get(this.format));
 		// default set 2M max message size for client
 		// TODO:change to growing buffer
 		BufferManager.setBufferSize(1024 * 1024 * 2);

@@ -59,11 +59,11 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 			BufferManager.setBufferSize(this.maxMessageSize);
 
 		LoggerFactory loggerFactory = Util.getLoggerFactory(this);
-		
+
 		RemotingConfiguration.
 				configure().
 				loggerFactory(loggerFactory).
-				serializer(new CrossLanguageJsonSerializer()).
+				SerializationFactory(new CrossLanguageSerializationFactory()).
 				defaultServerChannelHandler(this.getServerHandler(loggerFactory)).
 				websocket(this.port).
 				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory)).
