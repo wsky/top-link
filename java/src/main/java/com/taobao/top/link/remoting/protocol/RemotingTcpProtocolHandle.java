@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import remoting.protocol.NotSupportedException;
+import remoting.protocol.tcp.TcpHeaderFormat;
 import remoting.protocol.tcp.TcpProtocolHandle;
 
 public class RemotingTcpProtocolHandle extends TcpProtocolHandle {
@@ -13,11 +15,34 @@ public class RemotingTcpProtocolHandle extends TcpProtocolHandle {
 
 	@Override
 	protected boolean writeExtendedHeader(Entry<String, Object> entry) {
-		return super.writeExtendedHeader(entry);
+		if (entry.getKey().equalsIgnoreCase(RemotingTransportHeader.Flag)) {
+			this.WriteUInt16(RemotingTcpHeaders.Flag);
+			this.WriteByte(TcpHeaderFormat.Int32);
+			this.WriteInt32((Integer) entry.getValue());
+			return true;
+		}
+		if (entry.getKey().equalsIgnoreCase(RemotingTransportHeader.Format)) {
+			this.WriteUInt16(RemotingTcpHeaders.Format);
+			this.WriteByte(TcpHeaderFormat.CountedString);
+			this.WriteCountedString(entry.getValue().toString());
+			return true;
+		}
+		return false;
 	}
-	
+
 	@Override
-	protected boolean readExtendedHeader(short headerType, HashMap<String, Object> dict) {
-		return super.readExtendedHeader(headerType, dict);
+	protected boolean readExtendedHeader(short headerType, 
+			HashMap<String, Object> dict) throws NotSupportedException {
+		if (headerType == RemotingTcpHeaders.Flag) {
+			this.ReadByte();
+			dict.put(RemotingTransportHeader.Flag, this.ReadInt32());
+			return true;
+		}
+		if (headerType == RemotingTcpHeaders.Format) {
+			this.ReadByte();
+			dict.put(RemotingTransportHeader.Format, this.ReadCountedString());
+			return true;
+		}
+		return false;
 	}
 }

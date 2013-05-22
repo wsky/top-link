@@ -22,7 +22,7 @@ import com.taobao.top.link.remoting.protocol.RemotingTransportHeader;
 public class RemotingClientChannelHandler implements ChannelHandler {
 	private Logger logger;
 	private AtomicInteger flagAtomic;
-	private HashMap<String, RemotingCallback> callbacks = new HashMap<String, RemotingCallback>();
+	private HashMap<Integer, RemotingCallback> callbacks = new HashMap<Integer, RemotingCallback>();
 	private Serializer serializer = new DefaultSerializer();
 
 	public RemotingClientChannelHandler(LoggerFactory loggerFactory, AtomicInteger flagAtomic) {
@@ -50,7 +50,7 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 			byte[] data,
 			int dataOffset,
 			int dataLength) {
-		String flag = Integer.toString(this.flagAtomic.incrementAndGet());
+		Integer flag = this.flagAtomic.incrementAndGet();
 
 		ByteBuffer requestBuffer = BufferManager.getBuffer();
 		RemotingTcpProtocolHandle handle = new RemotingTcpProtocolHandle(requestBuffer);
@@ -140,13 +140,13 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 	@Override
 	public void onError(ChannelContext context) {
 		// all is fail!
-		for (Entry<String, RemotingCallback> i : this.callbacks.entrySet()) {
+		for (Entry<Integer, RemotingCallback> i : this.callbacks.entrySet()) {
 			try {
 				i.getValue().onException(context.getError());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		this.callbacks = new HashMap<String, RemotingCallback>();
+		this.callbacks = new HashMap<Integer, RemotingCallback>();
 	}
 }

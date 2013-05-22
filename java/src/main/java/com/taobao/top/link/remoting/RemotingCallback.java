@@ -3,7 +3,7 @@ package com.taobao.top.link.remoting;
 // one callback per rpc-call
 public abstract class RemotingCallback {
 
-	public String flag;
+	public Integer flag;
 	
 	public Class<?> returnType;
 
