@@ -13,7 +13,6 @@ import com.taobao.top.link.channel.ClientChannelSharedSelector;
 
 // easy support spring bean
 public class SpringServiceProxyBean implements FactoryBean {
-	private static SerializationFactory serializationFactory;
 	private static ClientChannelSelector channelSelector;
 	private static RemotingClientChannelHandler channelHandler;
 	static {
@@ -21,9 +20,9 @@ public class SpringServiceProxyBean implements FactoryBean {
 		// TODO:change to growing buffer
 		BufferManager.setBufferSize(1024 * 1024 * 2);
 		LoggerFactory loggerFactory = Util.getLoggerFactory(new Object());
-		serializationFactory = new CrossLanguageSerializationFactory();
 		channelSelector = new ClientChannelSharedSelector(loggerFactory);
 		channelHandler = new RemotingClientChannelHandler(loggerFactory, new AtomicInteger(0));
+		channelHandler.setSerializationFactory(new CrossLanguageSerializationFactory());
 	}
 
 	private URI uri;
@@ -54,9 +53,8 @@ public class SpringServiceProxyBean implements FactoryBean {
 	@Override
 	public Object getObject() throws Exception {
 		DynamicProxy proxy = new DynamicProxy(this.uri, channelSelector, channelHandler);
-		if (this.executionTimeout > 0) {
-			proxy.setExecutionTimeout(this.executionTimeout);
-		}
+		proxy.setSerializationFormat(this.format);
+		proxy.setExecutionTimeout(this.executionTimeout);
 		return proxy.create(this.interfaceType, this.uri);
 	}
 

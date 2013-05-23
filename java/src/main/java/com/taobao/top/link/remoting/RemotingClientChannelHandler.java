@@ -2,7 +2,9 @@ package com.taobao.top.link.remoting;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import remoting.protocol.NotSupportedException;
@@ -22,16 +24,18 @@ import com.taobao.top.link.remoting.protocol.RemotingTransportHeader;
 public class RemotingClientChannelHandler implements ChannelHandler {
 	private Logger logger;
 	private AtomicInteger flagAtomic;
-	private HashMap<Integer, RemotingCallback> callbacks = new HashMap<Integer, RemotingCallback>();
-	private Serializer serializer = new DefaultSerializer();
+	private Map<Integer, RemotingCallback> callbacks;
+	private SerializationFactory serializationFactory;
 
 	public RemotingClientChannelHandler(LoggerFactory loggerFactory, AtomicInteger flagAtomic) {
 		this.logger = loggerFactory.create(this);
 		this.flagAtomic = flagAtomic;
+		this.callbacks = new ConcurrentHashMap<Integer, RemotingCallback>();
+		this.serializationFactory = new DefaultSerializationFactory();
 	}
 
-	public void setSerializer(Serializer serializer) {
-		this.serializer = serializer;
+	public void setSerializationFactory(SerializationFactory serializationFactory) {
+		this.serializationFactory = serializationFactory;
 	}
 
 	public ByteBuffer pending(RemotingCallback handler,
@@ -39,8 +43,15 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 			HashMap<String, Object> transportHeaders,
 			MethodCall methodCall)
 			throws FormatterException {
-		byte[] data = this.serializer.serializeMethodCall(methodCall);
-		return this.pending(handler, operation, transportHeaders, data, 0, data.length);
+		byte[] data = this.serializationFactory.
+				get(handler.serializationFormat).
+				serializeMethodCall(methodCall);
+		return this.pending(handler, 
+				operation, 
+				transportHeaders, 
+				data, 
+				0, 
+				data.length);
 	}
 
 	// act as formatter sink
@@ -61,12 +72,12 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 		handle.WriteContentDelimiter(TcpContentDelimiter.ContentLength);
 		handle.WriteContentLength(data.length);
 		transportHeaders.put(RemotingTransportHeader.Flag, flag);
-		transportHeaders.put(RemotingTransportHeader.Format, this.serializer.getName());
+		transportHeaders.put(RemotingTransportHeader.Format, handler.serializationFormat);
 		handle.WriteTransportHeaders(transportHeaders);
 		handle.WriteContent(data);
 
 		handler.flag = flag;
-		this.callbacks.put(handler.flag, handler);// concurrent?
+		this.callbacks.put(handler.flag, handler);
 		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.RPC_PENDING_CALL, flag);
 
@@ -124,7 +135,9 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 
 		MethodReturn methodReturn = null;
 		try {
-			methodReturn = this.serializer.deserializeMethodReturn(protocol.ReadContent(), callback.returnType);
+			methodReturn = this.serializationFactory.
+					get(callback.serializationFormat).
+					deserializeMethodReturn(protocol.ReadContent(), callback.returnType);
 		} catch (FormatterException e) {
 			callback.onException(e);
 			return;

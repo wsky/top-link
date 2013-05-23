@@ -18,10 +18,10 @@ import com.taobao.top.link.channel.ClientChannelSelector;
 import com.taobao.top.link.channel.ChannelSender.SendHandler;
 
 public class DynamicProxy implements InvocationHandler {
-	// do not make execution timeout
-	private int defaultTimeout = 0;
+	private int executionTimeout = 0;
 	private URI remoteUri;
 	private String uriString;
+	private String serializationFormat;
 	private ClientChannelSelector selector;
 	private RemotingClientChannelHandler channelHandler;
 
@@ -43,7 +43,11 @@ public class DynamicProxy implements InvocationHandler {
 	}
 
 	public void setExecutionTimeout(int millisecond) {
-		this.defaultTimeout = millisecond;
+		this.executionTimeout = millisecond;
+	}
+
+	public void setSerializationFormat(String format) {
+		this.serializationFormat = format;
 	}
 
 	@Override
@@ -52,7 +56,6 @@ public class DynamicProxy implements InvocationHandler {
 		methodCall.Uri = this.uriString;
 		methodCall.MethodName = method.getName();
 		methodCall.TypeName = method.getDeclaringClass().getName();
-		// support method overloaded just in java
 		methodCall.MethodSignature = method.getParameterTypes();
 		methodCall.Args = args;
 
@@ -74,7 +77,7 @@ public class DynamicProxy implements InvocationHandler {
 
 	public MethodReturn invoke(MethodCall methodCall,
 			Class<?> returnType) throws RemotingException, FormatterException {
-		return this.invoke(methodCall, returnType, this.defaultTimeout);
+		return this.invoke(methodCall, returnType, this.executionTimeout);
 	}
 
 	public MethodReturn invoke(MethodCall methodCall,
@@ -87,6 +90,7 @@ public class DynamicProxy implements InvocationHandler {
 			int executionTimeoutMillisecond) throws RemotingException, FormatterException {
 		SynchronizedRemotingCallback syncCallback = new SynchronizedRemotingCallback();
 		syncCallback.returnType = returnType;
+		syncCallback.serializationFormat = this.serializationFormat;
 
 		HashMap<String, Object> transportHeaders = new HashMap<String, Object>();
 		transportHeaders.put(TcpTransportHeader.RequestUri, this.uriString);

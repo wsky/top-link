@@ -38,14 +38,9 @@ public class RemotingConfiguration {
 		return this;
 	}
 
-	// TODO:refact to sink desgion
-	public RemotingConfiguration serializer(Serializer serializer) {
-		RemotingService.setSerializer(serializer);
-		return this;
-	}
-
 	public RemotingConfiguration SerializationFactory(SerializationFactory serializationFactory) {
 		this.serializationFactory = serializationFactory;
+		RemotingService.setSerializationFactory(serializationFactory);
 		return this;
 	}
 

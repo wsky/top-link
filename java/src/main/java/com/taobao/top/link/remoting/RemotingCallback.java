@@ -4,6 +4,8 @@ package com.taobao.top.link.remoting;
 public abstract class RemotingCallback {
 
 	public Integer flag;
+
+	public String serializationFormat;
 	
 	public Class<?> returnType;
 

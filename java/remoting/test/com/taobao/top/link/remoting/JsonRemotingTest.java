@@ -26,18 +26,20 @@ public class JsonRemotingTest {
 	public static void init() throws URISyntaxException {
 		uri = new URI("ws://localhost:8888/json");
 
-		CrossLanguageJsonSerializer serializer = new CrossLanguageJsonSerializer();
+		Serializer serializer = new CrossLanguageJsonSerializer();
+		SerializationFactory serializationFactory = new CrossLanguageSerializationFactory();
 
 		DefaultRemotingServerChannelHandler serverHandler = new DefaultRemotingServerChannelHandler();
-		serverHandler.setSerializationFactory(new CrossLanguageSerializationFactory());
+		serverHandler.setSerializationFactory(serializationFactory);
 		serverHandler.addProcessor("json", new SerialService());
 		serverChannel = new WebSocketServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(serverHandler);
 		serverChannel.run();
 
 		RemotingClientChannelHandler clientHandler = new RemotingClientChannelHandler(DefaultLoggerFactory.getDefault(), new AtomicInteger(0));
-		clientHandler.setSerializer(serializer);
+		clientHandler.setSerializationFactory(serializationFactory);
 		proxy = new DynamicProxy(uri, new ClientChannelPooledSelector(), clientHandler);
+		proxy.setSerializationFormat(serializer.getName());
 		serialInterface = (SerialInterface) proxy.create(SerialInterface.class, uri);
 	}
 

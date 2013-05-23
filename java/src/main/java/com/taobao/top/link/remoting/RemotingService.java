@@ -12,7 +12,7 @@ public class RemotingService {
 	private static LoggerFactory loggerFactory = DefaultLoggerFactory.getDefault();
 	private static ClientChannelSelector channelSelector;
 	private static RemotingClientChannelHandler channelHandler;
-	private static Serializer serializer;
+	private static SerializationFactory serializationFactory;
 
 	protected static void setLoggerFactory(LoggerFactory loggerFactory) {
 		RemotingService.loggerFactory = loggerFactory;
@@ -22,12 +22,18 @@ public class RemotingService {
 		channelSelector = selector;
 	}
 
-	protected static void setSerializer(Serializer serializer) {
-		RemotingService.serializer = serializer;
+	protected static void setSerializationFactory(SerializationFactory serializationFactory) {
+		RemotingService.serializationFactory = serializationFactory;
 	}
 
 	public static Object connect(URI remoteUri, Class<?> interfaceClass) {
-		return connect(remoteUri).create(interfaceClass, remoteUri);
+		return connect(remoteUri, interfaceClass, null);
+	}
+
+	public static Object connect(URI remoteUri, Class<?> interfaceClass, String serializationFormat) {
+		DynamicProxy proxy = connect(remoteUri);
+		proxy.setSerializationFormat(serializationFormat);
+		return proxy.create(interfaceClass, remoteUri);
 	}
 
 	public static DynamicProxy connect(URI remoteUri) {
@@ -37,8 +43,8 @@ public class RemotingService {
 	private synchronized static RemotingClientChannelHandler getChannelHandler() {
 		if (channelHandler == null)
 			channelHandler = new RemotingClientChannelHandler(loggerFactory, new AtomicInteger(0));
-		if (serializer != null)
-			channelHandler.setSerializer(serializer);
+		if (serializationFactory != null)
+			channelHandler.setSerializationFactory(serializationFactory);
 		return channelHandler;
 	}
 
