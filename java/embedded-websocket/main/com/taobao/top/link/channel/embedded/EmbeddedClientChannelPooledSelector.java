@@ -8,6 +8,14 @@ import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ClientChannelPooledSelector;
 
 public class EmbeddedClientChannelPooledSelector extends ClientChannelPooledSelector {
+	public EmbeddedClientChannelPooledSelector() {
+		super();
+	}
+
+	public EmbeddedClientChannelPooledSelector(LoggerFactory loggerFactory) {
+		super(loggerFactory);
+	}
+
 	protected ChannelPool createChannelPool(LoggerFactory loggerFactory, URI uri, int timeout) {
 		return new ChannelPool(loggerFactory, uri, timeout);
 	}
