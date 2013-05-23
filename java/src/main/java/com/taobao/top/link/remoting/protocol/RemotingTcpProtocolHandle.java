@@ -22,16 +22,18 @@ public class RemotingTcpProtocolHandle extends TcpProtocolHandle {
 			return true;
 		}
 		if (entry.getKey().equalsIgnoreCase(RemotingTransportHeader.Format)) {
-			this.WriteUInt16(RemotingTcpHeaders.Format);
-			this.WriteByte(TcpHeaderFormat.CountedString);
-			this.WriteCountedString(entry.getValue().toString());
+			if (entry.getValue() != null) {
+				this.WriteUInt16(RemotingTcpHeaders.Format);
+				this.WriteByte(TcpHeaderFormat.CountedString);
+				this.WriteCountedString(entry.getValue().toString());
+			}
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	protected boolean readExtendedHeader(short headerType, 
+	protected boolean readExtendedHeader(short headerType,
 			HashMap<String, Object> dict) throws NotSupportedException {
 		if (headerType == RemotingTcpHeaders.Flag) {
 			this.ReadByte();
