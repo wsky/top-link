@@ -10,6 +10,7 @@ import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.ClientChannel;
+import com.taobao.top.link.channel.ServerChannelSender;
 
 public class EndpointProxy {
 	private Identity identity;
@@ -64,9 +65,15 @@ public class EndpointProxy {
 		return this.identity;
 	}
 
-	// TODO:senders should be auto check alive
-	public boolean canSend() {
-		return this.senders.size() > 0;
+	public boolean hasValidSender() {
+		for (ChannelSender sender : this.senders) {
+			if ((sender instanceof ServerChannelSender &&
+					((ServerChannelSender) sender).isOpen()) ||
+					(sender instanceof ClientChannel &&
+					((ClientChannel) sender).isConnected()))
+				return true;
+		}
+		return false;
 	}
 
 	public HashMap<String, String> sendAndWait(
