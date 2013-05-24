@@ -21,7 +21,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 	private String path;
 	private int maxMessageSize;
 	private int maxThreadCount = 200;
-	private DefaultRemotingServerChannelHandler handler;
+	private HandshakerBean handshaker;
 
 	public void setPort(String port) {
 		this.port = Integer.parseInt(port);
@@ -39,8 +39,8 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 		this.maxThreadCount = Integer.parseInt(maxThreadCount);
 	}
 
-	public void setServerHandler(DefaultRemotingServerChannelHandler handler) {
-		this.handler = handler;
+	public void setHandshaker(HandshakerBean handshaker) {
+		this.handshaker = handshaker;
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 				configure().
 				loggerFactory(loggerFactory).
 				SerializationFactory(new CrossLanguageSerializationFactory()).
-				defaultServerChannelHandler(this.getServerHandler(loggerFactory)).
+				defaultServerChannelHandler(new SpringRemotingServerChannelHandler(loggerFactory, this.handshaker)).
 				websocket(this.port).
 				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory)).
 				businessThreadPool(new ThreadPoolExecutor(20,
@@ -72,13 +72,5 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 						300,
 						TimeUnit.SECONDS,
 						new SynchronousQueue<Runnable>()));
-	}
-
-	private DefaultRemotingServerChannelHandler getServerHandler(LoggerFactory loggerFactory) {
-		if (this.handler != null) {
-			this.handler.setLoggerFactory(loggerFactory);
-			return this.handler;
-		}
-		return new DefaultRemotingServerChannelHandler(loggerFactory);
 	}
 }

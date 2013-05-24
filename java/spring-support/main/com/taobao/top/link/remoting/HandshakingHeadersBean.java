@@ -7,13 +7,13 @@ import com.taobao.top.link.channel.websocket.WebSocketClientHelper;
 
 public class HandshakingHeadersBean {
 	
-	private Map<String, String> headers;
+	protected Map<String, String> headers;
 
 	public void setHeaders(Map<String, String> headers) {
 		this.headers = headers;
 	}
 	
-	public void setUri(URI uri) {
+	protected final void setUri(URI uri) {
 		WebSocketClientHelper.setHeaders(uri, this.headers);
 	}
 }

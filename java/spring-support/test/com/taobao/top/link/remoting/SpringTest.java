@@ -17,7 +17,6 @@ public class SpringTest {
 			+ "<beans>"
 
 			+ "	<bean name=\"headers\" class=\"com.taobao.top.link.remoting.HandshakingHeadersBean\">"
-			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
 			+ "		<property name=\"headers\">"
 			+ "			<map>"
 			+ "				<entry key=\"id\"><value>test</value></entry>"
@@ -37,15 +36,15 @@ public class SpringTest {
 
 			+ "	<bean name=\"sampleService\" class=\"com.taobao.top.link.remoting.SampleService\" />"
 
-			+ "	<bean name=\"customServerHandler\" class=\"com.taobao.top.link.remoting.CustomServerChannelHandler\" />"
+			+ "	<bean name=\"handshaker\" class=\"com.taobao.top.link.remoting.CustomHandshaker\" />"
 
 			+ "	<bean name=\"server\" class=\"com.taobao.top.link.remoting.SpringServerBean\">"
 			+ "		<property name=\"port\" value=\"8889\" />"
 			+ "		<property name=\"path\" value=\"api\" />"
 			+ "		<property name=\"maxMessageSize\" value=\"1024\" />"
 			+ "		<property name=\"maxBusinessThreadCount\" value=\"200\" />"
-			+ "		<property name=\"serverHandler\">"
-			+ "			<ref bean=\"customServerHandler\" />"
+			+ "		<property name=\"handshaker\">"
+			+ "			<ref bean=\"handshaker\" />"
 			+ "		</property>"
 			+ "</bean>"
 
