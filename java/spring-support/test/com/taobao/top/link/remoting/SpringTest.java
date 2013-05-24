@@ -2,6 +2,8 @@ package com.taobao.top.link.remoting;
 
 import static org.junit.Assert.*;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ByteArrayResource;
+
+import com.taobao.top.link.channel.websocket.WebSocketServerChannelSender;
 
 public class SpringTest {
 	private static String beansXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -95,5 +99,30 @@ public class SpringTest {
 	public void invoke_proxy_test() {
 		SampleInterface sampleInterface = (SampleInterface) beanFactory.getBean("test");
 		assertEquals("hi", sampleInterface.echo("hi"));
+	}
+
+	@Test
+	public void context_test() throws InterruptedException {
+		final CountDownLatch latch = new CountDownLatch(1);
+		final MethodCallContextBean bean = new MethodCallContextBean();
+		
+		MethodCallContext callContext = new MethodCallContext(null);
+		callContext.setCallContext("key", new Object());
+		
+		MethodCallContextBean.setCurrentContext(callContext);
+		assertNotNull(bean.get("key"));
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				MethodCallContextBean.setCurrentContext(
+						new MethodCallContext(new WebSocketServerChannelSender(null)));
+				assertNull(bean.get("key"));
+				latch.countDown();
+			}
+		}).start();
+
+		latch.await();
+		assertNotNull(bean.get("key"));
 	}
 }
