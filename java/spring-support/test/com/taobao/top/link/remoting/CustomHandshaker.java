@@ -7,8 +7,11 @@ import com.taobao.top.link.LinkException;
 
 public class CustomHandshaker implements HandshakerBean {
 	@Override
-	public void onHandshake(List<Entry<String, String>> headers) throws Exception {
+	public void onHandshake(List<Entry<String, String>> headers, ContextBean context) throws Exception {
 		for (Entry<String, String> entry : headers) {
+			// custom your context for this connection
+			context.set(entry.getKey(), entry.getValue());
+			// validate something
 			if (entry.getKey().equalsIgnoreCase("id"))
 				return;
 		}
