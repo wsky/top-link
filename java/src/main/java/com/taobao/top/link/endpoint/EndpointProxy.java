@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Text;
@@ -18,12 +19,13 @@ public class EndpointProxy {
 	private String token;
 	private List<ChannelSender> senders;
 	private HashMap<String, ClientChannel> clientChannels;
-
+	private Random random;
 	private Endpoint endpoint;
 
 	protected EndpointProxy(Endpoint endpoint) {
 		this.senders = new ArrayList<ChannelSender>();
 		this.clientChannels = new HashMap<String, ClientChannel>();
+		this.random = new Random();
 		this.endpoint = endpoint;
 	}
 
@@ -115,6 +117,6 @@ public class EndpointProxy {
 			throw new ChannelException(Text.E_NO_SENDER);
 		if (this.senders.contains(sender))
 			return sender;
-		return this.senders.get(0);
+		return this.senders.get(this.random.nextInt(this.senders.size()));
 	}
 }
