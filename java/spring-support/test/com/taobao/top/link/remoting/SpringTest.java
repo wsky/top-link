@@ -41,6 +41,7 @@ public class SpringTest {
 			+ "	<bean name=\"sampleService\" class=\"com.taobao.top.link.remoting.SampleService\" />"
 
 			+ "	<bean name=\"handshaker\" class=\"com.taobao.top.link.remoting.CustomHandshaker\" />"
+			+ "	<bean name=\"callContext\" class=\"com.taobao.top.link.remoting.MethodCallContextBean\" />"
 
 			+ "	<bean name=\"server\" class=\"com.taobao.top.link.remoting.SpringServerBean\">"
 			+ "		<property name=\"port\" value=\"8889\" />"
@@ -102,13 +103,18 @@ public class SpringTest {
 	}
 
 	@Test
+	public void call_context_bean_test() {
+		assertNotNull((MethodCallContextBean) beanFactory.getBean("callContext"));
+	}
+
+	@Test
 	public void context_test() throws InterruptedException {
 		final CountDownLatch latch = new CountDownLatch(1);
 		final MethodCallContextBean bean = new MethodCallContextBean();
-		
+
 		MethodCallContext callContext = new MethodCallContext(null);
 		callContext.setCallContext("key", new Object());
-		
+
 		MethodCallContextBean.setCurrentContext(callContext);
 		assertNotNull(bean.get("key"));
 
