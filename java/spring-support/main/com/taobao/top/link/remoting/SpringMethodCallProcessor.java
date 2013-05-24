@@ -13,7 +13,7 @@ public class SpringMethodCallProcessor implements MethodCallProcessor {
 	}
 
 	@Override
-	public MethodReturn process(MethodCall methodCall) throws Throwable {
+	public MethodReturn process(MethodCall methodCall, MethodCallContext callContext) throws Throwable {
 		Object target = services.get(methodCall.TypeName);
 		MethodReturn methodReturn = new MethodReturn();
 		methodReturn.ReturnValue = target.getClass()
@@ -25,7 +25,7 @@ public class SpringMethodCallProcessor implements MethodCallProcessor {
 	public void register(String serviceInterface, Object serviceObject) {
 		this.services.put(serviceInterface, serviceObject);
 	}
-	
+
 	private void readServices(ListableBeanFactory beanFactory) {
 		String[] names = beanFactory.getBeanNamesForType(ServiceBean.class);
 		for (String n : names) {

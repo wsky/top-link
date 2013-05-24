@@ -27,7 +27,7 @@ public class TimingTest {
 		serverChannel = new WebSocketServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public MethodReturn onMethodCall(MethodCall methodCall) {
+			public MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) {
 				MethodReturn methodReturn = new MethodReturn();
 				methodReturn.ReturnValue = methodCall.Args[0];
 				return methodReturn;

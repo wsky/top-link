@@ -30,7 +30,7 @@ public class RemotingTest {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public MethodReturn onMethodCall(MethodCall methodCall) {
+			public MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -57,7 +57,7 @@ public class RemotingTest {
 		final WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public MethodReturn onMethodCall(MethodCall methodCall) {
+			public MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -89,8 +89,8 @@ public class RemotingTest {
 			assertEquals("channel broken with unknown error", e.getMessage());
 			throw e;
 		}
-		
-		//redo
+
+		// redo
 		serverChannel.run();
 		proxy.invoke(new MethodCall());
 	}
@@ -104,7 +104,7 @@ public class RemotingTest {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(uri.getPort(), cumulative);
 		serverChannel.setChannelHandler(new RemotingServerChannelHandler() {
 			@Override
-			public MethodReturn onMethodCall(MethodCall methodCall) {
+			public MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) {
 				MethodReturn methodReturn = new MethodReturn();
 				methodReturn.ReturnValue = "ok";
 				return methodReturn;

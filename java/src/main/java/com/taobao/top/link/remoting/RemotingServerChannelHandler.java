@@ -3,6 +3,8 @@ package com.taobao.top.link.remoting;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -48,7 +50,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		this.serializationFactory = serializationFactory;
 	}
 
-	public abstract MethodReturn onMethodCall(MethodCall methodCall) throws Throwable;
+	public abstract MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) throws Throwable;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -73,6 +75,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		protocol.ReadContentDelimiter();
 		protocol.ReadContentLength();
 		final HashMap<String, Object> transportHeaders = protocol.ReadTransportHeaders();
+		final MethodCallContext callContext = this.createContext(transportHeaders);
 		final Serializer serializer = this.serializationFactory.get(transportHeaders.get(RemotingTransportHeader.Format));
 		Object flag = transportHeaders.get(RemotingTransportHeader.Flag);
 		transportHeaders.clear();
@@ -80,7 +83,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 		// just use netty io-woker thread, count=cpucore
 		if (this.threadPool == null) {
-			this.internalOnMessage(context, protocol, operation, transportHeaders, serializer);
+			this.internalOnMessage(context, callContext, protocol, operation, transportHeaders, serializer);
 			return;
 		}
 
@@ -90,7 +93,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 				@Override
 				public void run() {
 					try {
-						internalOnMessage(context, protocol, operation, transportHeaders, serializer);
+						internalOnMessage(context, callContext, protocol, operation, transportHeaders, serializer);
 					} catch (ChannelException e) {
 						logger.error(e);
 					}
@@ -108,6 +111,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	}
 
 	private void internalOnMessage(ChannelContext context,
+			MethodCallContext callContext,
 			RemotingTcpProtocolHandle protocol,
 			short operation,
 			HashMap<String, Object> transportHeaders,
@@ -117,7 +121,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		MethodReturn methodReturn = null;
 		try {
 			methodCall = serializer.deserializeMethodCall(protocol.ReadContent());
-			methodReturn = this.onMethodCall(methodCall);
+			methodReturn = this.onMethodCall(methodCall, callContext);
 		} catch (Throwable e) {
 			this.logger.error(e);
 			methodReturn = new MethodReturn();
@@ -161,5 +165,12 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 				BufferManager.returnBuffer(responseBuffer);
 			}
 		});
+	}
+
+	private MethodCallContext createContext(Map<String, Object> headers) {
+		MethodCallContext context = new MethodCallContext();
+		for (Entry<String, Object> h : headers.entrySet())
+			context.setCallContext(h.getKey(), h.getValue());
+		return context;
 	}
 }

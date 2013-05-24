@@ -23,13 +23,13 @@ public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHa
 	}
 
 	@Override
-	public final MethodReturn onMethodCall(MethodCall methodCall) throws Throwable {
+	public final MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) throws Throwable {
 		// dispatch methodCall to service
 		String objectUri = new URI(methodCall.Uri).getRawPath().trim();
 		MethodCallProcessor processor = this.services.get(objectUri);
 		if (processor == null)
 			throw new NullPointerException(String.format(
 					"processor not found for objectUri: %s", objectUri));
-		return processor.process(methodCall);
+		return processor.process(methodCall, callContext);
 	}
 }
