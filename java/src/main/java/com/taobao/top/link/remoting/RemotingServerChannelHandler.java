@@ -75,7 +75,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		protocol.ReadContentDelimiter();
 		protocol.ReadContentLength();
 		final HashMap<String, Object> transportHeaders = protocol.ReadTransportHeaders();
-		final MethodCallContext callContext = this.createContext(transportHeaders);
+		final MethodCallContext callContext = this.createCallContext(context, transportHeaders);
 		final Serializer serializer = this.serializationFactory.get(transportHeaders.get(RemotingTransportHeader.Format));
 		Object flag = transportHeaders.get(RemotingTransportHeader.Flag);
 		transportHeaders.clear();
@@ -167,10 +167,10 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		});
 	}
 
-	private MethodCallContext createContext(Map<String, Object> headers) {
-		MethodCallContext context = new MethodCallContext();
+	private MethodCallContext createCallContext(ChannelContext channelContext, Map<String, Object> headers) {
+		MethodCallContext callContext = new MethodCallContext(channelContext.getSender());
 		for (Entry<String, Object> h : headers.entrySet())
-			context.setCallContext(h.getKey(), h.getValue());
-		return context;
+			callContext.setCallContext(h.getKey(), h.getValue());
+		return callContext;
 	}
 }

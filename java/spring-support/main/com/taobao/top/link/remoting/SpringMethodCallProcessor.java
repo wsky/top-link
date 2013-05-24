@@ -14,12 +14,17 @@ public class SpringMethodCallProcessor implements MethodCallProcessor {
 
 	@Override
 	public MethodReturn process(MethodCall methodCall, MethodCallContext callContext) throws Throwable {
-		Object target = services.get(methodCall.TypeName);
-		MethodReturn methodReturn = new MethodReturn();
-		methodReturn.ReturnValue = target.getClass()
-				.getMethod(methodCall.MethodName, methodCall.MethodSignature)
-				.invoke(target, methodCall.Args);
-		return methodReturn;
+		try {
+			MethodCallContextBean.setCurrentContext(callContext);
+			Object target = services.get(methodCall.TypeName);
+			MethodReturn methodReturn = new MethodReturn();
+			methodReturn.ReturnValue = target.getClass()
+					.getMethod(methodCall.MethodName, methodCall.MethodSignature)
+					.invoke(target, methodCall.Args);
+			return methodReturn;
+		} finally {
+			MethodCallContextBean.setCurrentContext(null);
+		}
 	}
 
 	public void register(String serviceInterface, Object serviceObject) {

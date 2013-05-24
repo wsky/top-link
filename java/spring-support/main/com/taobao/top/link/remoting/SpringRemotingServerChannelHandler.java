@@ -25,7 +25,7 @@ public class SpringRemotingServerChannelHandler extends DefaultRemotingServerCha
 				new Context((ServerChannelSender) context.getSender()));
 	}
 
-	public class Context implements ContextBean {
+	public class Context implements ChannelContextBean {
 		private ServerChannelSender sender;
 
 		public Context(ServerChannelSender sender) {
