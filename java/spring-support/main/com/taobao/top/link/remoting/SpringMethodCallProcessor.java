@@ -1,5 +1,6 @@
 package com.taobao.top.link.remoting;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -18,9 +19,7 @@ public class SpringMethodCallProcessor implements MethodCallProcessor {
 			MethodCallContextBean.setCurrentContext(callContext);
 			Object target = services.get(methodCall.TypeName);
 			MethodReturn methodReturn = new MethodReturn();
-			methodReturn.ReturnValue = target.getClass()
-					.getMethod(methodCall.MethodName, methodCall.MethodSignature)
-					.invoke(target, methodCall.Args);
+			methodReturn.ReturnValue = this.getMethod(target, methodCall).invoke(target, methodCall.Args);
 			return methodReturn;
 		} finally {
 			MethodCallContextBean.setCurrentContext(null);
@@ -36,6 +35,14 @@ public class SpringMethodCallProcessor implements MethodCallProcessor {
 		for (String n : names) {
 			ServiceBean s = (ServiceBean) beanFactory.getBean(n);
 			this.register(s.getInterfaceName(), s.getTarget());
+		}
+	}
+
+	private Method getMethod(Object target, MethodCall methodCall) throws SecurityException, NoSuchMethodException {
+		try {
+			return target.getClass().getMethod(methodCall.MethodName, methodCall.MethodSignature);
+		} catch (NoSuchMethodException e) {
+			return target.getClass().getMethod(methodCall.MethodName);
 		}
 	}
 }
