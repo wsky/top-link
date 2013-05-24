@@ -1,6 +1,8 @@
 package com.taobao.top.link.channel.websocket;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -15,9 +17,21 @@ import com.taobao.top.link.channel.ServerChannelSender;
 
 public class WebSocketServerChannelSender implements ServerChannelSender {
 	private ChannelHandlerContext ctx;
+	private Map<Object, Object> context;
 
 	public WebSocketServerChannelSender(ChannelHandlerContext ctx) {
 		this.ctx = ctx;
+		this.context = new HashMap<Object, Object>();
+	}
+
+	@Override
+	public Object getContext(Object key) {
+		return this.context.get(key);
+	}
+	
+	@Override
+	public void setContext(Object key, Object value) {
+		this.context.put(key, value);
 	}
 
 	@Override

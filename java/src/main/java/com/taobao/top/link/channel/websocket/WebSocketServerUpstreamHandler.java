@@ -106,6 +106,8 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 			return;
 		}
 
+		this.renderServerChannelContext(req);
+
 		if (this.channelHandler != null) {
 			try {
 				this.channelHandler.onConnect(this.createContext(req.getHeaders()));
@@ -207,5 +209,10 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		for (Entry<String, String> h : request.getHeaders()) {
 			this.logger.debug("%s=%s", h.getKey(), h.getValue());
 		}
+	}
+
+	private void renderServerChannelContext(HttpRequest request) {
+		for (Entry<String, String> h : request.getHeaders())
+			this.sender.setContext(h.getKey(), h.getValue());
 	}
 }
