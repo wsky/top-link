@@ -102,6 +102,7 @@
               <sources>
                 <source>external/RemotingProtocolParser/java/src/main/java</source>
                 <source>spring-support/main</source>
+                <source>netty-support/main</source>
                 <source>external/websocket-client/src/main/java</source>
                 <source>embedded-websocket/main</source>
                 <source>remoting/main</source>
@@ -116,6 +117,7 @@
             <configuration>
               <sources>
                 <source>spring-support/test</source>
+                <source>netty-support/test</source>
                 <source>external/websocket-client/src/test/java</source>
                 <source>embedded-websocket/test</source>
                 <source>remoting/test</source>
