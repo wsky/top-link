@@ -1,6 +1,6 @@
 package com.taobao.top.link.endpoint;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import com.taobao.top.link.LinkException;
 
@@ -19,14 +19,14 @@ public class DefaultIdentity implements Identity {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Identity parse(Object data) throws LinkException {
-		HashMap<String, String> dict = (HashMap<String, String>) data;
+		Map<String, String> dict = (Map<String, String>) data;
 		return new DefaultIdentity(dict.get("name"));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render(Object to) {
-		HashMap<String, String> dict = (HashMap<String, String>) to;
+		Map<String, String> dict = (Map<String, String>) to;
 		dict.put("name", this.name);
 	}
 

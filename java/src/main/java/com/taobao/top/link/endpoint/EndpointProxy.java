@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.taobao.top.link.LinkException;
@@ -18,7 +19,7 @@ public class EndpointProxy {
 	// known by both side
 	private String token;
 	private List<ChannelSender> senders;
-	private HashMap<String, ClientChannel> clientChannels;
+	private Map<String, ClientChannel> clientChannels;
 	private Random random;
 	private Endpoint endpoint;
 
@@ -78,33 +79,33 @@ public class EndpointProxy {
 		return false;
 	}
 
-	public HashMap<String, String> sendAndWait(
-			HashMap<String, String> message) throws LinkException {
+	public Map<String, String> sendAndWait(
+			Map<String, String> message) throws LinkException {
 		return this.sendAndWait(message, Endpoint.TIMOUT);
 	}
 
-	public HashMap<String, String> sendAndWait(
-			HashMap<String, String> message, int timeout) throws LinkException {
+	public Map<String, String> sendAndWait(
+			Map<String, String> message, int timeout) throws LinkException {
 		return this.sendAndWait(null, message, timeout);
 	}
 
-	public HashMap<String, String> sendAndWait(ChannelSender sender,
-			HashMap<String, String> message, int timeout) throws LinkException {
+	public Map<String, String> sendAndWait(ChannelSender sender,
+			Map<String, String> message, int timeout) throws LinkException {
 		return this.endpoint.sendAndWait(this,
 				this.getSenders(sender),
 				this.createMessage(message),
 				timeout);
 	}
 
-	public void send(HashMap<String, String> message) throws ChannelException {
+	public void send(Map<String, String> message) throws ChannelException {
 		this.send(null, message);
 	}
 
-	public void send(ChannelSender sender, HashMap<String, String> message) throws ChannelException {
+	public void send(ChannelSender sender, Map<String, String> message) throws ChannelException {
 		this.endpoint.send(this.getSenders(sender), this.createMessage(message));
 	}
 
-	private Message createMessage(HashMap<String, String> message) {
+	private Message createMessage(Map<String, String> message) {
 		Message msg = new Message();
 		msg.messageType = MessageType.SEND;
 		msg.content = message;

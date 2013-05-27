@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LinkException;
@@ -103,7 +104,7 @@ public class Endpoint {
 
 	// connect to target via special uri
 	public synchronized EndpointProxy getEndpoint(
-			Identity target, URI uri, HashMap<String, String> extras) throws LinkException {
+			Identity target, URI uri, Map<String, String> extras) throws LinkException {
 		EndpointProxy e = this.getEndpoint(target);
 		// always clear, cached proxy will have broken channel
 		e.remove(uri);
@@ -114,7 +115,7 @@ public class Endpoint {
 		// connect message
 		Message msg = new Message();
 		msg.messageType = MessageType.CONNECT;
-		HashMap<String, String> content = new HashMap<String, String>();
+		Map<String, String> content = new HashMap<String, String>();
 		this.identity.render(content);
 		// pass extra data
 		if (extras != null)
@@ -142,7 +143,7 @@ public class Endpoint {
 		this.channelHandler.pending(message, sender);
 	}
 
-	protected HashMap<String, String> sendAndWait(EndpointProxy e,
+	protected Map<String, String> sendAndWait(EndpointProxy e,
 			ChannelSender sender,
 			Message message,
 			int timeout) throws LinkException {

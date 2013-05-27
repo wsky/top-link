@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -80,7 +81,7 @@ public class EndpointTest {
 		msg.put("key1", "abc中文");
 		msg.put("key2", "abcefg");
 
-		HashMap<String, String> reMsg = e2.getEndpoint(id1, URI).sendAndWait(msg);
+		Map<String, String> reMsg = e2.getEndpoint(id1, URI).sendAndWait(msg);
 		assertEquals(msg.get("key1"), reMsg.get("key1"));
 		assertEquals(msg.get("key2"), reMsg.get("key2"));
 
@@ -112,7 +113,7 @@ public class EndpointTest {
 			}
 
 			@Override
-			public void onMessage(HashMap<String, String> message) {
+			public void onMessage(Map<String, String> message) {
 			}
 		});
 		try {

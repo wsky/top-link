@@ -1,6 +1,6 @@
 package com.taobao.top.link.endpoint;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -10,14 +10,14 @@ public class MessageHandlerWrapper implements MessageHandler {
 	public CountDownLatch latch;
 	public Object sync = new Object();
 	public AtomicInteger receive = new AtomicInteger();
-	public HashMap<String, String> lastMessage;
+	public Map<String, String> lastMessage;
 
 	public boolean doError;
 	public boolean doReply;
 	public boolean print;
 
 	@Override
-	public void onMessage(HashMap<String, String> message) {
+	public void onMessage(Map<String, String> message) {
 		lastMessage = message;
 		receive.incrementAndGet();
 		if (print)

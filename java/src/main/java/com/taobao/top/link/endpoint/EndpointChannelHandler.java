@@ -3,6 +3,7 @@ package com.taobao.top.link.endpoint;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,9 +26,9 @@ public class EndpointChannelHandler implements ChannelHandler {
 	private Logger logger;
 	private Endpoint endpoint;
 	private AtomicInteger flag;
-	private HashMap<String, SendCallback> callbackByFlag;
+	private Map<String, SendCallback> callbackByFlag;
 	// all connect in/out endpoints
-	private HashMap<String, Identity> idByToken;
+	private Map<String, Identity> idByToken;
 	private Scheduler<Identity> scheduler;
 	private StateHandler stateHandler;
 

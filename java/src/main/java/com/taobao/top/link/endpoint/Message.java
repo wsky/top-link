@@ -1,6 +1,6 @@
 package com.taobao.top.link.endpoint;
 
-import java.util.HashMap;
+import java.util.Map;
 
 // just simple version
 public class Message {
@@ -11,5 +11,5 @@ public class Message {
 	public int flag;
 	public String token;
 	
-	public HashMap<String, String> content;
+	public Map<String, String> content;
 }
