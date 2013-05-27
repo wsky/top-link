@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.LoggerFactory;
@@ -13,18 +14,10 @@ import com.taobao.top.link.channel.ClientChannelSharedSelector;
 import com.taobao.top.link.logging.LogUtil;
 
 // easy support spring bean
-public class SpringServiceProxyBean implements FactoryBean {
+public class SpringServiceProxyBean implements FactoryBean, InitializingBean {
+	private static Object initObject;
 	private static ClientChannelSelector channelSelector;
 	private static RemotingClientChannelHandler channelHandler;
-	static {
-		// default set 2M max message size for client
-		// TODO:change to growing buffer
-		BufferManager.setBufferSize(1024 * 1024 * 2);
-		LoggerFactory loggerFactory = LogUtil.getLoggerFactory(new Object());
-		channelSelector = new ClientChannelSharedSelector(loggerFactory);
-		channelHandler = new RemotingClientChannelHandler(loggerFactory, new AtomicInteger(0));
-		channelHandler.setSerializationFactory(new CrossLanguageSerializationFactory());
-	}
 
 	private URI uri;
 	private Class<?> interfaceType;
@@ -67,5 +60,23 @@ public class SpringServiceProxyBean implements FactoryBean {
 	@Override
 	public boolean isSingleton() {
 		return true;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		init(this);
+	}
+
+	private synchronized static void init(Object obj) {
+		if (initObject != null)
+			return;
+		// default set 2M max message size for client
+		// TODO:change to growing buffer
+		BufferManager.setBufferSize(1024 * 1024 * 2);
+		LoggerFactory loggerFactory = LogUtil.getLoggerFactory(obj);
+		channelSelector = new ClientChannelSharedSelector(loggerFactory);
+		channelHandler = new RemotingClientChannelHandler(loggerFactory, new AtomicInteger(0));
+		channelHandler.setSerializationFactory(SerializerUtil.getSerializationFactory(obj));
+		initObject = new Object();
 	}
 }

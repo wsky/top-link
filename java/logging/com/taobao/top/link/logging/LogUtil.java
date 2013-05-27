@@ -8,15 +8,13 @@ import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 
 public class LogUtil {
-	static LoggerFactory loggerFactory;
 	static {
 		// LogManager.getRootLogger().addAppender(new ConsoleAppender(new
 		// PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN)));
 	}
 
 	public static LoggerFactory getLoggerFactory(Object obj) {
-		if (loggerFactory != null)
-			return loggerFactory;
+		LoggerFactory loggerFactory = null;
 
 		ClassLoader current = obj.getClass().getClassLoader();
 
