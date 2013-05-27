@@ -21,8 +21,8 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 
 public class Scheduler<T> {
-	private int max = 100;
-	private Logger logger;
+	protected int max = 100;
+	protected Logger logger;
 	private Object lock;
 	private Semaphore semaphore;
 	private Thread dispatcher;
@@ -40,7 +40,7 @@ public class Scheduler<T> {
 		this.logger = loggerFactory.create(this);
 		this.lock = new Object();
 		this.semaphore = new Semaphore(0);
-		this.tasks = new HashMap<T, Queue<Runnable>>();
+		this.tasks = this.createStore();
 		this.setThreadPool(Executors.newCachedThreadPool());
 	}
 
@@ -73,7 +73,7 @@ public class Scheduler<T> {
 		});
 		this.dispatcher.start();
 		this.prepareChecker(10000, 10000);
-		
+
 		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.SCHEDULE_START);
 	}
@@ -105,11 +105,11 @@ public class Scheduler<T> {
 		if (queue == null) {
 			synchronized (this.lock) {
 				if ((queue = this.tasks.get(t)) == null)
-					this.tasks.put(t, queue = new ConcurrentLinkedQueue<Runnable>());
+					this.tasks.put(t, queue = this.createTaskQueue());
 			}
 		}
 
-		if (queue.size() >= this.max)
+		if (this.haveReachMaxPendingCount(t, queue, task))
 			throw new LinkException(String.format(Text.SCHEDULE_GOT_MAX, this.max));
 
 		try {
@@ -129,8 +129,20 @@ public class Scheduler<T> {
 		this.tasks.remove(t);
 	}
 
+	protected Map<T, Queue<Runnable>> createStore() {
+		return new HashMap<T, Queue<Runnable>>();
+	}
+
+	protected Queue<Runnable> createTaskQueue() {
+		return new ConcurrentLinkedQueue<Runnable>();
+	}
+
 	protected boolean canRunImmediately(T t, Runnable task) {
 		return false;
+	}
+
+	protected boolean haveReachMaxPendingCount(T t, Queue<Runnable> queue, Runnable task) {
+		return queue.size() >= this.max;
 	}
 
 	protected final void dispatch() {
