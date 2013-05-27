@@ -10,6 +10,7 @@ import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.ClientChannelSelector;
 import com.taobao.top.link.channel.ClientChannelSharedSelector;
+import com.taobao.top.link.logging.LogUtil;
 
 // easy support spring bean
 public class SpringServiceProxyBean implements FactoryBean {
@@ -19,7 +20,7 @@ public class SpringServiceProxyBean implements FactoryBean {
 		// default set 2M max message size for client
 		// TODO:change to growing buffer
 		BufferManager.setBufferSize(1024 * 1024 * 2);
-		LoggerFactory loggerFactory = Util.getLoggerFactory(new Object());
+		LoggerFactory loggerFactory = LogUtil.getLoggerFactory(new Object());
 		channelSelector = new ClientChannelSharedSelector(loggerFactory);
 		channelHandler = new RemotingClientChannelHandler(loggerFactory, new AtomicInteger(0));
 		channelHandler.setSerializationFactory(new CrossLanguageSerializationFactory());

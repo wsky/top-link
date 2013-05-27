@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.LoggerFactory;
+import com.taobao.top.link.logging.LogUtil;
 
 public class SpringServerBean implements InitializingBean, BeanFactoryAware, ApplicationContextAware {
 	private ListableBeanFactory beanFactory;
@@ -58,7 +59,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 		if (this.maxMessageSize > 0)
 			BufferManager.setBufferSize(this.maxMessageSize);
 
-		LoggerFactory loggerFactory = Util.getLoggerFactory(this);
+		LoggerFactory loggerFactory = LogUtil.getLoggerFactory(this);
 
 		RemotingConfiguration.
 				configure().

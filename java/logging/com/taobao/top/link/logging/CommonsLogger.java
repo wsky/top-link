@@ -1,4 +1,4 @@
-package com.taobao.top.link.remoting;
+package com.taobao.top.link.logging;
 
 import org.apache.commons.logging.Log;
 
