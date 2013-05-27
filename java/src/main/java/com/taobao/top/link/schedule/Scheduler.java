@@ -7,7 +7,7 @@ import java.util.TimerTask;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Timer;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -118,7 +118,7 @@ public class Scheduler<T> {
 			throw new LinkException(Text.SCHEDULE_TASK_REFUSED, e);
 		}
 
-		// if (this.semaphore.getQueueLength() > 0)
+		//if (this.semaphore.getQueueLength() > 0)
 		this.semaphore.release();
 	}
 
@@ -134,7 +134,7 @@ public class Scheduler<T> {
 	}
 
 	protected Queue<Runnable> createTaskQueue() {
-		return new ConcurrentLinkedQueue<Runnable>();
+		return new ArrayBlockingQueue<Runnable>(this.max, false);
 	}
 
 	protected boolean canRunImmediately(T t, Runnable task) {

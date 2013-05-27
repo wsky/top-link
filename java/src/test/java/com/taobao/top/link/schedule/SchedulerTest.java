@@ -158,7 +158,7 @@ public class SchedulerTest {
 		final Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
 		scheduler.setUserMaxPendingCount(10000);
 		scheduler.start();
-		int count = 1000;
+		int count = 10000;
 		final CountDownLatch latch = new CountDownLatch(count);
 		long begin = System.currentTimeMillis();
 		for (int i = 0; i < count; i++) {
@@ -179,9 +179,9 @@ public class SchedulerTest {
 	@Test
 	public void schedule_threaded_test() throws InterruptedException, LinkException {
 		final Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
-		scheduler.setUserMaxPendingCount(1000000);
+		scheduler.setUserMaxPendingCount(1000);
 		scheduler.start();
-		final int count = 1000;
+		final int count = 10000;
 		int thread = 4;
 		final CountDownLatch latch = new CountDownLatch(count * thread);
 		long begin = System.currentTimeMillis();
