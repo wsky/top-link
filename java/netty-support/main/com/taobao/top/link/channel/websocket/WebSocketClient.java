@@ -91,6 +91,7 @@ public class WebSocketClient {
 				sslHandler.handshake().syncUninterruptibly();
 			return channel;
 		} catch (Exception e) {
+			bootstrap.releaseExternalResources();
 			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
 		}
 	}
