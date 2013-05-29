@@ -189,7 +189,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			this.idByToken.put(proxy.getToken(), id);
 
 			if (this.stateHandler != null)
-				this.stateHandler.onConnected(proxy,
+				this.stateHandler.onConnect(proxy,
 						(ServerChannelSender) context.getSender());
 
 			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());

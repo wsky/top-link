@@ -1,7 +1,8 @@
 package com.taobao.top.link.endpoint;
 
+import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ServerChannelSender;
 
 public interface StateHandler {
-	public void onConnected(EndpointProxy endpoint, ServerChannelSender sender);
+	public void onConnect(EndpointProxy endpoint, ServerChannelSender sender) throws LinkException;
 }
