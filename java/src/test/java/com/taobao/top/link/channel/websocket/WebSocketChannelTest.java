@@ -63,7 +63,27 @@ public class WebSocketChannelTest {
 		serverChannelWrapper.ssl();
 		heartbeat_test(uriSsl);
 	}
+
+	@Test
+	public void client_close_test() {
+
+	}
+
+	@Test
+	public void client_unexpected_close_test() {
+
+	}
 	
+	@Test
+	public void server_lose_test() {
+
+	}
+	
+	@Test
+	public void server_unexpected_close_test() {
+
+	}
+
 	private void heartbeat_test(URI uri) throws ChannelException, InterruptedException {
 		ClientChannel clientChannel = WebSocketClient.connect(DefaultLoggerFactory.getDefault(), uri, 1000);
 		serverChannelWrapper.handlerWrapper.latch = new CountDownLatch(3);

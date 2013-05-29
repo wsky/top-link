@@ -23,4 +23,8 @@ public class TcpChannelSender implements ChannelSender {
 
 	}
 
+	@Override
+	public void close(String reason) {
+	}
+
 }

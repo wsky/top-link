@@ -9,6 +9,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
@@ -47,7 +48,12 @@ public class WebSocketClientChannel implements ClientChannel {
 
 	@Override
 	public boolean isConnected() {
-		return channel.isConnected();
+		return this.channel.isConnected();
+	}
+	
+	@Override
+	public void close(String reason) {
+		this.channel.write(new CloseWebSocketFrame(1000, reason));
 	}
 
 	@Override

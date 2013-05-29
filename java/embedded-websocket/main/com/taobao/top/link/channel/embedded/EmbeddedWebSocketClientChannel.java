@@ -10,6 +10,7 @@ import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.embedded.websocket.WebSocket;
 import com.taobao.top.link.embedded.websocket.exception.WebSocketException;
+import com.taobao.top.link.embedded.websocket.frame.rfc6455.CloseFrame;
 import com.taobao.top.link.embedded.websocket.frame.rfc6455.FrameRfc6455;
 import com.taobao.top.link.embedded.websocket.frame.rfc6455.PingFrame;
 
@@ -46,6 +47,15 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	@Override
 	public boolean isConnected() {
 		return socket.isConnected();
+	}
+
+	@Override
+	public void close(String reason) {
+		try {
+			this.socket.send(new CloseFrame(1000, reason));
+		} catch (WebSocketException e) {
+			// TODO:log error
+		}
 	}
 
 	@Override
