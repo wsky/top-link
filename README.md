@@ -44,7 +44,7 @@ build.bat
 
 ## Endpoint
 
-Application exposure in a node on the network. They can talk with each other.
+Application exposure in a node on the network. They can talk(RTT based) with each other.
 
 [More](doc/endpoint.md)
 

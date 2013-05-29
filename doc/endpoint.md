@@ -1,6 +1,6 @@
 # Endpoint
 
-Application exposure in a node on the network. They can talk with each other.
+Application exposure in a node on the network. They can talk(RTT based) with each other.
 
 https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit?usp=sharing
 
