@@ -13,7 +13,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import com.clarkware.junitperf.LoadTest;
-import com.clarkware.junitperf.TestMethodFactory;
+//import com.clarkware.junitperf.TestMethodFactory;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ClientChannelSharedSelector;
 import com.taobao.top.link.channel.ServerChannel;
@@ -24,22 +24,25 @@ public class RemotingPerf extends TestCase {
 	private static URI uri;
 
 	public static void main(String[] args) throws URISyntaxException {
-		uri = new URI("ws://localhost:8080/");
+		uri = new URI("ws://localhost:9000/");
 		prepareServer(uri);
 
 		int user = 100, per = 10000;
 		int total = user * per;
 
-		Test testCase = new TestMethodFactory(RemotingPerf.class, "invoke_test");
+		// Test testCase = new TestMethodFactory(RemotingPerf.class,
+		// "invoke_test");
+		Test testCase = new RemotingPerf("invoke_test");
 		LoadTest loadTest = new LoadTest(testCase, user, per);
 		// TimedTest timedTest = new TimedTest(loadTest, 10000, false);
 		long begin = System.currentTimeMillis();
 		junit.textui.TestRunner.run(loadTest);
 		long cost = System.currentTimeMillis() - begin;
 		System.out.println(String.format(
-				"total:%s, cost:%sms, tps:%scall/s, time:%sms", total, cost,
-				((float) total / (float) cost) * 1000, (float) cost
-						/ (float) total));
+				"total:%s, cost:%sms, tps:%scall/s, time:%sms",
+				total, cost,
+				((float) total / (float) cost) * 1000,
+				(float) cost / (float) total));
 
 		System.exit(0);
 	}
@@ -71,12 +74,12 @@ public class RemotingPerf extends TestCase {
 		proxy = new DynamicProxy(uri,
 				new ClientChannelSharedSelector(),
 				new RemotingClientChannelHandler(
-						DefaultLoggerFactory.getDefault(), 
+						DefaultLoggerFactory.getDefault(),
 						new AtomicInteger(0)));
 	}
 
 	public void invoke_test() throws FormatterException, URISyntaxException,
 			RemotingException {
-		proxy.invoke(call);
+		proxy.invoke(call, 100);
 	}
 }

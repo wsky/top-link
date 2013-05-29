@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 @Ignore
 public class EndpointPerf extends TestCase {
 	public static void main(String[] args) throws URISyntaxException, LinkException {
-		int user = 10, per = 10000;
+		int user = 100, per = 10000;
 		int total = user * per;
 
 		EndpointPerf testCase = new EndpointPerf("send_wait_test");
@@ -33,9 +33,10 @@ public class EndpointPerf extends TestCase {
 		junit.textui.TestRunner.run(loadTest);
 		long cost = System.currentTimeMillis() - begin;
 		System.out.println(String.format(
-				"total:%s, cost:%sms, tps:%scall/s, time:%sms", total, cost,
-				((float) total / (float) cost) * 1000, (float) cost
-						/ (float) total));
+				"total:%s, cost:%sms, tps:%scall/s, time:%sms",
+				total, cost,
+				((float) total / (float) cost) * 1000,
+				(float) cost / (float) total));
 
 		testCase.clear();
 		System.exit(0);
@@ -63,7 +64,7 @@ public class EndpointPerf extends TestCase {
 	}
 
 	public void send_wait_test() throws LinkException {
-		this.serverProxy.sendAndWait(msg);
+		this.serverProxy.sendAndWait(msg, 100);
 	}
 
 	public void clear() {
@@ -87,6 +88,6 @@ public class EndpointPerf extends TestCase {
 		scheduler.setUserMaxPendingCount(1000);
 		scheduler.start();
 		this.server.setScheduler(scheduler);
-		this.server.bind(new WebSocketServerChannel(uri.getPort()));
+		this.server.bind(new WebSocketServerChannel(uri.getPort(), true));
 	}
 }
