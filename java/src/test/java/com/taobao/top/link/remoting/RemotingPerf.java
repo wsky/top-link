@@ -5,25 +5,34 @@ import java.net.URISyntaxException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Ignore;
 
+import junit.framework.Test;
 import junit.framework.TestCase;
 
 import com.clarkware.junitperf.LoadTest;
+import com.clarkware.junitperf.TestMethodFactory;
+import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ClientChannelSharedSelector;
+import com.taobao.top.link.channel.ServerChannel;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
 @Ignore
 public class RemotingPerf extends TestCase {
+	private static URI uri;
+
 	public static void main(String[] args) throws URISyntaxException {
-		int user = 10, per = 10000;
+		uri = new URI("ws://localhost:8080/");
+		prepareServer(uri);
+
+		int user = 100, per = 10000;
 		int total = user * per;
 
-		RemotingPerf testCase = new RemotingPerf("invoke_test");
+		Test testCase = new TestMethodFactory(RemotingPerf.class, "invoke_test");
 		LoadTest loadTest = new LoadTest(testCase, user, per);
 		// TimedTest timedTest = new TimedTest(loadTest, 10000, false);
-
 		long begin = System.currentTimeMillis();
 		junit.textui.TestRunner.run(loadTest);
 		long cost = System.currentTimeMillis() - begin;
@@ -32,37 +41,10 @@ public class RemotingPerf extends TestCase {
 				((float) total / (float) cost) * 1000, (float) cost
 						/ (float) total));
 
-		testCase.clear();
 		System.exit(0);
 	}
 
-	private WebSocketServerChannel serverChannel;
-	private DynamicProxy proxy;
-	private MethodCall call;
-
-	public RemotingPerf(String name) throws URISyntaxException {
-		super(name);
-		
-		URI uri = new URI("ws://localhost:8080/");
-		call = new MethodCall();
-		call.Args = new Object[] { "hello1234567890123456789123456789hello1234567890123456789123456789" };
-		
-		this.prepareServer(uri);
-		
-		RemotingService.setChannelSelector(new ClientChannelSharedSelector());
-		proxy = RemotingService.connect(uri);
-	}
-
-	public void invoke_test() throws FormatterException, URISyntaxException,
-			RemotingException {
-		proxy.invoke(call);
-	}
-
-	public void clear() {
-		this.serverChannel.stop();
-	}
-
-	private void prepareServer(URI uri) {
+	private static void prepareServer(URI uri) {
 		RemotingServerChannelHandler handler = new RemotingServerChannelHandler() {
 			@Override
 			public MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) {
@@ -72,8 +54,29 @@ public class RemotingPerf extends TestCase {
 			}
 		};
 		handler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
-		this.serverChannel = new WebSocketServerChannel(uri.getPort(), true);
-		this.serverChannel.setChannelHandler(handler);
-		this.serverChannel.run();
+		ServerChannel serverChannel = new WebSocketServerChannel(uri.getPort(), true);
+		serverChannel.setChannelHandler(handler);
+		serverChannel.run();
+	}
+
+	private DynamicProxy proxy;
+	private MethodCall call;
+
+	public RemotingPerf(String name) throws URISyntaxException {
+		super(name);
+
+		call = new MethodCall();
+		call.Args = new Object[] { "hello1234567890123456789123456789hello1234567890123456789123456789" };
+
+		proxy = new DynamicProxy(uri,
+				new ClientChannelSharedSelector(),
+				new RemotingClientChannelHandler(
+						DefaultLoggerFactory.getDefault(), 
+						new AtomicInteger(0)));
+	}
+
+	public void invoke_test() throws FormatterException, URISyntaxException,
+			RemotingException {
+		proxy.invoke(call);
 	}
 }
