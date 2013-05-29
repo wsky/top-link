@@ -113,7 +113,7 @@ public class EndpointTest {
 			}
 
 			@Override
-			public void onMessage(Map<String, String> message) {
+			public void onMessage(Map<String, String> message, Identity messageFrom) {
 			}
 		});
 		try {

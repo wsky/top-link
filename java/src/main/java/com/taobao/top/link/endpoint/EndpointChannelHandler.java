@@ -145,7 +145,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 
 	private void internalOnMessage(ChannelContext context, Message msg, Identity msgFrom) throws LinkException {
 		if (msg.messageType == MessageType.SENDACK) {
-			this.endpoint.getMessageHandler().onMessage(msg.content);
+			this.endpoint.getMessageHandler().onMessage(msg.content, msgFrom);
 			return;
 		}
 
@@ -222,7 +222,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 	private void handleCallback(SendCallback callback, Message msg, Identity msgFrom) {
 		if (!callback.getTarget().getIdentity().equals(msgFrom)) {
 			this.logger.warn(
-					Text.E_IDENTITY_NOT_MATCH_WITH_CALLBACK, 
+					Text.E_IDENTITY_NOT_MATCH_WITH_CALLBACK,
 					msgFrom, callback.getTarget().getIdentity());
 			return;
 		}

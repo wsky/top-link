@@ -17,7 +17,7 @@ public class MessageHandlerWrapper implements MessageHandler {
 	public boolean print;
 
 	@Override
-	public void onMessage(Map<String, String> message) {
+	public void onMessage(Map<String, String> message, Identity messageFrom) {
 		lastMessage = message;
 		receive.incrementAndGet();
 		if (print)
