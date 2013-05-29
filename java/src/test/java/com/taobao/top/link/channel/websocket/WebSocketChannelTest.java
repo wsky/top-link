@@ -14,14 +14,18 @@ import org.junit.Test;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.ResetableTimer;
+import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ClientChannel;
+import com.taobao.top.link.channel.ServerChannelSender;
 
 public class WebSocketChannelTest {
 	private static URI uri;
 	private static URI uriSsl;
 	private static WebSocketServerChannelWrapper serverChannelWrapper;
 	private static LoggerFactory loggerFactory = DefaultLoggerFactory.getDefault();
+	private static ServerChannelSender connectedSender;
 
 	@BeforeClass
 	public static void init() throws URISyntaxException {
@@ -30,6 +34,20 @@ public class WebSocketChannelTest {
 
 		serverChannelWrapper = new WebSocketServerChannelWrapper(uri.getPort());
 		serverChannelWrapper.run();
+		serverChannelWrapper.setChannelHandler(new ChannelHandler() {
+			@Override
+			public void onMessage(ChannelContext context) throws Exception {
+			}
+
+			@Override
+			public void onError(ChannelContext context) throws Exception {
+			}
+
+			@Override
+			public void onConnect(ChannelContext context) throws Exception {
+				connectedSender = (ServerChannelSender)context.getSender();
+			}
+		});
 	}
 
 	@AfterClass
@@ -71,32 +89,48 @@ public class WebSocketChannelTest {
 	@Test
 	public void client_close_test() throws ChannelException, URISyntaxException, InterruptedException {
 		ClientChannel clientChannel = WebSocketClient.connect(loggerFactory, uri, 1000);
+		assertTrue(clientChannel.isConnected());
+
 		clientChannel.close("close");
-		Thread.sleep(1000);
+		Thread.sleep(100);
 		assertFalse(clientChannel.isConnected());
-		// server got closeframe and disconnected->closed
+		// server got closeframe and than disconnected->closed
 	}
 
 	@Test
 	public void client_unexpected_close_test() throws ChannelException, InterruptedException {
 		WebSocketClientChannel clientChannel = (WebSocketClientChannel) WebSocketClient.connect(loggerFactory, uri, 1000);
+		assertTrue(clientChannel.isConnected());
+
 		clientChannel.channel.disconnect().syncUninterruptibly();
 		// same as
 		// clientChannel.channel.close().syncUninterruptibly();
-		Thread.sleep(500);
+		Thread.sleep(100);
 		assertFalse(clientChannel.isConnected());
 		// server got disconnected->closed
 		// if FIN not received, server wont know about it
 	}
 
 	@Test
-	public void server_lose_test() {
-
+	public void server_close_test() throws ChannelException, InterruptedException {
+		ClientChannel clientChannel = WebSocketClient.connect(loggerFactory, uri, 1000);
+		assertTrue(clientChannel.isConnected());
+		// server close
+		connectedSender.close("close");
+		Thread.sleep(100);
+		assertFalse(clientChannel.isConnected());
+		assertFalse(connectedSender.isOpen());
 	}
 
 	@Test
-	public void server_unexpected_close_test() {
-
+	public void server_unexpected_close_test() throws ChannelException, InterruptedException {
+		ClientChannel clientChannel = WebSocketClient.connect(loggerFactory, uri, 1000);
+		assertTrue(clientChannel.isConnected());
+		// server close
+		serverChannelWrapper.stop();
+		Thread.sleep(100);
+		assertFalse(clientChannel.isConnected());
+		assertFalse(connectedSender.isOpen());
 	}
 
 	private void heartbeat_test(URI uri) throws ChannelException, InterruptedException {
