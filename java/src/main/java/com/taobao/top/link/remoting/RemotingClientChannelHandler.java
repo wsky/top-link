@@ -17,11 +17,11 @@ import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
-import com.taobao.top.link.channel.ChannelHandler;
+import com.taobao.top.link.channel.SimpleChannelHandler;
 import com.taobao.top.link.remoting.protocol.RemotingTcpProtocolHandle;
 import com.taobao.top.link.remoting.protocol.RemotingTransportHeader;
 
-public class RemotingClientChannelHandler implements ChannelHandler {
+public class RemotingClientChannelHandler extends SimpleChannelHandler {
 	private Logger logger;
 	private AtomicInteger flagAtomic;
 	private Map<Integer, RemotingCallback> callbacks;
@@ -86,10 +86,6 @@ public class RemotingClientChannelHandler implements ChannelHandler {
 
 	public void cancel(RemotingCallback callback) {
 		this.callbacks.remove(callback.flag);
-	}
-
-	@Override
-	public void onConnect(ChannelContext context) {
 	}
 
 	@Override

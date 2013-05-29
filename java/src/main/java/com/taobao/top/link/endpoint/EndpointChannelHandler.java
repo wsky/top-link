@@ -15,14 +15,14 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.ServerChannelSender;
 import com.taobao.top.link.channel.ChannelSender.SendHandler;
+import com.taobao.top.link.channel.SimpleChannelHandler;
 import com.taobao.top.link.schedule.Scheduler;
 
 // make timing
-public class EndpointChannelHandler implements ChannelHandler {
+public class EndpointChannelHandler extends SimpleChannelHandler {
 	private Logger logger;
 	private Endpoint endpoint;
 	private AtomicInteger flag;

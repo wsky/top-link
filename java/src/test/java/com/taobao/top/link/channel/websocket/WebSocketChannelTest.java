@@ -45,7 +45,11 @@ public class WebSocketChannelTest {
 
 			@Override
 			public void onConnect(ChannelContext context) throws Exception {
-				connectedSender = (ServerChannelSender)context.getSender();
+				connectedSender = (ServerChannelSender) context.getSender();
+			}
+
+			@Override
+			public void onClosed(String reason) {				
 			}
 		});
 	}

@@ -47,6 +47,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	private ChannelGroup allChannels;
 	private ServerChannelSender sender;
 	private boolean cumulative;
+	private String closedReason;
 
 	public WebSocketServerUpstreamHandler(LoggerFactory loggerFactory,
 			ChannelHandler channelHandler,
@@ -63,6 +64,14 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		this.allChannels.add(e.getChannel());
 		this.sender = new WebSocketServerChannelSender(ctx);
+	}
+
+	@Override
+	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+		if (this.closedReason == null)
+			this.logger.warn(Text.WS_CHANNEL_CLOSED);
+		if (this.channelHandler != null)
+			this.channelHandler.onClosed(this.closedReason);
 	}
 
 	@Override
@@ -147,7 +156,7 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		if (frame instanceof CloseWebSocketFrame) {
 			this.logger.info(Text.WS_CONNECTION_CLOSED_BY,
 					((CloseWebSocketFrame) frame).getStatusCode(),
-					((CloseWebSocketFrame) frame).getReasonText());
+					this.closedReason = ((CloseWebSocketFrame) frame).getReasonText());
 			ctx.getChannel().close();
 			return;
 		} else if (frame instanceof BinaryWebSocketFrame) {

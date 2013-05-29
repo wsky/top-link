@@ -23,4 +23,8 @@ public class ConnectingChannelHandler implements ChannelHandler {
 			syncObject.notify();
 		}
 	}
+
+	@Override
+	public void onClosed(String reason) {
+	}
 }

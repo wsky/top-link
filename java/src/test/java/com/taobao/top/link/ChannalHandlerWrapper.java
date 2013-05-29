@@ -54,4 +54,8 @@ public class ChannalHandlerWrapper implements ChannelHandler {
 		Assert.assertEquals(receive, this.receive.get());
 		Assert.assertEquals(error, this.error.get());
 	}
+
+	@Override
+	public void onClosed(String reason) {
+	}
 }
