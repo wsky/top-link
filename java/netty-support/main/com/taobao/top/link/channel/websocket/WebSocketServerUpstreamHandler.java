@@ -145,6 +145,9 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	private void handleWebSocketFrame(final ChannelHandlerContext ctx,
 			WebSocketFrame frame) throws Exception {
 		if (frame instanceof CloseWebSocketFrame) {
+			this.logger.info(Text.WS_CONNECTION_CLOSED_BY,
+					((CloseWebSocketFrame) frame).getStatusCode(),
+					((CloseWebSocketFrame) frame).getReasonText());
 			ctx.getChannel().close();
 			return;
 		} else if (frame instanceof BinaryWebSocketFrame) {
