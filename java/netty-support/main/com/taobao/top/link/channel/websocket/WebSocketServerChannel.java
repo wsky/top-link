@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
+import org.jboss.netty.bootstrap.Bootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -72,12 +73,13 @@ public class WebSocketServerChannel extends ServerChannel {
 		// bootstrap.setOption("writeBufferLowWaterMark", 32 * 1024 * 1024);
 		// bootstrap.setOption("receiveBufferSizePredictor", 16);
 		// bootstrap.setOption("receiveBufferSizePredictorFactory", 16);
-
 		bootstrap.setOption("sendBufferSize", 1048576);
 		bootstrap.setOption("receiveBufferSize", 1048576);
 		bootstrap.setOption("child.sendBufferSize", 1048576);
 		bootstrap.setOption("child.receiveBufferSize", 1048576);
 		bootstrap.setOption("child.tcpNoDelay", true);
+		this.prepareBootstrap(this.bootstrap);
+
 		// shared timer for idle
 		final Timer timer = new HashedWheelTimer();
 		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -112,6 +114,9 @@ public class WebSocketServerChannel extends ServerChannel {
 	}
 
 	protected void preparePipeline(ChannelPipeline pipeline) {
+	}
+
+	protected void prepareBootstrap(ServerBootstrap bootstrap) {
 	}
 
 	protected WebSocketServerUpstreamHandler createHandler() {
