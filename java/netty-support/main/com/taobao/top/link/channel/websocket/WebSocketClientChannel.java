@@ -50,7 +50,7 @@ public class WebSocketClientChannel implements ClientChannel {
 	public boolean isConnected() {
 		return this.channel.isConnected();
 	}
-	
+
 	@Override
 	public void close(String reason) {
 		this.channel.write(new CloseWebSocketFrame(1000, reason));

@@ -59,8 +59,25 @@ public class WebSocketServerChannel extends ServerChannel {
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(),
 						Executors.newCachedThreadPool()));
-		bootstrap.setOption("tcpNoDelay", true);
+		// http://netty.io/3.6/xref/org/jboss/netty/channel/socket/nio/DefaultNioSocketChannelConfig.html
+		// http://stackoverflow.com/questions/8655973/latency-in-netty-due-to-passing-requests-from-boss-thread-to-worker-thread
+		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/socket/ServerSocketChannelConfig.html
+		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/socket/nio/NioSocketChannelConfig.html
+		// http://docs.oracle.com/javase/6/docs/technotes/guides/net/socketOpt.html
+		// http://stackoverflow.com/questions/9916796/tuning-netty-on-32-core-10gbit-hosts
 		bootstrap.setOption("reuseAddress", true);
+		bootstrap.setOption("backlog", 1024);
+		// bootstrap.setOption("writeSpinCount", 16);
+		bootstrap.setOption("writeBufferHighWaterMark", 64 * 1024 * 1024);
+		// bootstrap.setOption("writeBufferLowWaterMark", 32 * 1024 * 1024);
+		// bootstrap.setOption("receiveBufferSizePredictor", 16);
+		// bootstrap.setOption("receiveBufferSizePredictorFactory", 16);
+
+		bootstrap.setOption("sendBufferSize", 1048576);
+		bootstrap.setOption("receiveBufferSize", 1048576);
+		bootstrap.setOption("child.sendBufferSize", 1048576);
+		bootstrap.setOption("child.receiveBufferSize", 1048576);
+		bootstrap.setOption("child.tcpNoDelay", true);
 		// shared timer for idle
 		final Timer timer = new HashedWheelTimer();
 		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {

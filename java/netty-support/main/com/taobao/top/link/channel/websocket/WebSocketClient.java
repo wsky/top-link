@@ -107,6 +107,7 @@ public class WebSocketClient {
 		bootstrap.setOption("tcpNoDelay", true);
 		bootstrap.setOption("reuseAddress", true);
 		bootstrap.setOption("connectTimeoutMillis", connectTimeoutMillis);
+		bootstrap.setOption("writeBufferHighWaterMark", 10 * 1024 * 1024);
 
 		final ChannelPipeline pipeline = Channels.pipeline();
 
