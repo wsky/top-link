@@ -6,7 +6,6 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
-import org.jboss.netty.bootstrap.Bootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -69,7 +68,7 @@ public class WebSocketServerChannel extends ServerChannel {
 		bootstrap.setOption("reuseAddress", true);
 		bootstrap.setOption("backlog", 1024);
 		// bootstrap.setOption("writeSpinCount", 16);
-		bootstrap.setOption("writeBufferHighWaterMark", 64 * 1024 * 1024);
+		// bootstrap.setOption("writeBufferHighWaterMark", 64 * 1024 * 1024);
 		// bootstrap.setOption("writeBufferLowWaterMark", 32 * 1024 * 1024);
 		// bootstrap.setOption("receiveBufferSizePredictor", 16);
 		// bootstrap.setOption("receiveBufferSizePredictorFactory", 16);

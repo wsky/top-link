@@ -13,6 +13,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import com.clarkware.junitperf.LoadTest;
+import com.taobao.top.link.BufferManager;
 //import com.clarkware.junitperf.TestMethodFactory;
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.ClientChannelSharedSelector;
@@ -57,6 +58,7 @@ public class RemotingPerf extends TestCase {
 			}
 		};
 		handler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
+		handler.setSerializationFactory(new CrossLanguageSerializationFactory());
 		ServerChannel serverChannel = new WebSocketServerChannel(uri.getPort(), true);
 		serverChannel.setChannelHandler(handler);
 		serverChannel.run();
@@ -69,17 +71,24 @@ public class RemotingPerf extends TestCase {
 		super(name);
 
 		call = new MethodCall();
-		call.Args = new Object[] { "hello1234567890123456789123456789hello1234567890123456789123456789" };
+		call.MethodSignature = new Class<?>[] { String.class };
+		// 100byte message size
+		BufferManager.setBufferSize(100);
+		call.Args = new Object[] { "h" };
+		// call.Args = new Object[] {
+		// "123456789012345678901234567890123456789012345678901234567890" };
 
-		proxy = new DynamicProxy(uri,
-				new ClientChannelSharedSelector(),
-				new RemotingClientChannelHandler(
-						DefaultLoggerFactory.getDefault(),
-						new AtomicInteger(0)));
+		RemotingClientChannelHandler handler = new RemotingClientChannelHandler(
+				DefaultLoggerFactory.getDefault(),
+				new AtomicInteger(0));
+		handler.setSerializationFactory(new CrossLanguageSerializationFactory());
+
+		proxy = new DynamicProxy(uri, new ClientChannelSharedSelector(), handler);
+		proxy.setSerializationFormat("json");
 	}
 
 	public void invoke_test() throws FormatterException, URISyntaxException,
 			RemotingException {
-		proxy.invoke(call, 100);
+		proxy.invoke(call, 1000);
 	}
 }

@@ -12,7 +12,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.clarkware.junitperf.LoadTest;
-import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
@@ -23,10 +22,8 @@ import junit.framework.TestCase;
 @Ignore
 public class EndpointPerf extends TestCase {
 	public static void main(String[] args) throws URISyntaxException, LinkException {
-		int user = 10, per = 100;
+		int user = 10, per = 1000;
 		int total = user * per;
-		
-		//BufferManager.setBufferSize(500);
 
 		EndpointPerf testCase = new EndpointPerf("send_wait_test");
 		LoadTest loadTest = new LoadTest(testCase, user, per);
@@ -42,7 +39,7 @@ public class EndpointPerf extends TestCase {
 				(float) cost / (float) total));
 
 		// testCase.clear();
-		// System.exit(0);
+		System.exit(0);
 	}
 
 	private Endpoint server;
@@ -67,7 +64,7 @@ public class EndpointPerf extends TestCase {
 	}
 
 	public void send_wait_test() throws LinkException {
-		this.serverProxy.sendAndWait(msg, 1000);
+		this.serverProxy.sendAndWait(msg, 100);
 	}
 
 	public void clear() {
