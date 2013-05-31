@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 @Ignore
 public class EndpointPerf extends TestCase {
 	public static void main(String[] args) throws URISyntaxException, LinkException {
-		int user = 10, per = 1000;
+		int user = 100, per = 10000;
 		int total = user * per;
 
 		EndpointPerf testCase = new EndpointPerf("send_wait_test");

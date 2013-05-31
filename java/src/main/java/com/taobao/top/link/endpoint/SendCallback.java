@@ -64,7 +64,7 @@ public class SendCallback {
 
 	private void nofityReturn() {
 		synchronized (this.sync) {
-			this.sync.notifyAll();
+			this.sync.notify();
 		}
 	}
 }

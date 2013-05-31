@@ -89,6 +89,6 @@ public class RemotingPerf extends TestCase {
 
 	public void invoke_test() throws FormatterException, URISyntaxException,
 			RemotingException {
-		proxy.invoke(call, 1000);
+		proxy.invoke(call, 100);
 	}
 }
