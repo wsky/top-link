@@ -31,7 +31,8 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 	private Logger logger;
 	private WebSocketClientChannel clientChannel;
 	protected WebSocketClientHandshaker handshaker;
-
+	private String closedReason;
+	
 	public WebSocketClientUpstreamHandler(Logger logger, WebSocketClientChannel clientChannel) {
 		this.logger = logger;
 		this.clientChannel = clientChannel;
@@ -40,6 +41,14 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 	@Override
 	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		this.clientChannel.channel = ctx.getChannel();
+	}
+	
+	@Override
+	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+		if (this.closedReason == null)
+			this.logger.warn(Text.WS_CHANNEL_CLOSED);
+		if (this.haveHandler())
+			this.getHandler().onClosed(this.closedReason);
 	}
 
 	@Override
@@ -84,6 +93,9 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 	private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame)
 			throws Exception {
 		if (frame instanceof CloseWebSocketFrame) {
+			this.logger.info(Text.WS_CONNECTION_CLOSED_BY,
+					((CloseWebSocketFrame) frame).getStatusCode(),
+					this.closedReason = ((CloseWebSocketFrame) frame).getReasonText());
 			CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
 			this.clear(ctx);
 			this.logger.warn(Text.WS_CONNECTION_CLOSED_BY,
