@@ -154,7 +154,6 @@ public class DynamicProxy implements InvocationHandler {
 			SynchronizedRemotingCallback callback, String message, Throwable innerException) {
 		if (innerException instanceof RemotingException)
 			return (RemotingException) innerException;
-		// this.channelHandler.cancel(callback);
 		return innerException != null
 				? new RemotingException(message, innerException)
 				: new RemotingException(message);
