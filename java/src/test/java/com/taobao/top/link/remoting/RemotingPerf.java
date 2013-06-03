@@ -30,7 +30,7 @@ public class RemotingPerf extends TestCase {
 		uri = new URI("ws://localhost:9000/");
 		prepareServer(uri);
 
-		int user = 100, per = 10000000;
+		int user = 100, per = 10000;
 		int total = user * per;
 
 		// Test testCase = new TestMethodFactory(RemotingPerf.class,
@@ -78,6 +78,7 @@ public class RemotingPerf extends TestCase {
 
 		call = new MethodCall();
 		call.MethodSignature = new Class<?>[] { String.class };
+		// BufferManager.enableDirectBuffer(true);
 		// 100byte message size
 		BufferManager.setBufferSize(100);
 		call.Args = new Object[] { "h" };
