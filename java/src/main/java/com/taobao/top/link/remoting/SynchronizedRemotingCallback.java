@@ -1,11 +1,19 @@
 package com.taobao.top.link.remoting;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import com.taobao.top.link.Text;
+
 public class SynchronizedRemotingCallback extends RemotingCallback {
-	public Object sync = new Object();
-	
+	private CountDownLatch latch;
 	private MethodReturn methodReturn;
 	private boolean sucess;
 	private Throwable failure;
+
+	public SynchronizedRemotingCallback() {
+		this.latch = new CountDownLatch(1);
+	}
 
 	public boolean isSucess() {
 		return this.sucess;
@@ -14,7 +22,7 @@ public class SynchronizedRemotingCallback extends RemotingCallback {
 	public Throwable getFailure() {
 		return this.failure;
 	}
-	
+
 	public MethodReturn getMethodReturn() {
 		return this.methodReturn;
 	}
@@ -33,10 +41,18 @@ public class SynchronizedRemotingCallback extends RemotingCallback {
 		this.nofityCall();
 	}
 
-	private void nofityCall() {
-		// TODO:anyother sync way?
-		synchronized (this.sync) {
-			this.sync.notify();
+	public void waitReturn(int timeout) throws RemotingException {
+		try {
+			if (timeout > 0 && !this.latch.await(timeout, TimeUnit.MILLISECONDS))
+				throw new RemotingException(Text.RPC_EXECUTE_TIMEOUT);
+			else
+				this.latch.await();
+		} catch (InterruptedException e) {
+			throw new RemotingException(Text.RPC_WAIT_INTERRUPTED, e);
 		}
+	}
+
+	private void nofityCall() {
+		this.latch.countDown();
 	}
 }
