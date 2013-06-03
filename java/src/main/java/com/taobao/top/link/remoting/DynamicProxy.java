@@ -135,26 +135,37 @@ public class DynamicProxy implements InvocationHandler {
 			throw unexcepException(syncCallback, Text.RPC_SEND_ERROR, e);
 		}
 
-		try {
-			syncCallback.waitReturn(executionTimeoutMillisecond);
-		} finally {
-			this.channelHandler.cancel(syncCallback);
+		// send and receive maybe fast enough
+		if (syncCallback.isSucess())
+			return syncCallback.getMethodReturn();
+
+		int i = 0, wait = 10;
+		while (true) {
+			if (syncCallback.isSucess())
+				return syncCallback.getMethodReturn();
+
+			if (syncCallback.getFailure() != null)
+				throw unexcepException(syncCallback, Text.RPC_CALL_ERROR, syncCallback.getFailure());
+
+			if (executionTimeoutMillisecond > 0 && (i++) * wait >= executionTimeoutMillisecond)
+				throw unexcepException(syncCallback, Text.RPC_EXECUTE_TIMEOUT, null);
+
+			if (!clientChannel.isConnected())
+				throw unexcepException(syncCallback, Text.RPC_CHANNEL_BROKEN, null);
+
+			synchronized (syncCallback.sync) {
+				try {
+					syncCallback.sync.wait(wait);
+				} catch (InterruptedException e) {
+					throw unexcepException(syncCallback, Text.RPC_WAIT_INTERRUPTED, e);
+				}
+			}
 		}
-
-		if (syncCallback.getFailure() != null)
-			throw unexcepException(
-					syncCallback, 
-					Text.RPC_CALL_ERROR, 
-					syncCallback.getFailure());
-
-		return syncCallback.getMethodReturn();
 	}
 
 	private RemotingException unexcepException(
 			SynchronizedRemotingCallback callback, String message, Throwable innerException) {
-		if (innerException instanceof RemotingException)
-			return (RemotingException) innerException;
-		// this.channelHandler.cancel(callback);
+		this.channelHandler.cancel(callback);
 		return innerException != null
 				? new RemotingException(message, innerException)
 				: new RemotingException(message);

@@ -11,7 +11,7 @@ public class WebSocketServerChannelSender extends WebSocketChannelSender impleme
 	private Map<Object, Object> context;
 
 	public WebSocketServerChannelSender(ChannelHandlerContext ctx) {
-		super(ctx != null ? ctx.getChannel() : null);
+		super(ctx.getChannel());
 		this.context = new HashMap<Object, Object>();
 	}
 
@@ -19,7 +19,7 @@ public class WebSocketServerChannelSender extends WebSocketChannelSender impleme
 	public Object getContext(Object key) {
 		return this.context.get(key);
 	}
-
+	
 	@Override
 	public void setContext(Object key, Object value) {
 		this.context.put(key, value);

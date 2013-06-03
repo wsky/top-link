@@ -46,11 +46,11 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 		byte[] data = this.serializationFactory.
 				get(handler.serializationFormat).
 				serializeMethodCall(methodCall);
-		return this.pending(handler,
-				operation,
-				transportHeaders,
-				data,
-				0,
+		return this.pending(handler, 
+				operation, 
+				transportHeaders, 
+				data, 
+				0, 
 				data.length);
 	}
 
@@ -147,12 +147,11 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Override
-	public void onClosed(String reason) {
-		RemotingException error = new RemotingException(Text.RPC_CHANNEL_BROKEN);
+	public void onError(ChannelContext context) {
 		// all is fail!
 		for (Entry<Integer, RemotingCallback> i : this.callbacks.entrySet()) {
 			try {
-				i.getValue().onException(error);
+				i.getValue().onException(context.getError());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

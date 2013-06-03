@@ -1,21 +1,19 @@
 package com.taobao.top.link.endpoint;
 
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Text;
 
 public class SendCallback {
-	private CountDownLatch latch;
+	private Object sync = new Object();
 	private EndpointProxy endpointProxy;
 	private LinkException error;
 	private Map<String, String> _return;
+	private boolean isComplete;
 
 	public SendCallback(EndpointProxy endpointProxy) {
 		this.endpointProxy = endpointProxy;
-		this.latch = new CountDownLatch(1);
 	}
 
 	public EndpointProxy getTarget() {
@@ -23,6 +21,7 @@ public class SendCallback {
 	}
 
 	public void setComplete() {
+		this.isComplete = true;
 		this.nofityReturn();
 	}
 
@@ -45,17 +44,27 @@ public class SendCallback {
 	}
 
 	public void waitReturn(int timeout) throws LinkException {
-		try {
-			if (timeout > 0 && !this.latch.await(timeout, TimeUnit.MILLISECONDS))
+		int i = 0, wait = 10;
+		while (true) {
+			if (this.isComplete)
+				return;
+
+			if (timeout > 0 && (i++) * wait >= timeout)
 				throw new LinkException(Text.E_EXECUTE_TIMEOUT);
-			else
-				this.latch.await();
-		} catch (InterruptedException e) {
-			throw new LinkException(Text.E_UNKNOWN_ERROR, e);
+
+			synchronized (this.sync) {
+				try {
+					this.sync.wait(wait);
+				} catch (InterruptedException e) {
+					throw new LinkException(Text.E_UNKNOWN_ERROR, e);
+				}
+			}
 		}
 	}
 
 	private void nofityReturn() {
-		this.latch.countDown();
+		synchronized (this.sync) {
+			this.sync.notifyAll();
+		}
 	}
 }

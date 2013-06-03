@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 
@@ -87,7 +86,7 @@ public class RemotingTest {
 		try {
 			proxy.invoke(new MethodCall());
 		} catch (RemotingException e) {
-			assertEquals(Text.RPC_CHANNEL_BROKEN, e.getMessage());
+			assertEquals("channel broken with unknown error", e.getMessage());
 			throw e;
 		}
 
