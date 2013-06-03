@@ -9,7 +9,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Ignore;
-import org.junit.Test;
 
 import com.clarkware.junitperf.LoadTest;
 import com.taobao.top.link.LinkException;
@@ -17,7 +16,10 @@ import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.schedule.Scheduler;
 
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.textui.ResultPrinter;
+import junit.textui.TestRunner;
 
 @Ignore
 public class EndpointPerf extends TestCase {
@@ -30,7 +32,11 @@ public class EndpointPerf extends TestCase {
 		// TimedTest timedTest = new TimedTest(loadTest, 10000, false);
 
 		long begin = System.currentTimeMillis();
-		junit.textui.TestRunner.run(loadTest);
+		new TestRunner(new ResultPrinter(System.out){ 
+			@Override
+			public void startTest(Test test) {
+			}
+		}).doRun(loadTest);
 		long cost = System.currentTimeMillis() - begin;
 		System.out.println(String.format(
 				"total:%s, cost:%sms, tps:%scall/s, time:%sms",
@@ -58,7 +64,6 @@ public class EndpointPerf extends TestCase {
 		this.serverProxy = new Endpoint(new DefaultIdentity("client")).getEndpoint(serverIdentity, uri);
 	}
 
-	@Test
 	public void send_test() throws ChannelException {
 		this.serverProxy.send(msg);
 	}

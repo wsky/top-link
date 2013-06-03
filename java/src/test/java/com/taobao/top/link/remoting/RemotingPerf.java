@@ -11,6 +11,8 @@ import org.junit.Ignore;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.textui.ResultPrinter;
+import junit.textui.TestRunner;
 
 import com.clarkware.junitperf.LoadTest;
 import com.taobao.top.link.BufferManager;
@@ -28,7 +30,7 @@ public class RemotingPerf extends TestCase {
 		uri = new URI("ws://localhost:9000/");
 		prepareServer(uri);
 
-		int user = 100, per = 10000;
+		int user = 100, per = 10000000;
 		int total = user * per;
 
 		// Test testCase = new TestMethodFactory(RemotingPerf.class,
@@ -37,7 +39,11 @@ public class RemotingPerf extends TestCase {
 		LoadTest loadTest = new LoadTest(testCase, user, per);
 		// TimedTest timedTest = new TimedTest(loadTest, 10000, false);
 		long begin = System.currentTimeMillis();
-		junit.textui.TestRunner.run(loadTest);
+		new TestRunner(new ResultPrinter(System.out) {
+			@Override
+			public void startTest(Test test) {
+			}
+		}).doRun(loadTest);
 		long cost = System.currentTimeMillis() - begin;
 		System.out.println(String.format(
 				"total:%s, cost:%sms, tps:%scall/s, time:%sms",
