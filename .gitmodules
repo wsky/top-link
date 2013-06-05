@@ -7,3 +7,6 @@
 [submodule "csharp/external/websocket-sharp"]
 	path = csharp/external/websocket-sharp
 	url = git://github.com/wsky/websocket-sharp.git
+[submodule "csharp/external/RemotingProtocolParser"]
+	path = csharp/external/RemotingProtocolParser
+	url = git://github.com/wsky/RemotingProtocolParser.git
