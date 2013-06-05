@@ -4,3 +4,6 @@
 [submodule "java/external/websocket-client"]
 	path = java/external/websocket-client
 	url = git://github.com/wsky/websocket-client.git
+[submodule "csharp/external/websocket-sharp"]
+	path = csharp/external/websocket-sharp
+	url = git://github.com/wsky/websocket-sharp.git
