@@ -42,6 +42,10 @@
     <Compile Include="Channel\WebSocket\WebSocketClient.cs" />
     <Compile Include="Channel\WebSocket\WebSocketClientChannel.cs" />
     <Compile Include="Channel\WebSocket\WebSocketClientHelper.cs" />
+    <Compile Include="DefaultLogger.cs" />
+    <Compile Include="DefaultLoggerFactory.cs" />
+    <Compile Include="ILog.cs" />
+    <Compile Include="ILoggerFactory.cs" />
     <Compile Include="LinkException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Remoting\DynamicProxy.cs" />
