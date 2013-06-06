@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Taobao.Top.Link.Remoting.Protocol
 {
-    public class RemotingTransportHeader
+    internal class RemotingTransportHeader
     {
         public const String Flag = "Flag";
         public const String Format = "Format";

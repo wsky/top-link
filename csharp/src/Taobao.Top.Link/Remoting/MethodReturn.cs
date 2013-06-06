@@ -4,7 +4,15 @@ using System.Text;
 
 namespace Taobao.Top.Link.Remoting
 {
-    class MethodReturn
+    /// <summary>rpc call result
+    /// </summary>
+    public class MethodReturn
     {
+        /// <summary>call method result
+        /// </summary>
+        public object ReturnValue { get; set; }
+        /// <summary>error of call if occur
+        /// </summary>
+        public Exception Exception { get; set; }
     }
 }
