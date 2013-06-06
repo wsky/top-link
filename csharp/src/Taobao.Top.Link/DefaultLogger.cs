@@ -37,11 +37,11 @@ namespace Taobao.Top.Link
         }
         public void DebugFormat(string format, params object[] args)
         {
-            this.Write(Level.DEBUG, format, args);
+            this.WriteFormat(Level.DEBUG, format, args);
         }
         public void Debug(object message, Exception exception)
         {
-            this.Write(Level.DEBUG, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
+            this.WriteFormat(Level.DEBUG, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
         }
 
         public void Info(object message)
@@ -50,11 +50,11 @@ namespace Taobao.Top.Link
         }
         public void InfoFormat(string format, params object[] args)
         {
-            this.Write(Level.INFO, format, args);
+            this.WriteFormat(Level.INFO, format, args);
         }
         public void Info(object message, Exception exception)
         {
-            this.Write(Level.INFO, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
+            this.WriteFormat(Level.INFO, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
         }
 
         public void Warn(object message)
@@ -63,11 +63,11 @@ namespace Taobao.Top.Link
         }
         public void WarnFormat(string format, params object[] args)
         {
-            this.Write(Level.WARN, format, args);
+            this.WriteFormat(Level.WARN, format, args);
         }
         public void Warn(object message, Exception exception)
         {
-            this.Write(Level.WARN, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
+            this.WriteFormat(Level.WARN, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
         }
 
         public void Error(object message)
@@ -76,11 +76,11 @@ namespace Taobao.Top.Link
         }
         public void ErrorFormat(string format, params object[] args)
         {
-            this.Write(Level.ERROR, format, args);
+            this.WriteFormat(Level.ERROR, format, args);
         }
         public void Error(object message, Exception exception)
         {
-            this.Write(Level.ERROR, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
+            this.WriteFormat(Level.ERROR, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
         }
 
         public void Fatal(object message)
@@ -89,14 +89,14 @@ namespace Taobao.Top.Link
         }
         public void FatalFormat(string format, params object[] args)
         {
-            this.Write(Level.FATAL, format, args);
+            this.WriteFormat(Level.FATAL, format, args);
         }
         public void Fatal(object message, Exception exception)
         {
-            this.Write(Level.FATAL, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
+            this.WriteFormat(Level.FATAL, "{0}\n{1}\n{2}", message, exception.Message, exception.StackTrace);
         }
 
-        private void Write(Level level, string format, params object[] args)
+        private void WriteFormat(Level level, string format, params object[] args)
         {
             this.Write(level, string.Format(format, args));
         }

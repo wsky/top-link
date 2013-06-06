@@ -114,14 +114,18 @@ namespace Taobao.Top.Link.Remoting
             if (this._log.IsDebugEnabled)
                 this._log.DebugFormat("receive methodReturn of methodCall#{0}", flag);
 
-            if (this._callbacks.ContainsKey(flag))
+            if (!this._callbacks.ContainsKey(flag))
                 return;
 
             RemotingCallback callback = this._callbacks[flag];
             this.Cancel(callback);
 
-            var statusCode = (int)transportHeaders[TcpTransportHeader.StatusCode];
-            var statusPhrase = (string)transportHeaders[TcpTransportHeader.StatusPhrase];
+            var statusCode = transportHeaders.ContainsKey(TcpTransportHeader.StatusCode)
+                ? (int)transportHeaders[TcpTransportHeader.StatusCode]
+                : 0;
+            var statusPhrase = transportHeaders.ContainsKey(TcpTransportHeader.StatusPhrase)
+                ? (string)transportHeaders[TcpTransportHeader.StatusPhrase]
+                : null;
             if (statusCode > 0 || !string.IsNullOrEmpty(statusPhrase))
             {
                 callback.OnException(new RemotingException(string.Format(
@@ -149,7 +153,7 @@ namespace Taobao.Top.Link.Remoting
         }
         private void onClosed(object sender, ChannelClosedEventArgs args)
         {
-            var error = new RemotingException("channel broken");
+            var error = new RemotingException(args.Reason);
             foreach (KeyValuePair<int, RemotingCallback> i in this._callbacks)
             {
                 try { i.Value.OnException(error); }

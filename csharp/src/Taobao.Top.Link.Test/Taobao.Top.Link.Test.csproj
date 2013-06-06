@@ -41,6 +41,10 @@
     <Compile Include="WebSocketChannelTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\external\RemotingProtocolParser\csharp\RemotingProtocolParser\RemotingProtocolParser-Core.csproj">
+      <Project>{c9063e8a-5f48-4c2e-a89c-031c53e75918}</Project>
+      <Name>RemotingProtocolParser-Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\external\websocket-sharp\websocket-sharp\websocket-sharp.csproj">
       <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
       <Name>websocket-sharp</Name>

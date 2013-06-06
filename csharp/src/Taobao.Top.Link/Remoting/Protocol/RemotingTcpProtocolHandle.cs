@@ -8,7 +8,7 @@ namespace Taobao.Top.Link.Remoting.Protocol
 {
     /// <summary>extend remoting protocol
     /// </summary>
-    internal class RemotingTcpProtocolHandle : TcpProtocolHandle
+    public class RemotingTcpProtocolHandle : TcpProtocolHandle
     {
         public RemotingTcpProtocolHandle(Stream source) : base(source) { }
 
