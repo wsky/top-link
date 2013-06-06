@@ -33,6 +33,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channel\ChannelClosedEventArg.cs" />
     <Compile Include="Channel\ChannelContext.cs" />
     <Compile Include="Channel\ClientChannelSharedSelector.cs" />
     <Compile Include="Channel\IChannelSender.cs" />

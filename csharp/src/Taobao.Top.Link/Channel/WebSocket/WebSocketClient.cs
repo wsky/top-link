@@ -6,6 +6,8 @@ using WebSocketSharp;
 
 namespace Taobao.Top.Link.Channel.WebSocket
 {
+    /// <summary>simple websocket client helper
+    /// </summary>
     public static class WebSocketClient
     {
         /// <summary>connect to uri via websocket
@@ -34,16 +36,28 @@ namespace Taobao.Top.Link.Channel.WebSocket
             socket.OnOpen -= onOpen;
             socket.OnError -= onError;
 
-            socket.OnError += (o, e) => Raise(channel.OnClosed, new ChannelContext());
-            socket.OnClose += (o, e) => Raise(channel.OnClosed, new ChannelContext());
-            socket.OnMessage += (o, e) => Raise(channel.OnClosed, new ChannelContext());
+            socket.OnError += (o, e) => On(channel.OnError
+                , new ChannelContext(new LinkException(e.Message)));
+            socket.OnClose += (o, e) => On(channel.OnClosed
+                , new ChannelClosedEventArgs(e.Reason));
+            socket.OnMessage += (o, e) => On(channel.OnMessage
+                , new ChannelContext(e.RawData, channel));
             return channel;
         }
 
-        static void Raise(EventHandler<ChannelContext> eventHandler, ChannelContext context)
+        private static void On<T>(EventHandler<T> eventHandler, T args) where T : EventArgs
         {
-            if (eventHandler != null)
-                eventHandler(null, context);
+            try
+            {
+                if (eventHandler != null)
+                    eventHandler(null, args);
+            }
+            catch (Exception e)
+            {
+                //here is global on error
+                Console.WriteLine(e.Message);
+                //TODO:close channel here?
+            }
         }
 
         class WaitHandle : EventWaitHandle

@@ -16,7 +16,7 @@ namespace Taobao.Top.Link.Channel
         EventHandler<ChannelContext> OnError { get; set; }
         /// <summary>while channel was closed by given reason
         /// </summary>
-        EventHandler<string> OnClosed { get; set; }
+        EventHandler<ChannelClosedEventArgs> OnClosed { get; set; }
         /// <summary>get or set remote uri
         /// </summary>
         Uri Uri { get; set; }

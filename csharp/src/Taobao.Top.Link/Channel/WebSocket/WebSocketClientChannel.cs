@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WebSocketSharp;
+using WebSocketSharp.Frame;
 
 namespace Taobao.Top.Link.Channel.WebSocket
 {
@@ -12,10 +14,10 @@ namespace Taobao.Top.Link.Channel.WebSocket
 
         public EventHandler<ChannelContext> OnMessage { get; set; }
         public EventHandler<ChannelContext> OnError { get; set; }
-        public EventHandler<ChannelContext> OnClosed { get; set; }
+        public EventHandler<ChannelClosedEventArgs> OnClosed { get; set; }
 
         public Uri Uri { get; set; }
-        public bool IsConnected { get { return this._socket.IsAlive; } }
+        public bool IsConnected { get { return this._socket.ReadyState == WsState.OPEN; } }
 
         public WebSocketClientChannel(WebSocketSharp.WebSocket socket)
         {
@@ -29,7 +31,7 @@ namespace Taobao.Top.Link.Channel.WebSocket
 
         public void Close(string reason)
         {
-            this._socket.Close(WebSocketSharp.Frame.CloseStatusCode.NORMAL, reason);
+            this._socket.Close(CloseStatusCode.NORMAL, reason);
         }
     }
 }

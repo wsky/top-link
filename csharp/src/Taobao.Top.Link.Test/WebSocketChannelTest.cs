@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using NUnit.Framework;
 using Taobao.Top.Link.Channel;
 using Taobao.Top.Link.Channel.WebSocket;
@@ -34,13 +35,45 @@ namespace Taobao.Top.Link.Test
         {
             var client = WebSocketClient.Connect(URI, 1000);
             Assert.NotNull(client);
-            Assert.True(client.IsConnected());
+            Assert.True(client.IsConnected);
         }
 
         [TestCase]
-        public void ConnectTimeoutTest()
+        [ExpectedException(typeof(LinkException))]
+        public void ConnectErrorTest()
         {
             WebSocketClient.Connect(new Uri("ws://localhost:1234"), 1000);
+        }
+
+        [TestCase]
+        public void SendTest()
+        {
+            var str = "hi中文";
+            var handle = new EventWaitHandle(false, EventResetMode.AutoReset);
+
+            IClientChannel channel = WebSocketClient.Connect(URI, 1000);
+            channel.OnMessage = new EventHandler<ChannelContext>((o, ctx) =>
+            {
+                Assert.AreEqual(str, Encoding.UTF8.GetString((byte[])ctx.Message));
+                handle.Set();
+            });
+
+            byte[] data = Encoding.UTF8.GetBytes(str);
+            channel.Send(data);
+            Assert.True(handle.WaitOne(500));
+        }
+
+        [TestCase]
+        public void UnexpectedErrorInHandlerTest()
+        {
+            IClientChannel channel = WebSocketClient.Connect(URI, 1000);
+            channel.OnMessage = new EventHandler<ChannelContext>((o, ctx) =>
+            {
+                //error in eventhandler should not course channel crash
+                throw new Exception();
+            });
+            channel.Send(new byte[0]);
+            Thread.Sleep(500);
         }
 
         [TestCase]
@@ -48,7 +81,7 @@ namespace Taobao.Top.Link.Test
         {
             var selector = new ClientChannelSharedSelector();
             Assert.NotNull(selector.GetChannel(URI));
-            Assert.ReferenceEquals(selector.GetChannel(URI), selector.GetChannel(URI));
+            Assert.AreSame(selector.GetChannel(URI), selector.GetChannel(URI));
         }
 
         [TestCase]
@@ -62,7 +95,8 @@ namespace Taobao.Top.Link.Test
         {
             protected override void OnMessage(object sender, MessageEventArgs e)
             {
-                this.Send(e.Data);
+                Console.WriteLine("received: " + e.Data);
+                this.Send(e.RawData);
             }
         }
     }
