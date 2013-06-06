@@ -49,8 +49,8 @@
     <Compile Include="LinkException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Remoting\DynamicProxy.cs" />
-    <Compile Include="Remoting\ISerializationFactory.cs" />
-    <Compile Include="Remoting\ISerializer.cs" />
+    <Compile Include="Remoting\Serialization\ISerializationFactory.cs" />
+    <Compile Include="Remoting\Serialization\ISerializer.cs" />
     <Compile Include="Remoting\MethodCall.cs" />
     <Compile Include="Remoting\MethodReturn.cs" />
     <Compile Include="Remoting\Protocol\RemotingTcpHeaders.cs" />
@@ -59,6 +59,8 @@
     <Compile Include="Remoting\RemotingCallback.cs" />
     <Compile Include="Remoting\RemotingException.cs" />
     <Compile Include="Remoting\RemotingHandler.cs" />
+    <Compile Include="Remoting\Serialization\Json\CrossLanguageJsonSerializer.cs" />
+    <Compile Include="Remoting\Serialization\Json\CrossLanguageSerializationFactory.cs" />
     <Compile Include="Remoting\SynchronizedRemotingCallback.cs" />
   </ItemGroup>
   <ItemGroup>
