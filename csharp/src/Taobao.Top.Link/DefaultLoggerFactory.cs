@@ -6,6 +6,15 @@ namespace Taobao.Top.Link
 {
     public class DefaultLoggerFactory : ILoggerFactory
     {
+        private static ILoggerFactory _default;
+        public static ILoggerFactory Default
+        {
+            get
+            {
+                return _default ?? (_default = new DefaultLoggerFactory(true, true, true, true, true));
+            }
+        }
+
         public bool IsDebugEnabled { get; private set; }
         public bool IsErrorEnabled { get; private set; }
         public bool IsFatalEnabled { get; private set; }

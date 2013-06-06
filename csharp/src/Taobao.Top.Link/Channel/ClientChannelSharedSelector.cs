@@ -9,11 +9,14 @@ namespace Taobao.Top.Link.Channel
     /// </summary>
     public class ClientChannelSharedSelector : IClientChannelSelector
     {
+        private ILoggerFactory _loggerFactory;
         private Object _lockObject;
         private IDictionary<string, IClientChannel> _channels;
 
-        public ClientChannelSharedSelector()
+        public ClientChannelSharedSelector() : this(DefaultLoggerFactory.Default) { }
+        public ClientChannelSharedSelector(ILoggerFactory loggerFactory)
         {
+            this._loggerFactory = loggerFactory;
             this._lockObject = new object();
             this._channels = new Dictionary<string, IClientChannel>();
         }
@@ -36,7 +39,7 @@ namespace Taobao.Top.Link.Channel
 
         protected virtual IClientChannel Connect(Uri uri, int timeout)
         {
-            return WebSocketClient.Connect(uri, timeout);
+            return WebSocketClient.Connect(this._loggerFactory, uri, timeout);
         }
         private IClientChannel WrapChannel(IClientChannel channel)
         {

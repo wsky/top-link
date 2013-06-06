@@ -17,6 +17,19 @@ namespace Taobao.Top.Link.Channel.WebSocket
         /// <returns></returns>
         public static IClientChannel Connect(Uri uri, int timeout)
         {
+            return Connect(DefaultLoggerFactory.Default, uri, timeout);
+        }
+        /// <summary>connect to uri via websocket
+        /// </summary>
+        /// <param name="loggerFactory">loggerFactory</param>
+        /// <param name="uri">remote address</param>
+        /// <param name="timeout">timeout in milliseconds</param>
+        /// <returns></returns>
+        public static IClientChannel Connect(ILoggerFactory loggerFactory, Uri uri, int timeout)
+        {
+            //log first
+            var log = loggerFactory.Create(string.Format("WebSocketClientChannel-{0}", uri));
+
             var h = new WaitHandle();
             var onOpen = new EventHandler((o, e) => h.Set());
             var onError = new EventHandler<ErrorEventArgs>((o, e) => h.Set(e.Message));
@@ -36,16 +49,19 @@ namespace Taobao.Top.Link.Channel.WebSocket
             socket.OnOpen -= onOpen;
             socket.OnError -= onError;
 
-            socket.OnError += (o, e) => On(channel.OnError
+            socket.OnError += (o, e) => On(log
+                , channel.OnError
                 , new ChannelContext(new LinkException(e.Message)));
-            socket.OnClose += (o, e) => On(channel.OnClosed
+            socket.OnClose += (o, e) => On(log
+                , channel.OnClosed
                 , new ChannelClosedEventArgs(e.Reason));
-            socket.OnMessage += (o, e) => On(channel.OnMessage
+            socket.OnMessage += (o, e) => On(log
+                , channel.OnMessage
                 , new ChannelContext(e.RawData, channel));
             return channel;
         }
 
-        private static void On<T>(EventHandler<T> eventHandler, T args) where T : EventArgs
+        private static void On<T>(ILog log, EventHandler<T> eventHandler, T args) where T : EventArgs
         {
             try
             {
@@ -55,7 +71,7 @@ namespace Taobao.Top.Link.Channel.WebSocket
             catch (Exception e)
             {
                 //here is global on error
-                Console.WriteLine(e.Message);
+                log.Error(e);
                 //TODO:close channel here?
             }
         }
