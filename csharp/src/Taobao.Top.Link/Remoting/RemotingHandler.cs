@@ -12,7 +12,7 @@ namespace Taobao.Top.Link.Remoting
     /// <summary>deal with protocol/callback
     /// </summary>
     public class RemotingHandler
-    {   
+    {
         private ILog _log;
         private int _flag;
         private IClientChannelSelector _channelSelector;
@@ -149,6 +149,13 @@ namespace Taobao.Top.Link.Remoting
         }
         private void onClosed(object sender, ChannelClosedEventArgs args)
         {
+            var error = new RemotingException("channel broken");
+            foreach (KeyValuePair<int, RemotingCallback> i in this._callbacks)
+            {
+                try { i.Value.OnException(error); }
+                catch (Exception e) { this._log.Error(e); }
+            }
+            this._callbacks.Clear();
         }
     }
 }
