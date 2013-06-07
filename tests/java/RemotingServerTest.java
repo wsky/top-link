@@ -19,11 +19,6 @@ public class RemotingServerTest {
 			public MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) {
 				MethodReturn methodReturn = new MethodReturn();
 				methodReturn.ReturnValue = methodCall.Args[0];
-				System.out.println(methodCall.Uri);
-				System.out.println(methodCall.MethodName);
-				System.out.println(methodCall.TypeName);
-				System.out.println(methodCall.Args);
-				System.out.println(methodReturn.ReturnValue);
 				return methodReturn;
 			}
 		};
