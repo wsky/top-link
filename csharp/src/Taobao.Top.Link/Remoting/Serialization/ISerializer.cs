@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link.Remoting
+namespace Taobao.Top.Link.Remoting.Serialization
 {
     public interface ISerializer
     {

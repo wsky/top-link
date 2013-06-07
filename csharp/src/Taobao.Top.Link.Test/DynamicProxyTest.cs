@@ -7,6 +7,8 @@ using RemotingProtocolParser.TCP;
 using Taobao.Top.Link.Channel;
 using Taobao.Top.Link.Remoting;
 using Taobao.Top.Link.Remoting.Protocol;
+using Taobao.Top.Link.Remoting.Serialization;
+using Taobao.Top.Link.Remoting.Serialization.Json;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -15,12 +17,12 @@ namespace Taobao.Top.Link.Test
     [TestFixture]
     public class DynamicProxyTest
     {
-        private static ISerializationFactory serializationFactory = new TestSerializationFactory();
+        private static ISerializationFactory serializationFactory;
         private static Uri URI = new Uri("ws://localhost:8889/remoting");
         private static WebSocketServer server;
 
         [TestFixtureSetUp]
-        public void SetUp()
+        public void TestFixtureSetUp()
         {
             server = new WebSocketServer(URI.Port);
             server.AddService<Remoting>(URI.AbsolutePath);
@@ -28,9 +30,15 @@ namespace Taobao.Top.Link.Test
         }
 
         [TestFixtureTearDown]
-        public void TearDown()
+        public void TestFixtureTearDown()
         {
             server.Stop();
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            serializationFactory = new TestSerializationFactory();
         }
 
         [TestCase]
@@ -43,6 +51,18 @@ namespace Taobao.Top.Link.Test
                 {
                     //ExecutionTimeout = 1000
                 }.GetTransparentProxy() as TestService;
+            Assert.AreEqual("hi", testService.Echo("hi"));
+        }
+
+        [TestCase]
+        public void JsonTest()
+        {
+            serializationFactory = new CrossLanguageSerializationFactory();
+
+            var testService = new DynamicProxy(typeof(TestService), URI
+                , new RemotingHandler(DefaultLoggerFactory.Default
+                , new ClientChannelSharedSelector()
+                , serializationFactory)).GetTransparentProxy() as TestService;
             Assert.AreEqual("hi", testService.Echo("hi"));
         }
 

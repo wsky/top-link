@@ -6,6 +6,7 @@ using System.Threading;
 using RemotingProtocolParser.TCP;
 using Taobao.Top.Link.Channel;
 using Taobao.Top.Link.Remoting.Protocol;
+using Taobao.Top.Link.Remoting.Serialization;
 
 namespace Taobao.Top.Link.Remoting
 {
