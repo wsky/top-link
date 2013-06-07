@@ -94,7 +94,11 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
             if (typeof(DateTime).Equals(type))
                 return "t";
             if (typeof(IDictionary<string, string>).Equals(type)
-                || typeof(IDictionary<string, string>).IsAssignableFrom(type))
+                || typeof(IDictionary<string, object>).Equals(type)
+                || typeof(IDictionary<object, object>).Equals(type)
+                || typeof(IDictionary<string, string>).IsAssignableFrom(type)
+                || typeof(IDictionary<string, object>).IsAssignableFrom(type)
+                || typeof(IDictionary<object, object>).IsAssignableFrom(type))
                 return "m";
             if (type.IsArray)
                 return string.Format("[{0}", this.parseTypeName(type.GetElementType()));
