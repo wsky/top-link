@@ -7,6 +7,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 // design for cross-language
@@ -23,7 +24,7 @@ public class CrossLanguageJsonSerializer implements Serializer {
 	public String getName() {
 		return "json";
 	}
-	
+
 	@Override
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		MethodCallWrapper wrapper = new MethodCallWrapper(methodCall);
@@ -58,8 +59,19 @@ public class CrossLanguageJsonSerializer implements Serializer {
 		JSONArray args = obj.getJSONArray("Args");
 		if (args != null) {
 			methodCall.Args = new Object[args.size()];
-			for (int i = 0; i < methodCall.Args.length; i++)
-				methodCall.Args[i] = args.getObject(i, methodCall.MethodSignature[i]);
+
+			for (int i = 0; i < methodCall.Args.length; i++) {
+				// said, java generics was not real type,
+				// so HashMap.class did not work for json deserialize,
+				// and HashMap<Object, Object>.class was wrong
+				if (methodCall.MethodSignature[i].equals(HashMap.class))
+					methodCall.Args[i] = JSON.parseObject(
+							args.getJSONObject(i).toJSONString(),
+							new TypeReference<HashMap<Object, Object>>() {
+							});
+				else
+					methodCall.Args[i] = args.getObject(i, methodCall.MethodSignature[i]);
+			}
 		}
 		return methodCall;
 	}

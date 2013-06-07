@@ -21,6 +21,7 @@ public class JsonSerializerTest {
 		methodReturn_test(new CrossLanguageJsonSerializer());
 	}
 
+	@SuppressWarnings("unchecked")
 	private void methodCall_test(Serializer serializer) throws FormatterException {
 		MethodCall call1 = new MethodCall();
 		call1.MethodName = "echo";
@@ -61,6 +62,10 @@ public class JsonSerializerTest {
 		for (int i = 0; i < call1.Args.length; i++) {
 			assertEquals(call1.Args[i].getClass(), call2.Args[i].getClass());
 			assertEquals(call1.MethodSignature[i], call2.MethodSignature[i]);
+			if (call1.MethodSignature[i] == HashMap.class)
+				assertEquals(
+						((HashMap<String, String>) call1.Args[i]).size(), 
+						((HashMap<String, String>) call2.Args[i]).size());
 		}
 		for (Object arg : call2.Args)
 			System.out.println(String.format("%s|%s", arg.getClass(), arg));
