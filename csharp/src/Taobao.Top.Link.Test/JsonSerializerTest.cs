@@ -90,7 +90,7 @@ namespace Taobao.Top.Link.Test
             Assert.AreEqual(((Entity)return1.ReturnValue).Dictionary.Count, ((Entity)return2.ReturnValue).Dictionary.Count);
             Assert.AreEqual(((Entity)return1.ReturnValue).Array[0], ((Entity)return2.ReturnValue).Array[0]);
         }
-
+        
         private IDictionary<String, String> GetDictionary()
         {
             IDictionary<string, string> map = new Dictionary<string, string>();

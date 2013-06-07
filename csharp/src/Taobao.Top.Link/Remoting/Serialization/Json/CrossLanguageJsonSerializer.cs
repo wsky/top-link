@@ -150,12 +150,14 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
             {
                 jsonWriter.Formatting = Formatting.None;
                 jsonSerializer.Serialize(jsonWriter, value);
+                //Console.WriteLine(s.ToString());
                 return Encoding.UTF8.GetBytes(s.ToString());
                 //return s.ToArray();
             }
         }
         private JObject ToJsonObject(byte[] input)
         {
+            //Console.WriteLine(Encoding.UTF8.GetString(input));
             //instead of JsonConvert.DeserializeObject
             //https://github.com/JamesNK/Newtonsoft.Json/blob/master/Src/Newtonsoft.Json/JsonConvert.cs#L786
             JsonSerializer jsonSerializer = JsonSerializer.CreateDefault();

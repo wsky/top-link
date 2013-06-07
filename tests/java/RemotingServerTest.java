@@ -6,6 +6,7 @@ import com.taobao.top.link.remoting.RemotingServerChannelHandler;
 import com.taobao.top.link.remoting.MethodCall;
 import com.taobao.top.link.remoting.MethodCallContext;
 import com.taobao.top.link.remoting.MethodReturn;
+import com.taobao.top.link.remoting.CrossLanguageSerializationFactory;
 
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -18,9 +19,15 @@ public class RemotingServerTest {
 			public MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) {
 				MethodReturn methodReturn = new MethodReturn();
 				methodReturn.ReturnValue = methodCall.Args[0];
+				System.out.println(methodCall.Uri);
+				System.out.println(methodCall.MethodName);
+				System.out.println(methodCall.TypeName);
+				System.out.println(methodCall.Args);
+				System.out.println(methodReturn.ReturnValue);
 				return methodReturn;
 			}
 		};
+		handler.setSerializationFactory(new CrossLanguageSerializationFactory());
 		handler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
 		
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(9000, true);
