@@ -9,9 +9,14 @@ namespace Taobao.Top.Link.Channel
     /// </summary>
     public class ClientChannelSharedSelector : IClientChannelSelector
     {
+        private static readonly int CONNECTTIMEOUT = 5000;
         private ILoggerFactory _loggerFactory;
         private Object _lockObject;
         private IDictionary<string, IClientChannel> _channels;
+
+        /// <summary>get or set heartbeat interval time in milliseconds
+        /// </summary>
+        public int HeartbeatPeriod { get; set; }
 
         public ClientChannelSharedSelector() : this(DefaultLoggerFactory.Default) { }
         public ClientChannelSharedSelector(ILoggerFactory loggerFactory)
@@ -31,7 +36,7 @@ namespace Taobao.Top.Link.Channel
             if (!this.HaveChannel(url))
                 lock (this._lockObject)
                     if (!this.HaveChannel(url))
-                        this._channels.Add(url, this.WrapChannel(this.Connect(uri, 5000)));
+                        this._channels.Add(url, this.WrapChannel(this.Connect(uri, CONNECTTIMEOUT)));
 
             return _channels[url];
         }
@@ -43,6 +48,8 @@ namespace Taobao.Top.Link.Channel
         }
         private IClientChannel WrapChannel(IClientChannel channel)
         {
+            if (this.HeartbeatPeriod > 0)
+                channel.HeartbeatTimer = new ResetableTimer(this.HeartbeatPeriod);
             return channel;
         }
         private bool HaveChannel(string url)

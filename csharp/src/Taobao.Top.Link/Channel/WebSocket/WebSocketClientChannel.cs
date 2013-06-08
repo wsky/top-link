@@ -11,10 +11,26 @@ namespace Taobao.Top.Link.Channel.WebSocket
     public class WebSocketClientChannel : IClientChannel
     {
         private WebSocketSharp.WebSocket _socket;
+        private ResetableTimer _timer;
+        private EventHandler<ChannelContext> _onMessage;
+        private EventHandler<ChannelContext> _onError;
+        private EventHandler<ChannelClosedEventArgs> _onClosed;
 
-        public EventHandler<ChannelContext> OnMessage { get; set; }
-        public EventHandler<ChannelContext> OnError { get; set; }
-        public EventHandler<ChannelClosedEventArgs> OnClosed { get; set; }
+        public EventHandler<ChannelContext> OnMessage
+        {
+            get { this.DelayPing(); return this._onMessage; }
+            set { this._onMessage = value; }
+        }
+        public EventHandler<ChannelContext> OnError
+        {
+            get { this.DelayPing(); return this._onError; }
+            set { this._onError = value; }
+        }
+        public EventHandler<ChannelClosedEventArgs> OnClosed
+        {
+            get { this.DelayPing(); return this._onClosed; }
+            set { this._onClosed = value; }
+        }
 
         public Uri Uri { get; set; }
         public bool IsConnected { get { return this._socket.ReadyState == WsState.OPEN; } }
@@ -26,12 +42,50 @@ namespace Taobao.Top.Link.Channel.WebSocket
 
         public void Send(byte[] data)
         {
+            this.CheckChannel();
             this._socket.Send(data);
         }
 
         public void Close(string reason)
         {
             this._socket.Close(CloseStatusCode.NORMAL, reason);
+        }
+
+        public ResetableTimer HeartbeatTimer
+        {
+            set
+            {
+                this._timer = value;
+                this._timer.Elapsed += (s, e) =>
+                {
+                    if (this.IsConnected)
+                        //websocket-sharp's ping is sync
+                        this._socket.Ping();
+                };
+            }
+        }
+
+        private void CheckChannel()
+        {
+            if (!this.IsConnected)
+            {
+                if (this._timer != null)
+                    this._timer.Cancel();
+                throw new LinkException("websocket channel closed");
+            }
+            this.DelayPing();
+        }
+        private void DelayPing()
+        {
+            try
+            {
+                if (this._timer != null)
+                    this._timer.Delay();
+            }
+            catch (Exception)
+            {
+
+            }
         }
     }
 }

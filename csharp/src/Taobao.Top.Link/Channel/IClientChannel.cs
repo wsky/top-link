@@ -20,8 +20,11 @@ namespace Taobao.Top.Link.Channel
         /// <summary>get or set remote uri
         /// </summary>
         Uri Uri { get; set; }
-        /// <summary>
+        /// <summary>weather the channel is valid
         /// </summary>
         bool IsConnected { get; }
+        /// <summary>timer for heartbeat if set
+        /// </summary>
+        ResetableTimer HeartbeatTimer { set; }
     }
 }

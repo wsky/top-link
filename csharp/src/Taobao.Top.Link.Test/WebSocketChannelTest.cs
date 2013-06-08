@@ -15,6 +15,7 @@ namespace Taobao.Top.Link.Test
     {
         private static Uri URI = new Uri("ws://localhost:8889/echo");
         private static WebSocketServer server;
+        private static EventWaitHandle handle;
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -22,6 +23,7 @@ namespace Taobao.Top.Link.Test
             server = new WebSocketServer(URI.Port);
             server.AddService<Echo>(URI.AbsolutePath);
             server.Start();
+            handle = new EventWaitHandle(false, EventResetMode.AutoReset);
         }
 
         [TestFixtureTearDown]
@@ -88,7 +90,12 @@ namespace Taobao.Top.Link.Test
         public void HeartbeatTest()
         {
             var selector = new ClientChannelSharedSelector();
+            selector.HeartbeatPeriod = 100;
             selector.GetChannel(URI);
+            Thread.Sleep(1000);
+            //websocket-sharp do not raise onmessage while control frame
+            //Assert.True(handle.WaitOne(200));
+            //Assert.True(handle.WaitOne(200));
         }
 
         class Echo : WebSocketService

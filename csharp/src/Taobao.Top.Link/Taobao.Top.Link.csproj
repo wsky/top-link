@@ -66,6 +66,7 @@
     <Compile Include="Remoting\Serialization\Json\CrossLanguageJsonSerializer.cs" />
     <Compile Include="Remoting\Serialization\Json\CrossLanguageSerializationFactory.cs" />
     <Compile Include="Remoting\SynchronizedRemotingCallback.cs" />
+    <Compile Include="ResetableTimer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\RemotingProtocolParser\csharp\RemotingProtocolParser\RemotingProtocolParser-Core.csproj">
