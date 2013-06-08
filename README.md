@@ -37,6 +37,9 @@ mvn -DgroupId=yourDomain -DartifactId=yourId -DfinalName=jarName clean package
 ```
 
 C#
+
+clone tool repo first, git://github.com/wsky/work-tool.git
+
 ```c#
 cd csharp
 build.bat
