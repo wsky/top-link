@@ -40,6 +40,7 @@ C#
 ```c#
 cd csharp
 build.bat
+build.bat test
 ```
 
 ## Endpoint

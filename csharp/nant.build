@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<project name="top" default="all">
+	<property name="runtime" value="dotnet" dynamic="true"/>
+  <property name="args0" value="" dynamic="true"/>
+  <property name="args1" value="" dynamic="true"/>
+  <!--path-->
+  <property name="dir" value="."/>
+  <property name="dir.tools" value="../../work-tool"/>
+  <property name="build.base" value="build"/>
+  <property name="build.absolutepath" value="${path::get-full-path(build.base)}" />
+  <!--nuget-->
+  <property name="nuget" value="${path::get-full-path(dir.tools)}" />
+  <property name="nuget.params.push" value="-s http://cs-nuget.apphb.com/ codesharp" />
+  <!--msbuild-->
+  <property name="msbuild" value="C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe" />
+  <property name="msbuild.config" value="Release" dynamic="true"/>
+  <property name="msbuild.params" value="/t:rebuild /p:Configuration=${msbuild.config}" />
+  <property name="msbuild.params.weboutput" value="/t:_CopyWebApplication /p:WebProjectOutputDir=${build.absolutepath}" />
+  <property name="msbuild.params.mvcoutput" value="/t:_CopyWebApplication /p:mvcbuildviews=true /p:WebProjectOutputDir=${build.absolutepath}" />
+  <property name="msbuild.params.output" value="/p:OutputPath=${build.absolutepath}" />
+  <!--xbuild for mono-->
+  <if test="${runtime=='mono'}">
+    <!--windows use xbuild.bat-->
+    <property name="msbuild" value="xbuild"/>
+  </if>
+  <!--NUnit-->
+  <property name="nunit" value="${path::get-full-path(dir.tools)}/nunit/nunit-console.exe" />
+  
+  <target name="clean" description="clean build folder">
+    <delete dir="${build.absolutepath}"></delete>
+  </target>
+  
+  <target name="all">
+    <mkdir dir="${build.absolutepath}" />
+    <exec program="${msbuild}"
+          commandline="${msbuild.params} ${msbuild.params.output} /p:DocumentationFile=${build.absolutepath}/Taobao.Top.Link.Xml"
+          workingdir="${dir}\src\Taobao.Top.Link" />
+    <!--ilmerge-->
+    <copy todir="${build.absolutepath}/lib/">
+      <fileset basedir="${build.absolutepath}">
+        <include name="Taobao.Top.Link.dll" />
+        <include name="Taobao.Top.Link.pdb" />
+        <include name="Taobao.Top.Link.Xml" />
+        <include name="Taobao.Top.Link.dll.mdb" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="test">
+    <if test="${runtime=='dotnet'}">
+      <exec program="${msbuild}"
+            commandline="${msbuild.params} ${msbuild.params.output}\test"
+            workingdir="${dir}\src\Taobao.Top.Link.Test" />
+      <exec program="${nunit}" commandline="Taobao.Top.Link.Test.dll" workingdir="${build.absolutepath}\test"/>
+    </if>
+    <if test="${runtime=='mono'}">
+      <exec program="${msbuild}"
+            commandline="${msbuild.params} ${msbuild.params.output}/test_mono"
+            workingdir="${dir}\src\Taobao.Top.Link.Test" />
+      <exec program="mono" commandline="${nunit} Taobao.Top.Link.Test.dll" workingdir="${build.absolutepath}\test_mono"/>
+    </if>
+  </target>
+  
+</project>
