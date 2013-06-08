@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DynamicProxyTest.cs" />
+    <Compile Include="EndpointTest.cs" />
     <Compile Include="InteropeTest.cs" />
     <Compile Include="JsonSerializerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

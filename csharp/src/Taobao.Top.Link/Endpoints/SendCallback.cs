@@ -47,8 +47,11 @@ namespace Taobao.Top.Link.Endpoints
         /// <param name="timeout">timeout in milliseconds</param>
         public void WaitReturn(int timeout)
         {
-            if (timeout > 0 && !this._handle.WaitOne(timeout))
-                throw new LinkException(Text.E_EXECUTE_TIMEOUT);
+            if (timeout > 0)
+            {
+                if (!this._handle.WaitOne(timeout))
+                    throw new LinkException(Text.E_EXECUTE_TIMEOUT);
+            }
             else
                 this._handle.WaitOne();
         }

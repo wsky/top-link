@@ -35,7 +35,7 @@ namespace Taobao.Top.Link.Channel.WebSocket
             var onError = new EventHandler<ErrorEventArgs>((o, e) => h.Set(e.Message));
 
             var socket = new WebSocketSharp.WebSocket(uri.ToString());
-            var channel = new WebSocketClientChannel(socket);
+            var channel = new WebSocketClientChannel(socket) { Uri = uri };
             socket.OnOpen += onOpen;
             socket.OnError += onError;
 

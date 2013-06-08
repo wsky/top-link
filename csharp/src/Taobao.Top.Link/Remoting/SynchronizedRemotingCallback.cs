@@ -42,8 +42,11 @@ namespace Taobao.Top.Link.Remoting
         /// <param name="timeout">timeout in milliseconds</param>
         public void Wait(int timeout)
         {
-            if (timeout > 0 && !this._handle.WaitOne(timeout))
-                throw new RemotingException("remoting execution timeout");
+            if (timeout > 0)
+            {
+                if (!this._handle.WaitOne(timeout))
+                    throw new RemotingException("remoting execution timeout");
+            }
             else
                 this._handle.WaitOne();
         }
