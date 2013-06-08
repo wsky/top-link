@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="Channel\ChannelClosedEventArg.cs" />
     <Compile Include="Channel\ChannelContext.cs" />
+    <Compile Include="Channel\ChannelException.cs" />
     <Compile Include="Channel\ClientChannelSharedSelector.cs" />
     <Compile Include="Channel\IChannelSender.cs" />
     <Compile Include="Channel\IClientChannel.cs" />
@@ -47,6 +48,17 @@
     <Compile Include="Channel\WebSocket\WebSocketClientHelper.cs" />
     <Compile Include="DefaultLogger.cs" />
     <Compile Include="DefaultLoggerFactory.cs" />
+    <Compile Include="Endpoints\AckMessageArgs.cs" />
+    <Compile Include="Endpoints\Endpoint.cs" />
+    <Compile Include="Endpoints\EndpointContext.cs" />
+    <Compile Include="Endpoints\EndpointHandler.cs" />
+    <Compile Include="Endpoints\EndpointProxy.cs" />
+    <Compile Include="Endpoints\Identity.cs" />
+    <Compile Include="Endpoints\Message.cs" />
+    <Compile Include="Endpoints\MessageIO.cs" />
+    <Compile Include="Endpoints\MessageType.cs" />
+    <Compile Include="Endpoints\SendCallback.cs" />
+    <Compile Include="Endpoints\SimpleIdentity.cs" />
     <Compile Include="ILog.cs" />
     <Compile Include="ILoggerFactory.cs" />
     <Compile Include="LinkException.cs" />
@@ -67,6 +79,7 @@
     <Compile Include="Remoting\Serialization\Json\CrossLanguageSerializationFactory.cs" />
     <Compile Include="Remoting\SynchronizedRemotingCallback.cs" />
     <Compile Include="ResetableTimer.cs" />
+    <Compile Include="Text.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\RemotingProtocolParser\csharp\RemotingProtocolParser\RemotingProtocolParser-Core.csproj">
@@ -80,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Channel\TCP\" />
-    <Folder Include="Endpoint\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

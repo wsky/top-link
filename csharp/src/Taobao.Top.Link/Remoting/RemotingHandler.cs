@@ -89,10 +89,10 @@ namespace Taobao.Top.Link.Remoting
         }
         private void PrepareEventHandler()
         {
-            this._onMessage = new EventHandler<ChannelContext>(this.onMessage);
-            this._onClosed = new EventHandler<ChannelClosedEventArgs>(onClosed);
+            this._onMessage = new EventHandler<ChannelContext>(this.OnMessage);
+            this._onClosed = new EventHandler<ChannelClosedEventArgs>(OnClosed);
         }
-        private void onMessage(object sender, ChannelContext ctx)
+        private void OnMessage(object sender, ChannelContext ctx)
         {
             var protocol = new RemotingTcpProtocolHandle(new MemoryStream((byte[])ctx.Message));
             protocol.ReadPreamble();
@@ -152,7 +152,7 @@ namespace Taobao.Top.Link.Remoting
             try { callback.OnMethodReturn(methodReturn); }
             catch (Exception e) { this._log.Error(e); }
         }
-        private void onClosed(object sender, ChannelClosedEventArgs args)
+        private void OnClosed(object sender, ChannelClosedEventArgs args)
         {
             var error = new RemotingException(args.Reason);
             foreach (KeyValuePair<int, RemotingCallback> i in this._callbacks)
