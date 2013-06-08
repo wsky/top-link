@@ -78,4 +78,19 @@ namespace Taobao.Top.Link.Remoting
             return callback.MethodReturn;
         }
     }
+    /// <summary>proxy any type that for top-link.remoting rpc call, proxy based on .net build-in realproxy
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class DynamicProxy<T> : DynamicProxy where T : class
+    {
+        public DynamicProxy(Uri remoteUri
+            , RemotingHandler handler) : base(typeof(T), remoteUri, handler) { }
+        /// <summary>get real proxy object
+        /// </summary>
+        /// <returns></returns>
+        public T GetProxy()
+        {
+            return this.GetTransparentProxy() as T;
+        }
+    }
 }

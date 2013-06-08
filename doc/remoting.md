@@ -33,6 +33,21 @@ if(methodReturn.Exception != null)
 return methodReturn.ReturnValue;
 ```
 
+### Cross-Language support
+
+Serialization detail: https://github.com/wsky/top-link/issues/43
+
+C# sample:
+```c#
+using Taobao.Top.Link.Remoting;
+//via websocekt
+RemotingService.Connect<TestService>("ws://localhost/").Echo("hi");
+//via tcp and .net remoting extension
+//upcoming...
+(System.Runtime.Remoting.RemotingService.Connect("ws://localhost/") as TestService).Echo("hi");
+```
+
+
 ### High-Level Abstract Remoting
 
 - [X] Dynamic Proxy for Java Interface

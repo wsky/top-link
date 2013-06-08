@@ -66,6 +66,13 @@ namespace Taobao.Top.Link.Test
             Assert.AreEqual("hi", testService.Echo("hi"));
         }
 
+        [TestCase]
+        public void RemotingServiceTest()
+        {
+            serializationFactory = new CrossLanguageSerializationFactory();
+            Assert.AreEqual("hi", RemotingService.Connect<TestService>(URI.ToString()).Echo("hi"));
+        }
+
         /// <summary>run as a remoting server
         /// </summary>
         class Remoting : WebSocketService

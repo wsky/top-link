@@ -52,6 +52,7 @@
     <Compile Include="LinkException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Remoting\DynamicProxy.cs" />
+    <Compile Include="Remoting\RemotingService.cs" />
     <Compile Include="Remoting\Serialization\ISerializationFactory.cs" />
     <Compile Include="Remoting\Serialization\ISerializer.cs" />
     <Compile Include="Remoting\MethodCall.cs" />
