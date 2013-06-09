@@ -17,12 +17,14 @@ public class Text {
 	public static String WS_NOT_FINAL = "received a frame that not final fragment, not support!";
 	public static String WS_SEND_ERROR = "send error";
 	
-	public static String WS_ERROR_AT_CLIENT = "exceptionCaught at client";
-	public static String WS_ERROR_AT_SERVER = "exceptionCaught at server";
+	public static String ERROR_AT_CLIENT = "exceptionCaught at client";
+	public static String ERROR_AT_SERVER = "exceptionCaught at server";
 
-	public static String WS_SERVER_RUN = "server channel bind at %s";
-	public static String WS_SERVER_STOP = "server channel shutdown";
+	public static String SERVER_RUN = "server channel bind at %s";
+	public static String SERVER_STOP = "server channel shutdown";
 
+	public static String TCP_CHANNEL_CLOSED = "tcp channel closed";
+	
 	public static String E_UNBIND_ERROR = "unbind error";
 	public static String E_ID_DUPLICATE = "target identity can not equal itself";
 	public static String E_CREATE_NEW = "create new EndpointProxy by identity";

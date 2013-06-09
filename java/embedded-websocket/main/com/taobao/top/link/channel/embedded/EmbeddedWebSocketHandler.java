@@ -89,6 +89,6 @@ public class EmbeddedWebSocketHandler implements WebSocketHandler {
 	}
 
 	private void error(Throwable e) {
-		this.logger.error(Text.WS_ERROR_AT_CLIENT, e);
+		this.logger.error(Text.ERROR_AT_CLIENT, e);
 	}
 }

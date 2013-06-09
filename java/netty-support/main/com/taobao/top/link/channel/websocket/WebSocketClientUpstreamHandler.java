@@ -57,7 +57,7 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 		if (this.haveHandler())
 			this.getHandler().onError(this.createContext(e.getCause()));
 		this.clear(ctx);
-		this.logger.error(Text.WS_ERROR_AT_CLIENT, e.getCause());
+		this.logger.error(Text.ERROR_AT_CLIENT, e.getCause());
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package com.taobao.top.link.channel.websocket;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,13 +7,11 @@ import java.util.Map.Entry;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
@@ -31,65 +28,24 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.jboss.netty.util.CharsetUtil;
 
-import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
-import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelHandler;
+import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.ServerChannelSender;
+import com.taobao.top.link.channel.netty.NettyServerUpstreamHandler;
 
 //one handler per connection
-public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler {
-	private Logger logger;
-	private Logger ioErrorLogger;
-	private ChannelHandler channelHandler;
+public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 	private WebSocketServerHandshaker handshaker;
-	private ChannelGroup allChannels;
-	private ServerChannelSender sender;
 	private boolean cumulative;
-	private String closedReason;
 
 	public WebSocketServerUpstreamHandler(LoggerFactory loggerFactory,
 			ChannelHandler channelHandler,
 			ChannelGroup channelGroup,
 			boolean cumulative) {
-		this.logger = loggerFactory.create(this);
-		this.ioErrorLogger = loggerFactory.create("WebSocketServerUpstreamHandler.IOError");
-		this.channelHandler = channelHandler;
-		this.allChannels = channelGroup;
+		super(loggerFactory, channelHandler, channelGroup);
 		this.cumulative = cumulative;
-	}
-
-	@Override
-	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
-		this.allChannels.add(e.getChannel());
-		this.sender = new WebSocketServerChannelSender(ctx);
-	}
-
-	@Override
-	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-		if (this.closedReason == null)
-			this.logger.warn(Text.WS_CHANNEL_CLOSED);
-		if (this.channelHandler != null)
-			this.channelHandler.onClosed(this.closedReason);
-	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-			throws Exception {
-		Throwable t = e.getCause();
-
-		if (this.channelHandler != null)
-			this.channelHandler.onError(this.createContext(t));
-
-		// TODO:when to send close frame?
-		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelStateEvent.html
-		e.getChannel().close();
-
-		if (t instanceof IOException)
-			this.ioErrorLogger.error(Text.WS_ERROR_AT_SERVER, t);
-		else
-			this.logger.error(Text.WS_ERROR_AT_SERVER, t);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -199,20 +155,6 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 		}
 	}
 
-	private ChannelContext createContext(Object message) {
-		ChannelContext ctx = new ChannelContext();
-		ctx.setSender(this.sender);
-		ctx.setMessage(message);
-		return ctx;
-	}
-
-	private ChannelContext createContext(Throwable error) {
-		ChannelContext ctx = new ChannelContext();
-		ctx.setSender(this.sender);
-		ctx.setError(error);
-		return ctx;
-	}
-
 	private void dump(HttpRequest request) {
 		if (!this.logger.isDebugEnabled())
 			return;
@@ -224,7 +166,13 @@ public class WebSocketServerUpstreamHandler extends SimpleChannelUpstreamHandler
 	}
 
 	private void renderServerChannelContext(HttpRequest request) {
+		ServerChannelSender serverChannelSender = (WebSocketServerChannelSender) this.sender;
 		for (Entry<String, String> h : request.getHeaders())
-			this.sender.setContext(h.getKey(), h.getValue());
+			serverChannelSender.setContext(h.getKey(), h.getValue());
+	}
+
+	@Override
+	protected ChannelSender createSender(Channel channel) {
+		return new WebSocketServerChannelSender(channel);
 	}
 }

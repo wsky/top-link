@@ -3,15 +3,15 @@ package com.taobao.top.link.channel.websocket;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
 
 import com.taobao.top.link.channel.ServerChannelSender;
 
 public class WebSocketServerChannelSender extends WebSocketChannelSender implements ServerChannelSender {
 	private Map<Object, Object> context;
 
-	public WebSocketServerChannelSender(ChannelHandlerContext ctx) {
-		super(ctx != null ? ctx.getChannel() : null);
+	public WebSocketServerChannelSender(Channel channel) {
+		super(channel);
 		this.context = new HashMap<Object, Object>();
 	}
 
