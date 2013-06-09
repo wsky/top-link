@@ -12,13 +12,11 @@ import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.ChannelSender;
+import com.taobao.top.link.channel.netty.NettyChannelSender;
 
-public abstract class WebSocketChannelSender implements ChannelSender {
-	protected Channel channel;
-
+public abstract class WebSocketChannelSender extends NettyChannelSender {
 	public WebSocketChannelSender(Channel channel) {
-		this.channel = channel;
+		super(channel);
 	}
 
 	@Override

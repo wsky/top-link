@@ -106,7 +106,7 @@ public class WebSocketChannelTest {
 		WebSocketClientChannel clientChannel = (WebSocketClientChannel) WebSocketClient.connect(loggerFactory, uri, 1000);
 		assertTrue(clientChannel.isConnected());
 
-		clientChannel.channel.disconnect().syncUninterruptibly();
+		clientChannel.getChannel().disconnect().syncUninterruptibly();
 		// same as
 		// clientChannel.channel.close().syncUninterruptibly();
 		Thread.sleep(100);

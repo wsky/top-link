@@ -5,10 +5,7 @@ import java.util.Map.Entry;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names;
@@ -21,43 +18,15 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.Text;
-import com.taobao.top.link.channel.ChannelContext;
-import com.taobao.top.link.channel.ChannelHandler;
+import com.taobao.top.link.channel.netty.NettyClientUpstreamHandler;
 
 // one handler per connection
-public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler {
+public class WebSocketClientUpstreamHandler extends NettyClientUpstreamHandler {
 	private static HttpResponseStatus SUCCESS = new HttpResponseStatus(101, "Web Socket Protocol Handshake");
-
-	private Logger logger;
-	private WebSocketClientChannel clientChannel;
 	protected WebSocketClientHandshaker handshaker;
-	private String closedReason;
 	
 	public WebSocketClientUpstreamHandler(Logger logger, WebSocketClientChannel clientChannel) {
-		this.logger = logger;
-		this.clientChannel = clientChannel;
-	}
-
-	@Override
-	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
-		this.clientChannel.channel = ctx.getChannel();
-	}
-	
-	@Override
-	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-		if (this.closedReason == null)
-			this.logger.warn(Text.WS_CHANNEL_CLOSED);
-		if (this.haveHandler())
-			this.getHandler().onClosed(this.closedReason);
-	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-			throws Exception {
-		if (this.haveHandler())
-			this.getHandler().onError(this.createContext(e.getCause()));
-		this.clear(ctx);
-		this.logger.error(Text.ERROR_AT_CLIENT, e.getCause());
+		super(logger, clientChannel);
 	}
 
 	@Override
@@ -110,33 +79,6 @@ public class WebSocketClientUpstreamHandler extends SimpleChannelUpstreamHandler
 				this.getHandler().onMessage(this.createContext(buffer.toByteBuffer()));
 			}
 		}
-	}
-
-	private void clear(ChannelHandlerContext ctx) {
-		ctx.getChannel().close();
-	}
-
-	private boolean haveHandler() {
-		return this.clientChannel != null &&
-				this.clientChannel.getChannelHandler() != null;
-	}
-
-	private ChannelHandler getHandler() {
-		return this.clientChannel.getChannelHandler();
-	}
-
-	private ChannelContext createContext(Object message) {
-		ChannelContext ctx = new ChannelContext();
-		ctx.setSender(this.clientChannel);
-		ctx.setMessage(message);
-		return ctx;
-	}
-
-	private ChannelContext createContext(Throwable error) {
-		ChannelContext ctx = new ChannelContext();
-		ctx.setSender(this.clientChannel);
-		ctx.setError(error);
-		return ctx;
 	}
 
 	private void dump(HttpResponse response) {

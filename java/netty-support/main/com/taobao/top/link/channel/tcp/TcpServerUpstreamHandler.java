@@ -11,7 +11,6 @@ import com.taobao.top.link.channel.ChannelSender;
 import com.taobao.top.link.channel.netty.NettyServerUpstreamHandler;
 
 public class TcpServerUpstreamHandler extends NettyServerUpstreamHandler {
-	
 	public TcpServerUpstreamHandler(LoggerFactory loggerFactory,
 			ChannelHandler channelHandler,
 			ChannelGroup channelGroup) {
@@ -27,6 +26,6 @@ public class TcpServerUpstreamHandler extends NettyServerUpstreamHandler {
 
 	@Override
 	protected ChannelSender createSender(Channel channel) {
-		return new TcpChannelSender(channel);
+		return new TcpServerChannelSender(channel);
 	}
 }

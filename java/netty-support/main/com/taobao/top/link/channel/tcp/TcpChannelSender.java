@@ -8,13 +8,11 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 
 import com.taobao.top.link.channel.ChannelException;
-import com.taobao.top.link.channel.ChannelSender;
+import com.taobao.top.link.channel.netty.NettyChannelSender;
 
-public class TcpChannelSender implements ChannelSender {
-	protected Channel channel;
-
+public abstract class TcpChannelSender extends NettyChannelSender {
 	public TcpChannelSender(Channel channel) {
-		this.channel = channel;
+		super(channel);
 	}
 
 	@Override

@@ -1,10 +1,9 @@
-package com.taobao.top.link.channel.websocket;
+package com.taobao.top.link.channel.tcp;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
 
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 
 import com.taobao.top.link.ResetableTimer;
 import com.taobao.top.link.Text;
@@ -13,18 +12,17 @@ import com.taobao.top.link.channel.ChannelHandler;
 import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.netty.NettyClientChannel;
 
-public class WebSocketClientChannel extends WebSocketChannelSender implements ClientChannel, NettyClientChannel {
+public class TcpClientChannel extends TcpChannelSender implements ClientChannel, NettyClientChannel {
 	private URI uri;
 	private ChannelHandler channelHandler;
 	private ResetableTimer timer;
 
-	public WebSocketClientChannel() {
+	public TcpClientChannel() {
 		super(null);
 	}
-
-	public ChannelHandler getChannelHandler() {
-		this.delayPing();
-		return this.channelHandler;
+	
+	public TcpClientChannel(Channel channel) {
+		super(channel);
 	}
 
 	@Override
@@ -40,6 +38,11 @@ public class WebSocketClientChannel extends WebSocketChannelSender implements Cl
 	@Override
 	public URI getUri() {
 		return this.uri;
+	}
+
+	public ChannelHandler getChannelHandler() {
+		this.delayPing();
+		return this.channelHandler;
 	}
 
 	@Override
@@ -58,8 +61,9 @@ public class WebSocketClientChannel extends WebSocketChannelSender implements Cl
 		this.timer.setTask(new Runnable() {
 			@Override
 			public void run() {
-				if (isConnected())
-					channel.write(new PingWebSocketFrame());
+				// if (isConnected())
+				// TODO:easy heartbeat frame
+				// channel.write();
 			}
 		});
 		this.timer.start();

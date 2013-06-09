@@ -5,8 +5,6 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
-import org.jboss.netty.channel.ChannelPipeline;
-
 import com.taobao.top.link.WebSocketServerUpstreamHandlerWrapper;
 
 public class WebSocketServerChannelWrapper extends WebSocketServerChannel {
@@ -27,9 +25,6 @@ public class WebSocketServerChannelWrapper extends WebSocketServerChannel {
 
 	public void ssl() {
 		this.setSSLContext(sslContext);
-	}
-
-	protected void preparePipeline(ChannelPipeline pipeline) {
 	}
 
 	protected WebSocketServerUpstreamHandler createHandler() {
