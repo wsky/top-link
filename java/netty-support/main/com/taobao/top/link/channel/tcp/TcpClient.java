@@ -29,7 +29,7 @@ public class TcpClient extends NettyClient {
 		// connect
 		prepareAndConnect(logger, uri,
 				pipeline, tcpHandler,
-				uri.getScheme().equalsIgnoreCase("wss"),
+				uri.getScheme().equalsIgnoreCase("ssl"),
 				connectTimeoutMillis);
 		return clientChannel;
 	}

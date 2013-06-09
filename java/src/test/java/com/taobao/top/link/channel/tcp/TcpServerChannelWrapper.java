@@ -29,6 +29,7 @@ public class TcpServerChannelWrapper extends TcpServerChannel {
 
 	@Override
 	protected void prepareCodec(ChannelPipeline pipeline) {
+		pipeline.addLast("decoder", new Byte4Decoder());
 	}
 	
 	protected TcpServerUpstreamHandler createHandler() {
