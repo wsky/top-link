@@ -1,13 +1,12 @@
 package com.taobao.top.link.channel.tcp;
 
-import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.channel.netty.NettyServerChannel;
 
-public class TcpServerChannel extends NettyServerChannel {
+public abstract class TcpServerChannel extends NettyServerChannel {
 
 	public TcpServerChannel(int port) {
 		this(DefaultLoggerFactory.getDefault(), port);
@@ -18,11 +17,11 @@ public class TcpServerChannel extends NettyServerChannel {
 	}
 
 	protected void preparePipeline(ChannelPipeline pipeline) {
+		this.prepareCodec(pipeline);
 		pipeline.addLast("handler", this.createHandler());
 	}
 
-	protected void prepareBootstrap(ServerBootstrap bootstrap) {
-	}
+	protected abstract void prepareCodec(ChannelPipeline pipeline);
 
 	protected TcpServerUpstreamHandler createHandler() {
 		return new TcpServerUpstreamHandler(

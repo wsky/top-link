@@ -5,6 +5,8 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
+import org.jboss.netty.channel.ChannelPipeline;
+
 public class TcpServerChannelWrapper extends TcpServerChannel {
 	public static SSLContext sslContext;
 	static {
@@ -25,6 +27,10 @@ public class TcpServerChannelWrapper extends TcpServerChannel {
 		this.setSSLContext(sslContext);
 	}
 
+	@Override
+	protected void prepareCodec(ChannelPipeline pipeline) {
+	}
+	
 	protected TcpServerUpstreamHandler createHandler() {
 		return handlerWrapper = new TcpServerUpstreamHandlerWrapper(
 				this.loggerFactory,

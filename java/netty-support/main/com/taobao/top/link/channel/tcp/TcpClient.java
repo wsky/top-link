@@ -3,7 +3,6 @@ package com.taobao.top.link.channel.tcp;
 import java.net.URI;
 
 import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.Channels;
 
 import com.taobao.top.link.Logger;
 import com.taobao.top.link.LoggerFactory;
@@ -13,7 +12,10 @@ import com.taobao.top.link.channel.ConnectingChannelHandler;
 import com.taobao.top.link.channel.netty.NettyClient;
 
 public class TcpClient extends NettyClient {
-	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int connectTimeoutMillis)
+	public static ClientChannel connect(LoggerFactory loggerFactory, 
+			URI uri, 
+			int connectTimeoutMillis, 
+			ChannelPipeline pipeline)
 			throws ChannelException {
 		Logger logger = loggerFactory.create(String.format("TcpClientHandler-%s", uri));
 
@@ -24,7 +26,6 @@ public class TcpClient extends NettyClient {
 		clientChannel.setChannelHandler(handler);
 
 		TcpClientUpstreamHandler tcpHandler = new TcpClientUpstreamHandler(logger, clientChannel);
-		ChannelPipeline pipeline = Channels.pipeline();
 		// connect
 		prepareAndConnect(logger, uri,
 				pipeline, tcpHandler,
