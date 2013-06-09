@@ -2,15 +2,15 @@ package com.taobao.top.link;
 
 // special log/error text here, easy support culture
 public class Text {
-	public static String WS_REACH_MAX_IDLE = "reach max idle time";
-	public static String WS_REACH_MAX_IDLE_AND_CLOSE = "reach maxIdleTimeSeconds=%s, close client channel";
+	public static String REACH_MAX_IDLE = "reach max idle time";
+	public static String REACH_MAX_IDLE_AND_CLOSE = "reach maxIdleTimeSeconds=%s, close client channel";
 
 	public static String WS_HANDSHAKE_ERROR = "handshake error";
 	public static String WS_HANDSHAKE_INVALID = "Invalid handshake response: %s";
 
-	public static String WS_CONNECT_ERROR = "connect error";
-	public static String WS_CONNECT_FAIL = "connect fail";
-	public static String WS_CONNECT_TIMEOUT = "connect timeout";
+	public static String CONNECT_ERROR = "connect error";
+	public static String CONNECT_FAIL = "connect fail";
+	public static String CONNECT_TIMEOUT = "connect timeout";
 
 	public static String WS_CHANNEL_CLOSED = "websocket channel closed";
 	public static String WS_CONNECTION_CLOSED_BY = "connection closed: %s|%s";

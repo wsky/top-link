@@ -21,7 +21,6 @@ import org.jboss.netty.util.Timer;
 import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ServerChannel;
-import com.taobao.top.link.channel.websocket.MaxIdleTimeHandler;
 
 public abstract class NettyServerChannel extends ServerChannel {
 	private ServerBootstrap bootstrap;

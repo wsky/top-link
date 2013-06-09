@@ -1,4 +1,4 @@
-package com.taobao.top.link.channel.websocket;
+package com.taobao.top.link.channel.netty;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -24,8 +24,8 @@ public class MaxIdleTimeHandler extends IdleStateAwareChannelHandler {
 	@Override
 	public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws InterruptedException {
 		if (e.getState() == IdleState.ALL_IDLE) {
-			this.closeChannel(ctx, 1011, Text.WS_REACH_MAX_IDLE);
-			this.logger.info(Text.WS_REACH_MAX_IDLE_AND_CLOSE, this.maxIdleTimeSeconds);
+			this.closeChannel(ctx, 1011, Text.REACH_MAX_IDLE);
+			this.logger.info(Text.REACH_MAX_IDLE_AND_CLOSE, this.maxIdleTimeSeconds);
 		}
 	}
 

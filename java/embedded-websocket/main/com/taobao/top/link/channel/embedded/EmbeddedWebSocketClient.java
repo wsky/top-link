@@ -41,7 +41,7 @@ public class EmbeddedWebSocketClient {
 			// https://github.com/wsky/top-push-client/issues/20
 			socket.connect();
 		} catch (Exception e) {
-			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
+			throw new ChannelException(Text.CONNECT_ERROR, e);
 		}
 
 		if (clientChannel.error != null)

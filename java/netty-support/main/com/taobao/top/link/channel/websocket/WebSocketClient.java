@@ -65,10 +65,10 @@ public class WebSocketClient {
 		if (wsHandler.handshaker.isHandshakeComplete())
 			return clientChannel;
 		if (handler.error != null)
-			throw new ChannelException(Text.WS_CONNECT_FAIL
+			throw new ChannelException(Text.CONNECT_FAIL
 					+ ": " + handler.error.getMessage(), handler.error);
 
-		throw new ChannelException(Text.WS_CONNECT_TIMEOUT);
+		throw new ChannelException(Text.CONNECT_TIMEOUT);
 	}
 
 	protected static InetSocketAddress parse(URI uri) {
@@ -92,7 +92,7 @@ public class WebSocketClient {
 			return channel;
 		} catch (Exception e) {
 			bootstrap.releaseExternalResources();
-			throw new ChannelException(Text.WS_CONNECT_ERROR, e);
+			throw new ChannelException(Text.CONNECT_ERROR, e);
 		}
 	}
 
