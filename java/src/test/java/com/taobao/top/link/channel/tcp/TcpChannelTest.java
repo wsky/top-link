@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -81,9 +80,7 @@ public class TcpChannelTest {
 
 	@Test
 	public void send_test() throws ChannelException, InterruptedException {
-		ChannelPipeline pipeline = Channels.pipeline();
-		pipeline.addLast("decoder", new Byte4Decoder());
-		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uri, 100, pipeline);
+		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uri, 100, Channels.pipeline());
 		byte[] data = "1234".getBytes();
 		clientChannel.send(data, 0, data.length);
 		assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
