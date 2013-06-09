@@ -86,7 +86,7 @@ public class WebSocketClientChannel extends WebSocketChannelSender implements Cl
 					this.timer.stop();
 				} catch (InterruptedException e) {
 				}
-			throw new ChannelException(Text.WS_CHANNEL_CLOSED);
+			throw new ChannelException(Text.CHANNEL_CLOSED);
 		}
 		this.delayPing();
 	}

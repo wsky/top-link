@@ -42,7 +42,7 @@ public class EmbeddedWebSocketHandler implements WebSocketHandler {
 	@Override
 	public void onClose(WebSocket socket) {
 		this.clear(socket);
-		this.logger.warn(Text.WS_CHANNEL_CLOSED);
+		this.logger.warn(Text.CHANNEL_CLOSED);
 	}
 
 	@Override

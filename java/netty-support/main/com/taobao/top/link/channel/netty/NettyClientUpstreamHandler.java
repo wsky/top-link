@@ -28,7 +28,7 @@ public class NettyClientUpstreamHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 		if (this.closedReason == null)
-			this.logger.warn(Text.WS_CHANNEL_CLOSED);
+			this.logger.warn(Text.CHANNEL_CLOSED);
 		if (this.haveHandler())
 			this.getHandler().onClosed(this.closedReason);
 	}
