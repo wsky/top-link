@@ -34,6 +34,8 @@ public class NettyRemotingDecoder extends ReplayingDecoder<NettyRemotingDecoder.
 			this.handle.operation = handle.ReadOperation();
 			this.handle.contentDelimiter = handle.ReadContentDelimiter();
 			this.handle.setContentLength(this.payloadLength = handle.ReadContentLength());
+			// not a good design that content-length do not contain headers
+			// length, so here read is blocked or maybe not read enought data
 			this.handle.transportHeaders = handle.ReadTransportHeaders();
 			checkpoint(State.PAYLOAD);
 		case PAYLOAD:
