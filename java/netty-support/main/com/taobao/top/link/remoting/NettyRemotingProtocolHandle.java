@@ -1,9 +1,11 @@
 package com.taobao.top.link.remoting;
 
-import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+
+import remoting.protocol.NotSupportedException;
 
 import com.taobao.top.link.remoting.protocol.RemotingTcpProtocolHandle;
 
@@ -16,7 +18,7 @@ public class NettyRemotingProtocolHandle extends RemotingTcpProtocolHandle {
 	public int minorVersion;
 	public short operation;
 	public short contentDelimiter;
-	public ByteBuffer content;
+	public HashMap<String, Object> transportHeaders;
 
 	public void setContentLength(int l) {
 		this._contentLength = l;
@@ -61,6 +63,11 @@ public class NettyRemotingProtocolHandle extends RemotingTcpProtocolHandle {
 	@Override
 	public int ReadContentLength() {
 		return this._contentLength > -1 ? this._contentLength : super.ReadContentLength();
+	}
+
+	@Override
+	public HashMap<String, Object> ReadTransportHeaders() throws NotSupportedException {
+		return this.transportHeaders != null ? this.transportHeaders : super.ReadTransportHeaders();
 	}
 
 	@Override

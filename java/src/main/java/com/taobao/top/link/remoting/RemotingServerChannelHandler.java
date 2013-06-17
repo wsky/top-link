@@ -57,17 +57,22 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	public final void onMessage(final ChannelContext context) throws ChannelException, NotSupportedException {
 		Object msg = context.getMessage();
 
-		if (msg instanceof ByteBuffer) {
-			this.onMessage(context, (ByteBuffer) msg);
+		if (msg instanceof ByteBuffer || msg instanceof RemotingTcpProtocolHandle) {
+			this.onMessage(context, msg);
 			return;
 		}
 
-		for (ByteBuffer buffer : (List<ByteBuffer>) msg)
-			this.onMessage(context, buffer);
+		if (msg instanceof List<?>) {
+			for (Object buffer : (List<Object>) msg)
+				this.onMessage(context, buffer);
+			return;
+		}
 	}
 
-	private void onMessage(final ChannelContext context, ByteBuffer buffer) throws ChannelException, NotSupportedException {
-		final RemotingTcpProtocolHandle protocol = new RemotingTcpProtocolHandle(buffer);
+	private void onMessage(final ChannelContext context, Object msg) throws ChannelException, NotSupportedException {
+		final RemotingTcpProtocolHandle protocol = msg instanceof ByteBuffer ?
+				new RemotingTcpProtocolHandle((ByteBuffer) msg) :
+				(RemotingTcpProtocolHandle) msg;
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();

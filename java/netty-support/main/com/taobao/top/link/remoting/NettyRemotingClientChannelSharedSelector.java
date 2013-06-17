@@ -14,7 +14,8 @@ import com.taobao.top.link.channel.tcp.TcpClient;
 public class NettyRemotingClientChannelSharedSelector extends ClientChannelSharedSelector {
 	@Override
 	protected ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout) throws ChannelException {
-		if (uri.getScheme().equalsIgnoreCase("tcp") || uri.getScheme().equalsIgnoreCase("ssl")) {
+		if (uri.getScheme().equalsIgnoreCase("tcp") || 
+				uri.getScheme().equalsIgnoreCase("ssl")) {
 			ChannelPipeline pipeline = Channels.pipeline();
 			pipeline.addLast("decoder", new NettyRemotingDecoder());
 			return TcpClient.connect(loggerFactory, uri, timeout, pipeline);

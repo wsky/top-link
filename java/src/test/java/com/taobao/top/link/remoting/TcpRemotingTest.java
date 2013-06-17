@@ -19,7 +19,7 @@ public class TcpRemotingTest {
 	public static void beforeClass() throws URISyntaxException {
 		uri = new URI("tcp://localhost:8888/sample");
 		DefaultRemotingServerChannelHandler serverHandler = new DefaultRemotingServerChannelHandler();
-		serverHandler.addProcessor(uri.getPath(), new SampleService());
+		serverHandler.addProcessor("sample", new SampleService());
 		serverChannel = new NettyRemotingTcpServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(serverHandler);
 		serverChannel.run();

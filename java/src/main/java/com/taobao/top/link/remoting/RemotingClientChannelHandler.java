@@ -90,7 +90,10 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 
 	@Override
 	public void onMessage(ChannelContext context) {
-		RemotingTcpProtocolHandle protocol = new RemotingTcpProtocolHandle((ByteBuffer) context.getMessage());
+		Object msg = context.getMessage();
+		RemotingTcpProtocolHandle protocol = msg instanceof ByteBuffer ?
+				new RemotingTcpProtocolHandle((ByteBuffer) msg) :
+				(RemotingTcpProtocolHandle) msg;
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();
