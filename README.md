@@ -57,6 +57,7 @@ Application exposure in a node on the network. They can talk(RTT based) with eac
 - Low-Level implementation to support application extension.
 - High-Level Abstract Remoting
 - Cross-Language support, Java/C#/...
+- Multi-Transport, tcp/http/websocket
 
 [More](doc/remoting.md)
 

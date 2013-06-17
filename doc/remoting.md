@@ -48,6 +48,12 @@ RemotingService.Connect<TestService>("ws://localhost/").Echo("hi");
 ```
 
 
+### Multi-Transport support
+
+- [X] WebSocket
+- [X] TCP
+- [ ] HTTP
+
 ### High-Level Abstract Remoting
 
 - [X] Dynamic Proxy for Java Interface
@@ -65,7 +71,7 @@ RemotingConfiguration.configure().
 SampleService sampleService = (SampleService) RemotingService.connect("ws://localhost/sample", SampleService.class);
 assertEquals("hi", sampleService.echo("hi"));
 ```
-
+ 
 #### spring-support:
 
 ```xml
