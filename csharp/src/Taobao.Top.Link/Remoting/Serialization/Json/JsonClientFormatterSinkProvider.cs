@@ -119,6 +119,7 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
             {
                 requestHeaders = new TransportHeaders();
                 requestHeaders["RequestMethod"] = methodCallMessage.MethodName;
+                requestHeaders["Format"] = "json";
 
                 var shouldRewindStream = false;
 
@@ -146,9 +147,12 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
                 , ITransportHeaders responseHeaders
                 , Stream responseStream)
             {
+
                 using (responseStream)
+                using (var temp = new MemoryStream())
                 {
-                    var data = new byte[responseStream.Length];
+                    CopyStream(responseStream, temp);
+                    byte[] data = temp.ToArray();
                     responseStream.Read(data, 0, data.Length);
                     var methodReturn = _serializer.DeserializeMethodReturn(data, (methodCallMessage.MethodBase as MethodInfo).ReturnType);
 
@@ -156,6 +160,14 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
                         ? new ReturnMessage(methodReturn.ReturnValue, null, 0, null, methodCallMessage)
                         : new ReturnMessage(methodReturn.Exception, methodCallMessage);
                 }
+            }
+            //TODO:should be improved
+            private static void CopyStream(Stream input, Stream output)
+            {
+                byte[] b = new byte[1024];
+                int r;
+                while ((r = input.Read(b, 0, b.Length)) > 0)
+                    output.Write(b, 0, r);
             }
         }
     }

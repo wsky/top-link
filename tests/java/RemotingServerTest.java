@@ -7,6 +7,7 @@ import com.taobao.top.link.remoting.MethodCall;
 import com.taobao.top.link.remoting.MethodCallContext;
 import com.taobao.top.link.remoting.MethodReturn;
 import com.taobao.top.link.remoting.CrossLanguageSerializationFactory;
+import com.taobao.top.link.remoting.NettyRemotingTcpServerChannel;
 
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -25,12 +26,20 @@ public class RemotingServerTest {
 		handler.setSerializationFactory(new CrossLanguageSerializationFactory());
 		handler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
 		
-		WebSocketServerChannel serverChannel = new WebSocketServerChannel(9000, true);
-		serverChannel.setChannelHandler(handler);
-		serverChannel.run();
+		// websocket
+		WebSocketServerChannel wsServerChannel = new WebSocketServerChannel(9000, true);
+		wsServerChannel.setChannelHandler(handler);
+		wsServerChannel.run();
+		// tcp
+		NettyRemotingTcpServerChannel tcpServerChannel = new NettyRemotingTcpServerChannel(8000);
+		tcpServerChannel.setChannelHandler(handler);
+		tcpServerChannel.run();
+
 		System.out.println(String.format(
 			"cumulative=true|threadpool=true|processors=%s", 
 			Runtime.getRuntime().availableProcessors()));
+		System.out.println("bind tcp at 8000");
+		System.out.println("bind websocket at 9000");
 		System.in.read();
 	}
 }

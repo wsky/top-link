@@ -18,7 +18,7 @@ public class RemotingTcpProtocolHandle extends TcpProtocolHandle {
 		if (entry.getKey().equalsIgnoreCase(RemotingTransportHeader.Flag)) {
 			this.WriteUInt16(RemotingTcpHeaders.Flag);
 			this.WriteByte(TcpHeaderFormat.Int32);
-			this.WriteInt32((Integer) entry.getValue());
+			this.WriteInt32(entry.getValue() != null ? (Integer) entry.getValue() : -1);
 			return true;
 		}
 		if (entry.getKey().equalsIgnoreCase(RemotingTransportHeader.Format)) {

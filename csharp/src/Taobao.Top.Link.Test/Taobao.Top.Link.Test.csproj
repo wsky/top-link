@@ -34,6 +34,7 @@
       <HintPath>..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Runtime.Remoting" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DynamicProxyTest.cs" />

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
 using NUnit.Framework;
 using Taobao.Top.Link.Channel;
@@ -37,7 +39,9 @@ namespace Taobao.Top.Link.Test
         public void BuildInRmotingWithFormatterSinkTest()
         {
             var provider = new JsonClientFormatterSinkProvider();
-            var testService = System.Runtime.Remoting.RemotingServices.Connect(typeof(TestService), URI.ToString()) as TestService;
+            ChannelServices.RegisterChannel(new TcpClientChannel("json", new JsonClientFormatterSinkProvider()), false);
+            var testService = System.Runtime.Remoting.RemotingServices.Connect(typeof(TestService)
+                , "tcp://localhost:8000/") as TestService;
             Assert.AreEqual("hi", testService.Echo("hi"));
             Assert.AreEqual(1, testService.Echo(1));
         }
