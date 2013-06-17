@@ -40,8 +40,10 @@ namespace Taobao.Top.Link.Test
         {
             var provider = new JsonClientFormatterSinkProvider();
             ChannelServices.RegisterChannel(new TcpClientChannel("json", new JsonClientFormatterSinkProvider()), false);
+
             var testService = System.Runtime.Remoting.RemotingServices.Connect(typeof(TestService)
                 , "tcp://localhost:8000/") as TestService;
+
             Assert.AreEqual("hi", testService.Echo("hi"));
             Assert.AreEqual(1, testService.Echo(1));
         }
