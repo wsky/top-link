@@ -16,6 +16,10 @@ public class NettyRemotingDecoder extends ReplayingDecoder<NettyRemotingDecoder.
 		HEADER, PAYLOAD
 	}
 
+	public NettyRemotingDecoder() {
+		super(State.HEADER);
+	}
+
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer, State state) throws Exception {
 		switch (state) {

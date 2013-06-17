@@ -31,9 +31,6 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 
 	@Override
 	public ClientChannel getChannel(URI uri) throws ChannelException {
-		if (!uri.getScheme().equalsIgnoreCase("ws")) {
-			return null;
-		}
 		final String url = uri.toString();
 		if (channels.get(url) == null ||
 				!channels.get(url).isConnected()) {

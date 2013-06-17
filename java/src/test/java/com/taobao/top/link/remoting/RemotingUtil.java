@@ -20,4 +20,8 @@ public class RemotingUtil {
 	public static Object connect(URI uri, Class<?> serviceType) {
 		return connect(uri).create(serviceType, uri);
 	}
+
+	public static Object connect(URI uri, Class<?> serviceType, ClientChannelSelector clientChannelSelector) {
+		return connect(uri, clientChannelSelector).create(serviceType, uri);
+	}
 }
