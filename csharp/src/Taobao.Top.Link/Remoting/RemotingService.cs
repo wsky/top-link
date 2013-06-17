@@ -8,10 +8,10 @@ namespace Taobao.Top.Link.Remoting
 {
     /// <summary>remoting helper for easy using
     /// </summary>
-    public static class RemotingService
+    public static class RemotingServices
     {
         private static RemotingHandler handler;
-        static RemotingService()
+        static RemotingServices()
         {
             ILoggerFactory loggerFactory = DefaultLoggerFactory.Default;
             handler = new RemotingHandler(loggerFactory

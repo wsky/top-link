@@ -70,7 +70,7 @@ namespace Taobao.Top.Link.Test
         public void RemotingServiceTest()
         {
             serializationFactory = new CrossLanguageSerializationFactory();
-            Assert.AreEqual("hi", RemotingService.Connect<TestService>(URI.ToString()).Echo("hi"));
+            Assert.AreEqual("hi", RemotingServices.Connect<TestService>(URI.ToString()).Echo("hi"));
         }
 
         /// <summary>run as a remoting server

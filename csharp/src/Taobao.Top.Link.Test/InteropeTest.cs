@@ -32,6 +32,16 @@ namespace Taobao.Top.Link.Test
             Assert.AreEqual(dict1["k"], dict2["k"]);
         }
 
+        /// <summary>test .net remoting directly call to top-link
+        /// </summary>
+        public void BuildInRmotingWithFormatterSinkTest()
+        {
+            var provider = new JsonClientFormatterSinkProvider();
+            var testService = System.Runtime.Remoting.RemotingServices.Connect(typeof(TestService), URI.ToString()) as TestService;
+            Assert.AreEqual("hi", testService.Echo("hi"));
+            Assert.AreEqual(1, testService.Echo(1));
+        }
+
         private DynamicProxy CreateProxy(Type type)
         {
             return new DynamicProxy(type, URI
