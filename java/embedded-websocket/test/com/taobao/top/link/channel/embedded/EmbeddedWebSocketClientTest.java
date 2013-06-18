@@ -1,5 +1,8 @@
 package com.taobao.top.link.channel.embedded;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -79,6 +82,27 @@ public class EmbeddedWebSocketClientTest {
 		serverChannelWrapper.ssl();
 		EmbeddedWebSocketClient.connect(DefaultLoggerFactory.getDefault(), uriSsl, 1000);
 		// heartbeat_test(uriSsl);
+	}
+	
+	@Test
+	public void close_test() throws ChannelException, InterruptedException {
+		ClientChannel clientChannel = EmbeddedWebSocketClient.connect(DefaultLoggerFactory.getDefault(), uri, 1000);
+		assertTrue(clientChannel.isConnected());
+		clientChannel.close("close");
+		//websocket-client will not known that soon
+		assertTrue(clientChannel.isConnected());
+		Thread.sleep(100);
+		assertFalse(clientChannel.isConnected());
+	}
+
+	@Test
+	public void server_close_test() throws ChannelException, InterruptedException {
+		ClientChannel clientChannel = EmbeddedWebSocketClient.connect(DefaultLoggerFactory.getDefault(), uri, 1000);
+		assertTrue(clientChannel.isConnected());
+		serverChannelWrapper.stop();
+		Thread.sleep(100);
+		assertFalse(clientChannel.isConnected());
+
 	}
 
 	private void heartbeat_test(URI uri) throws ChannelException, InterruptedException {

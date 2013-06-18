@@ -52,7 +52,9 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	@Override
 	public void close(String reason) {
 		try {
-			this.socket.send(new CloseFrame(1000, reason));
+			CloseFrame frame = new CloseFrame(1000, reason);
+			frame.mask();
+			this.socket.send(frame);
 		} catch (WebSocketException e) {
 			// TODO:log error
 		}
