@@ -9,6 +9,8 @@ https://gist.github.com/4680940
 
 [More](doc/arch.md)
 
+![coverage](https://raw.github.com/wsky/top-link/master/doc/coverage.png)
+
 ## Build
 
 set external repo first
