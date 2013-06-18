@@ -153,7 +153,6 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
                 {
                     CopyStream(responseStream, temp);
                     byte[] data = temp.ToArray();
-                    responseStream.Read(data, 0, data.Length);
                     var methodReturn = _serializer.DeserializeMethodReturn(data, (methodCallMessage.MethodBase as MethodInfo).ReturnType);
 
                     return (methodReturn.Exception == null)

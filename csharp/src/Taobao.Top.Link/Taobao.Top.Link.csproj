@@ -82,6 +82,7 @@
     <Compile Include="Remoting\Serialization\Json\CrossLanguageJsonSerializer.cs" />
     <Compile Include="Remoting\Serialization\Json\CrossLanguageSerializationFactory.cs" />
     <Compile Include="Remoting\Serialization\Json\JsonClientFormatterSinkProvider.cs" />
+    <Compile Include="Remoting\Serialization\Json\JsonServerFormatterSinkProvider.cs" />
     <Compile Include="Remoting\SynchronizedRemotingCallback.cs" />
     <Compile Include="Remoting\TcpRemotingHelper.cs" />
     <Compile Include="ResetableTimer.cs" />

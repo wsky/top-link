@@ -12,6 +12,7 @@ namespace Taobao.Top.Link.Test
 {
     /// <summary>interoper with java server, that args[0] is return
     /// </summary>
+    [TestFixture]
     public class InteropeTest
     {
         private static Uri URI = new Uri("ws://localhost:9000/");
@@ -38,12 +39,27 @@ namespace Taobao.Top.Link.Test
         /// </summary>
         public void BuildInRmotingWithFormatterSinkTest()
         {
-            var provider = new JsonClientFormatterSinkProvider();
             ChannelServices.RegisterChannel(new TcpClientChannel("json", new JsonClientFormatterSinkProvider()), false);
 
             var testService = System.Runtime.Remoting.RemotingServices.Connect(typeof(TestService)
                 , "tcp://localhost:8000/") as TestService;
 
+            Assert.AreEqual("hi", testService.Echo("hi"));
+            Assert.AreEqual(1, testService.Echo(1));
+        }
+
+        /// <summary>test .net remoting directly call
+        /// </summary>
+        [TestCase]
+        public void BuildInRemotingTest()
+        {
+            //server
+            ChannelServices.RegisterChannel(new TcpServerChannel("server", 8001, new JsonServerFormatterSinkProvider()), false);
+            System.Runtime.Remoting.RemotingServices.Marshal(new TestClass(), "remote");
+            //client
+            ChannelServices.RegisterChannel(new TcpClientChannel("client", new JsonClientFormatterSinkProvider()), false);
+            var testService = System.Runtime.Remoting.RemotingServices.Connect(typeof(TestService)
+                , "tcp://localhost:8001/remote") as TestService;
             Assert.AreEqual("hi", testService.Echo("hi"));
             Assert.AreEqual(1, testService.Echo(1));
         }
@@ -63,6 +79,29 @@ namespace Taobao.Top.Link.Test
             DateTime Echo(DateTime input);
             string[] Echo(string[] input);
             IDictionary<string, string> Echo(IDictionary<string, string> input);
+        }
+        public class TestClass : MarshalByRefObject, TestService
+        {
+            public string Echo(string input)
+            {
+                return input;
+            }
+            public int Echo(int input)
+            {
+                return input;
+            }
+            public DateTime Echo(DateTime input)
+            {
+                return input;
+            }
+            public string[] Echo(string[] input)
+            {
+                return input;
+            }
+            public IDictionary<string, string> Echo(IDictionary<string, string> input)
+            {
+                return input;
+            }
         }
     }
 }
