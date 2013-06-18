@@ -43,6 +43,10 @@
     <Compile Include="Channel\IChannelSender.cs" />
     <Compile Include="Channel\IClientChannel.cs" />
     <Compile Include="Channel\IClientChannelSelector.cs" />
+    <Compile Include="Channel\IServerChannelSender.cs" />
+    <Compile Include="Channel\ServerChannel.cs" />
+    <Compile Include="Channel\TCP\TcpServerChannel.cs" />
+    <Compile Include="Channel\TCP\TcpServerChannelSender.cs" />
     <Compile Include="Channel\WebSocket\WebSocketClient.cs" />
     <Compile Include="Channel\WebSocket\WebSocketClientChannel.cs" />
     <Compile Include="Channel\WebSocket\WebSocketClientHelper.cs" />
@@ -79,6 +83,7 @@
     <Compile Include="Remoting\Serialization\Json\CrossLanguageSerializationFactory.cs" />
     <Compile Include="Remoting\Serialization\Json\JsonClientFormatterSinkProvider.cs" />
     <Compile Include="Remoting\SynchronizedRemotingCallback.cs" />
+    <Compile Include="Remoting\TcpRemotingHelper.cs" />
     <Compile Include="ResetableTimer.cs" />
     <Compile Include="Text.cs" />
   </ItemGroup>
@@ -92,9 +97,7 @@
       <Name>websocket-sharp</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Channel\TCP\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
