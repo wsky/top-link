@@ -26,7 +26,7 @@ namespace Taobao.Top.Link.Test
             Assert.AreEqual("hi", testService.Echo("hi"));
             Assert.AreEqual(1, testService.Echo(1));
             var date = DateTime.Now;
-            //Assert.AreEqual(date, testService.Echo(DateTime.Now));
+            Assert.AreEqual(date, testService.Echo(date));
             Assert.AreEqual("hi", testService.Echo(new string[] { "hi" })[0]);
 
             var dict1 = new Dictionary<string, string>();
@@ -46,6 +46,9 @@ namespace Taobao.Top.Link.Test
 
             Assert.AreEqual("hi", testService.Echo("hi"));
             Assert.AreEqual(1, testService.Echo(1));
+            var date = DateTime.Now;
+            Assert.AreEqual(date, testService.Echo(date));
+            Assert.AreEqual("hi", testService.Echo(new string[] { "hi" })[0]);
         }
 
         /// <summary>test .net remoting directly call

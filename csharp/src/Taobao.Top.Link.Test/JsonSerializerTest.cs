@@ -18,6 +18,8 @@ namespace Taobao.Top.Link.Test
         {
             Console.WriteLine(typeof(string[]));
             Console.WriteLine(typeof(Entity[]));
+            var now = DateTime.Now;
+            Assert.AreEqual(now, new DateTime(now.Ticks));
         }
 
         [TestCase]
@@ -35,7 +37,7 @@ namespace Taobao.Top.Link.Test
 		        1,
 		        1L,
 		        (short) 1,
-		        new DateTime(),
+		        DateTime.Now,
 		        GetDictionary(),
 		        GetEntity(),
 		        new string[] { "abc" } 
@@ -66,6 +68,7 @@ namespace Taobao.Top.Link.Test
             {
                 Assert.AreEqual(call1.Args[i].GetType(), call2.Args[i].GetType());
                 Assert.AreEqual(call1.MethodSignature[i], call2.MethodSignature[i]);
+                Assert.AreEqual(call1.Args[i].ToString(), call2.Args[i].ToString());
             }
             foreach (object arg in call2.Args)
                 Console.WriteLine(string.Format("{0}|{1}", arg.GetType(), arg));
@@ -90,7 +93,7 @@ namespace Taobao.Top.Link.Test
             Assert.AreEqual(((Entity)return1.ReturnValue).Dictionary.Count, ((Entity)return2.ReturnValue).Dictionary.Count);
             Assert.AreEqual(((Entity)return1.ReturnValue).Array[0], ((Entity)return2.ReturnValue).Array[0]);
         }
-        
+
         private IDictionary<String, String> GetDictionary()
         {
             IDictionary<string, string> map = new Dictionary<string, string>();

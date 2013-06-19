@@ -12,6 +12,13 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
     /// </summary>
     public class CrossLanguageJsonSerializer : ISerializer
     {
+        private static readonly JsonSerializer jsonSerializer;
+        static CrossLanguageJsonSerializer()
+        {
+            jsonSerializer = JsonSerializer.CreateDefault();
+            jsonSerializer.Converters.Add(new DateTimeLongConverter());
+        }
+
         public string Name { get { return "json"; } }
         public byte[] SerializeMethodCall(MethodCall methodCall)
         {
@@ -40,7 +47,7 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
             var i = 0;
             IList<object> args = new List<object>();
             foreach (JToken token in obj.GetValue("Args").AsJEnumerable())
-                args.Add(token.ToObject(methodCall.MethodSignature[i++]));
+                args.Add(token.ToObject(methodCall.MethodSignature[i++], jsonSerializer));
             methodCall.Args = new object[args.Count];
             args.CopyTo(methodCall.Args, 0);
 
@@ -62,7 +69,7 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
             MethodReturn methodReturn = new MethodReturn();
 
             if (obj.TryGetValue("ReturnValue", out t))
-                methodReturn.ReturnValue = t.ToObject(returnType);
+                methodReturn.ReturnValue = t.ToObject(returnType, jsonSerializer);
 
             var ex = obj.TryGetValue("Exception", out t) ? t.ToObject<string>() : null;
             if (!string.IsNullOrEmpty(ex))
@@ -144,7 +151,6 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
         {
             //instead of JsonConvert.SerializeObject
             //https://github.com/JamesNK/Newtonsoft.Json/blob/master/Src/Newtonsoft.Json/JsonConvert.cs#L588
-            JsonSerializer jsonSerializer = JsonSerializer.CreateDefault();
             //using (var s = new MemoryStream())
             //using (var w = new StreamWriter(s, Encoding.UTF8))
             //MemoryStream not work?
@@ -164,7 +170,6 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
             //Console.WriteLine(Encoding.UTF8.GetString(input));
             //instead of JsonConvert.DeserializeObject
             //https://github.com/JamesNK/Newtonsoft.Json/blob/master/Src/Newtonsoft.Json/JsonConvert.cs#L786
-            JsonSerializer jsonSerializer = JsonSerializer.CreateDefault();
             using (var s = new MemoryStream(input))
             using (var r = new StreamReader(s, Encoding.UTF8))
                 return jsonSerializer.Deserialize(new JsonTextReader(r), null) as JObject;
@@ -187,6 +192,24 @@ namespace Taobao.Top.Link.Remoting.Serialization.Json
         public class MethodReturnWrapper : MethodReturn
         {
             public new string Exception { get; set; }
+        }
+        /// <summary>DateTime/Long Ticks Converter
+        /// https://github.com/JamesNK/Newtonsoft.Json/blob/master/Src/Newtonsoft.Json/Converters/DateTimeConverterBase.cs
+        /// </summary>
+        class DateTimeLongConverter : Newtonsoft.Json.Converters.DateTimeConverterBase
+        {
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                if (reader.TokenType != JsonToken.Integer)
+                    throw new Exception(string.Format("Unexpected token parsing date. Expected Integer, got {0}.", reader.TokenType));
+                return new DateTime((long)reader.Value);
+            }
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                if (!(value is DateTime))
+                    throw new Exception("Expected date object value.");
+                writer.WriteValue(((DateTime)value).Ticks);
+            }
         }
     }
 }
