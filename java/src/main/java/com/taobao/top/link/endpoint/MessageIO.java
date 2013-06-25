@@ -18,7 +18,7 @@ public class MessageIO {
 		Message msg = new Message();
 		msg.messageType = buffer.getShort();
 		// read kv
-		HashMap<String, String> dict = new HashMap<String, String>();
+		HashMap<String, Object> dict = new HashMap<String, Object>();
 		short headerType = buffer.getShort();
 		while (headerType != HeaderType.EndOfHeaders) {
 			if (headerType == HeaderType.Custom)
@@ -61,8 +61,8 @@ public class MessageIO {
 			writeCountedString(buffer, message.token);
 		}
 		if (message.content != null) {
-			for (Entry<String, String> i : message.content.entrySet())
-				writeCustomHeader(buffer, i.getKey(), i.getValue());
+			for (Entry<String, Object> i : message.content.entrySet())
+				writeCustomHeader(buffer, i.getKey(), (String)i.getValue());
 		}
 		buffer.putShort(HeaderType.EndOfHeaders);
 

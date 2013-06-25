@@ -50,14 +50,14 @@ public class EndpointPerf extends TestCase {
 
 	private Endpoint server;
 	private EndpointProxy serverProxy;
-	private Map<String, String> msg;
+	private Map<String, Object> msg;
 
 	public EndpointPerf(String name) throws URISyntaxException, LinkException {
 		super(name);
 
 		URI uri = new URI("ws://localhost:8080/");
 		Identity serverIdentity = new DefaultIdentity("server");
-		msg = new HashMap<String, String>();
+		msg = new HashMap<String, Object>();
 		msg.put("str", "hello1234567890123456789123456789hello1234567890123456789123456789");
 
 		this.prepareServer(uri, serverIdentity);
@@ -80,7 +80,7 @@ public class EndpointPerf extends TestCase {
 		this.server = new Endpoint(serverIdentity);
 		this.server.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(Map<String, String> message, Identity messageFrom) {
+			public void onMessage(Map<String, Object> message, Identity messageFrom) {
 			}
 
 			@Override

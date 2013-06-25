@@ -59,13 +59,13 @@ public class ExtensionTest {
 
 	@Test
 	public void auth_onConnect_test() throws ChannelException, LinkException, URISyntaxException {
-		new Endpoint(id2).getEndpoint(id1, uri).send(new HashMap<String, String>());
+		new Endpoint(id2).getEndpoint(id1, uri).send(new HashMap<String, Object>());
 	}
 
 	@Test(expected = LinkException.class)
 	public void auth_fail_onConnect_test() throws ChannelException, LinkException, URISyntaxException {
 		WebSocketClientHelper.setHeaders(uri, null);
-		new Endpoint(id2).getEndpoint(id1, uri).send(new HashMap<String, String>());
+		new Endpoint(id2).getEndpoint(id1, uri).send(new HashMap<String, Object>());
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class ExtensionTest {
 		int total = 100;
 		handlerWrapper.latch = new CountDownLatch(total);
 		for (int i = 0; i < total; i++)
-			proxy.send(new HashMap<String, String>());
+			proxy.send(new HashMap<String, Object>());
 		handlerWrapper.latch.await();
 		assertEquals(total, handlerWrapper.receive.get());
 	}
@@ -84,8 +84,8 @@ public class ExtensionTest {
 	public void scheduled_endpoint_test() throws ChannelException, LinkException {
 		Endpoint e2 = new Endpoint(id2);
 		EndpointProxy proxy = e2.getEndpoint(id1, uri);
-		proxy.send(new HashMap<String, String>());
-		proxy.sendAndWait(new HashMap<String, String>());
+		proxy.send(new HashMap<String, Object>());
+		proxy.sendAndWait(new HashMap<String, Object>());
 	}
 
 	@Test

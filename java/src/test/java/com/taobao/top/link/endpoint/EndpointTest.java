@@ -53,7 +53,7 @@ public class EndpointTest {
 		MessageHandlerWrapper handlerWrapper2 = new MessageHandlerWrapper();
 		e2.setMessageHandler(handlerWrapper2);
 
-		HashMap<String, String> msg = new HashMap<String, String>();
+		HashMap<String, Object> msg = new HashMap<String, Object>();
 		msg.put("key1", "abc中文");
 		msg.put("key2", "abcefg");
 
@@ -77,11 +77,11 @@ public class EndpointTest {
 		MessageHandlerWrapper handlerWrapper2 = new MessageHandlerWrapper();
 		e2.setMessageHandler(handlerWrapper2);
 
-		HashMap<String, String> msg = new HashMap<String, String>();
+		HashMap<String, Object> msg = new HashMap<String, Object>();
 		msg.put("key1", "abc中文");
 		msg.put("key2", "abcefg");
 
-		Map<String, String> reMsg = e2.getEndpoint(id1, URI).sendAndWait(msg);
+		Map<String, Object> reMsg = e2.getEndpoint(id1, URI).sendAndWait(msg);
 		assertEquals(msg.get("key1"), reMsg.get("key1"));
 		assertEquals(msg.get("key2"), reMsg.get("key2"));
 
@@ -113,7 +113,7 @@ public class EndpointTest {
 			}
 
 			@Override
-			public void onMessage(Map<String, String> message, Identity messageFrom) {
+			public void onMessage(Map<String, Object> message, Identity messageFrom) {
 			}
 		});
 		try {

@@ -11,7 +11,7 @@ public class SendCallback {
 	private CountDownLatch latch;
 	private EndpointProxy endpointProxy;
 	private LinkException error;
-	private Map<String, String> _return;
+	private Map<String, Object> _return;
 
 	public SendCallback(EndpointProxy endpointProxy) {
 		this.endpointProxy = endpointProxy;
@@ -35,11 +35,11 @@ public class SendCallback {
 		this.setComplete();
 	}
 
-	public Map<String, String> getReturn() {
+	public Map<String, Object> getReturn() {
 		return this._return;
 	}
 
-	public void setReturn(Map<String, String> _return) {
+	public void setReturn(Map<String, Object> _return) {
 		this._return = _return;
 		this.setComplete();
 	}

@@ -79,33 +79,33 @@ public class EndpointProxy {
 		return false;
 	}
 
-	public Map<String, String> sendAndWait(
-			Map<String, String> message) throws LinkException {
+	public Map<String, Object> sendAndWait(
+			Map<String, Object> message) throws LinkException {
 		return this.sendAndWait(message, Endpoint.TIMOUT);
 	}
 
-	public Map<String, String> sendAndWait(
-			Map<String, String> message, int timeout) throws LinkException {
+	public Map<String, Object> sendAndWait(
+			Map<String, Object> message, int timeout) throws LinkException {
 		return this.sendAndWait(null, message, timeout);
 	}
 
-	public Map<String, String> sendAndWait(ChannelSender sender,
-			Map<String, String> message, int timeout) throws LinkException {
+	public Map<String, Object> sendAndWait(ChannelSender sender,
+			Map<String, Object> message, int timeout) throws LinkException {
 		return this.endpoint.sendAndWait(this,
 				this.getSenders(sender),
 				this.createMessage(message),
 				timeout);
 	}
 
-	public void send(Map<String, String> message) throws ChannelException {
+	public void send(Map<String, Object> message) throws ChannelException {
 		this.send(null, message);
 	}
 
-	public void send(ChannelSender sender, Map<String, String> message) throws ChannelException {
+	public void send(ChannelSender sender, Map<String, Object> message) throws ChannelException {
 		this.endpoint.send(this.getSenders(sender), this.createMessage(message));
 	}
 
-	private Message createMessage(Map<String, String> message) {
+	private Message createMessage(Map<String, Object> message) {
 		Message msg = new Message();
 		msg.messageType = MessageType.SEND;
 		msg.content = message;

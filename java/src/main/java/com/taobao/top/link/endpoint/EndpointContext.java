@@ -7,7 +7,7 @@ import com.taobao.top.link.channel.ChannelContext;
 
 public class EndpointContext {
 	private ChannelContext channelContext;
-	private Map<String, String> message;
+	private Map<String, Object> message;
 	private Identity messageFrom;
 	private int flag;
 	private String token;
@@ -25,7 +25,7 @@ public class EndpointContext {
 		this.token = token;
 	}
 
-	protected void setMessage(Map<String, String> message) {
+	protected void setMessage(Map<String, Object> message) {
 		this.message = message;
 	}
 
@@ -33,11 +33,11 @@ public class EndpointContext {
 		return this.messageFrom;
 	}
 
-	public Map<String, String> getMessage() {
+	public Map<String, Object> getMessage() {
 		return this.message;
 	}
 
-	public void reply(Map<String, String> message) throws LinkException {
+	public void reply(Map<String, Object> message) throws LinkException {
 		this.endpoint.send(this.channelContext.getSender(), this.createMessage(message));
 	}
 
@@ -48,7 +48,7 @@ public class EndpointContext {
 		this.endpoint.send(this.channelContext.getSender(), msg);
 	}
 
-	private Message createMessage(Map<String, String> message) {
+	private Message createMessage(Map<String, Object> message) {
 		Message msg = new Message();
 		msg.messageType = MessageType.SENDACK;
 		msg.content = message;

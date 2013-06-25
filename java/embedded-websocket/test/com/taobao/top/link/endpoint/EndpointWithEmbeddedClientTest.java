@@ -32,7 +32,7 @@ public class EndpointWithEmbeddedClientTest {
 	public void send_test() throws ChannelException, LinkException {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
-		HashMap<String, String> msg = new HashMap<String, String>();
+		HashMap<String, Object> msg = new HashMap<String, Object>();
 		e2.getEndpoint(id1, uri);
 		e2.getEndpoint(id1).send(msg);
 		e2.getEndpoint(id1).sendAndWait(msg);
@@ -45,7 +45,7 @@ public class EndpointWithEmbeddedClientTest {
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
 		e2.getEndpoint(id1, uri);
 		
-		HashMap<String, String> msg = new HashMap<String, String>();
+		HashMap<String, Object> msg = new HashMap<String, Object>();
 		String k = "";
 		for (int i = 0; i < 128; i++) {
 			k += "i";
@@ -65,7 +65,7 @@ public class EndpointWithEmbeddedClientTest {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
 		EndpointProxy proxy = e2.getEndpoint(id1, uri);
-		HashMap<String, String> msg = new HashMap<String, String>();
+		HashMap<String, Object> msg = new HashMap<String, Object>();
 		String k = "";
 		for (int i = 0; i < 128; i++) {
 			k += "i";

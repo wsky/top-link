@@ -11,5 +11,5 @@ public class Message {
 	public int flag;
 	public String token;
 	
-	public Map<String, String> content;
+	public Map<String, Object> content;
 }

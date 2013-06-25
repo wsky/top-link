@@ -16,7 +16,7 @@ public class MessageIOTest {
 		msg.token = "abc";
 		msg.statusCode = 100;
 		msg.statusPhase = "abcd";
-		msg.content = new HashMap<String, String>();
+		msg.content = new HashMap<String, Object>();
 		msg.content.put("name1", "中文abc");
 		msg.content.put("name2", "abc");
 

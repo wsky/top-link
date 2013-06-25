@@ -10,14 +10,14 @@ public class MessageHandlerWrapper implements MessageHandler {
 	public CountDownLatch latch;
 	public Object sync = new Object();
 	public AtomicInteger receive = new AtomicInteger();
-	public Map<String, String> lastMessage;
+	public Map<String, Object> lastMessage;
 
 	public boolean doError;
 	public boolean doReply;
 	public boolean print;
 
 	@Override
-	public void onMessage(Map<String, String> message, Identity messageFrom) {
+	public void onMessage(Map<String, Object> message, Identity messageFrom) {
 		lastMessage = message;
 		receive.incrementAndGet();
 		if (print)
