@@ -9,14 +9,16 @@ import java.util.Map.Entry;
 import com.taobao.top.link.endpoint.MessageType.HeaderType;
 
 // simple protocol impl
-//care about Endian
-//https://github.com/wsky/RemotingProtocolParser/issues/3
+// care about Endian
+// https://github.com/wsky/RemotingProtocolParser/issues/3
 public class MessageIO {
+	
 	public static Message readMessage(ByteBuffer buffer) {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 		Message msg = new Message();
 		msg.messageType = buffer.getShort();
+		msg.protocolVersion = buffer.getShort();
 		// read kv
 		HashMap<String, Object> dict = new HashMap<String, Object>();
 		short headerType = buffer.getShort();
@@ -43,6 +45,7 @@ public class MessageIO {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 		buffer.putShort(message.messageType);
+		buffer.putShort(message.protocolVersion);
 
 		if (message.statusCode > 0) {
 			buffer.putShort(HeaderType.StatusCode);
@@ -62,7 +65,7 @@ public class MessageIO {
 		}
 		if (message.content != null) {
 			for (Entry<String, Object> i : message.content.entrySet())
-				writeCustomHeader(buffer, i.getKey(), (String)i.getValue());
+				writeCustomHeader(buffer, i.getKey(), (String) i.getValue());
 		}
 		buffer.putShort(HeaderType.EndOfHeaders);
 
