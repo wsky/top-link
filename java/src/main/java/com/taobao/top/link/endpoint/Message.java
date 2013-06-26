@@ -4,8 +4,8 @@ import java.util.Map;
 
 // just simple version
 public class Message {
-	public short messageType;
 	public short protocolVersion = 1;
+	public short messageType;
 
 	public int statusCode;
 	public String statusPhase;

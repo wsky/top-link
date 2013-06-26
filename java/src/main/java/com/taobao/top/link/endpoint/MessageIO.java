@@ -17,8 +17,8 @@ public class MessageIO {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 		Message msg = new Message();
-		msg.messageType = buffer.getShort();
 		msg.protocolVersion = buffer.getShort();
+		msg.messageType = buffer.getShort();
 		// read kv
 		HashMap<String, Object> dict = new HashMap<String, Object>();
 		short headerType = buffer.getShort();
@@ -44,8 +44,8 @@ public class MessageIO {
 	public static void writeMessage(ByteBuffer buffer, Message message) {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-		buffer.putShort(message.messageType);
 		buffer.putShort(message.protocolVersion);
+		buffer.putShort(message.messageType);
 
 		if (message.statusCode > 0) {
 			buffer.putShort(HeaderType.StatusCode);
