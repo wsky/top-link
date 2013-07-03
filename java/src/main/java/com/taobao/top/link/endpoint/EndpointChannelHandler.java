@@ -159,9 +159,9 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			if (e instanceof LinkException)
 				endpointContext.error(
 						((LinkException) e).getErrorCode(),
-						((LinkException) e).getMessage());
+						this.parseStatusPhase(((LinkException) e)));
 			else
-				endpointContext.error(0, e.getMessage());
+				endpointContext.error(0, this.parseStatusPhase(e));
 		}
 	}
 
@@ -195,7 +195,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());
 		} catch (LinkException e) {
 			ack.statusCode = e.getErrorCode();
-			ack.statusPhase = e.getMessage();
+			ack.statusPhase = this.parseStatusPhase(e);
 			this.logger.warn(Text.E_REFUSE, e);
 		}
 		final ByteBuffer buffer = BufferManager.getBuffer();
@@ -242,6 +242,14 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		msg.flag = origin.flag;
 		msg.token = origin.token;
 		return msg;
+	}
+
+	private String parseStatusPhase(Exception e) {
+		return e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+	}
+
+	private String parseStatusPhase(LinkException e) {
+		return e.getMessage() == null && e.getErrorCode() <= 0 ? Text.E_UNKNOWN_ERROR : e.getMessage();
 	}
 
 	class InnerSendHandler implements SendHandler {
