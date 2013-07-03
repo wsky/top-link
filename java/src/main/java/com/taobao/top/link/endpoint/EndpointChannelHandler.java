@@ -155,6 +155,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		try {
 			this.endpoint.getMessageHandler().onMessage(endpointContext);
 		} catch (Exception e) {
+			this.logger.error(e);
 			// onMessage error should be reply to client
 			if (e instanceof LinkException)
 				endpointContext.error(
