@@ -34,7 +34,7 @@ public class DynamicProxy implements InvocationHandler {
 		this.channelHandler = handler;
 	}
 
-	protected Object create(Class<?> interfaceClass, URI remoteUri) {
+	public Object create(Class<?> interfaceClass, URI remoteUri) {
 		this.uriString = remoteUri.toString();
 		return Proxy.newProxyInstance(
 				interfaceClass.getClassLoader(),
