@@ -105,7 +105,7 @@ public class Scheduler<T> {
 		if (queue == null) {
 			synchronized (this.lock) {
 				if ((queue = this.tasks.get(t)) == null)
-					this.tasks.put(t, queue = this.createTaskQueue());
+					this.tasks.put(t, queue = this.createTaskQueue(t));
 			}
 		}
 
@@ -133,7 +133,7 @@ public class Scheduler<T> {
 		return new HashMap<T, Queue<Runnable>>();
 	}
 
-	protected Queue<Runnable> createTaskQueue() {
+	protected Queue<Runnable> createTaskQueue(T t) {
 		return new ArrayBlockingQueue<Runnable>(this.max, false);
 	}
 
