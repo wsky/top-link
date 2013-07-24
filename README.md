@@ -13,6 +13,10 @@ https://gist.github.com/4680940
 
 ## Build
 
+dev version 
+- java v1.1.1 https://github.com/wsky/top-link/issues?direction=desc&milestone=4&page=1&sort=updated&state=open
+- c# v1.0 https://github.com/wsky/top-link/issues?direction=desc&milestone=5&page=1&sort=updated&state=open
+
 set external repo first
 ```
 git submodule init
