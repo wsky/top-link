@@ -42,6 +42,6 @@ public class ChannelContext {
 	}
 
 	public void reply(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
-		this.sender.send(dataBuffer, null);
+		this.sender.send(dataBuffer, sendHandler);
 	}
 }
