@@ -1,6 +1,8 @@
 package com.taobao.top.link.channel.websocket;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -40,16 +42,26 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 
 	private void send(WebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
 		frame.setFinalFragment(true);
-		if (sendHandler == null)
-			this.channel.write(frame);
-		else
-			this.channel.write(frame).addListener(new ChannelFutureListener() {
-				@Override
-				public void operationComplete(ChannelFuture arg0) throws Exception {
-					if (sendHandler != null)
-						sendHandler.onSendComplete();
-				}
-			});
+
+		// FIXME rewrite to sendSync(int timeout)
+		final CountDownLatch latch = new CountDownLatch(1);
+
+		this.channel.write(frame).addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(ChannelFuture arg0) throws Exception {
+				latch.countDown();
+			}
+		});
+
+		try {
+			if (!latch.await(100, TimeUnit.MILLISECONDS))
+				throw new ChannelException("flush timeout in 100ms");
+		} catch (InterruptedException e) {
+			throw new ChannelException(e.getMessage(), e);
+		} finally {
+			if (sendHandler != null)
+				sendHandler.onSendComplete();
+		}
 	}
 
 }
