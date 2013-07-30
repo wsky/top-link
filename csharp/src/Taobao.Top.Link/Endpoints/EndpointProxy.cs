@@ -80,7 +80,7 @@ namespace Taobao.Top.Link.Endpoints
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public IDictionary<string, string> SendAndWait(IDictionary<string, string> message)
+        public IDictionary<string, object> SendAndWait(IDictionary<string, object> message)
         {
             return this.SendAndWait(message, Endpoint.TIMOUT);
         }
@@ -89,7 +89,7 @@ namespace Taobao.Top.Link.Endpoints
         /// <param name="message"></param>
         /// <param name="timeout">timeout in milliseconds</param>
         /// <returns></returns>
-        public IDictionary<string, string> SendAndWait(IDictionary<string, string> message, int timeout)
+        public IDictionary<string, object> SendAndWait(IDictionary<string, object> message, int timeout)
         {
             return this.SendAndWait(null, message, timeout);
         }
@@ -99,7 +99,7 @@ namespace Taobao.Top.Link.Endpoints
         /// <param name="message"></param>
         /// <param name="timeout">timeout in milliseconds</param>
         /// <returns></returns>
-        internal IDictionary<string, string> SendAndWait(IChannelSender sender, IDictionary<string, string> message, int timeout)
+        internal IDictionary<string, object> SendAndWait(IChannelSender sender, IDictionary<string, object> message, int timeout)
         {
             return this._handler.SendAndWait(this,
                     this.GetSender(sender),
@@ -109,7 +109,7 @@ namespace Taobao.Top.Link.Endpoints
         /// <summary>send message
         /// </summary>
         /// <param name="message"></param>
-        public void Send(IDictionary<string, string> message)
+        public void Send(IDictionary<string, object> message)
         {
             this.Send(null, message);
         }
@@ -117,12 +117,12 @@ namespace Taobao.Top.Link.Endpoints
         /// </summary>
         /// <param name="sender">use to send, must belong this proxy</param>
         /// <param name="message"></param>
-        internal void Send(IChannelSender sender, IDictionary<string, string> message)
+        internal void Send(IChannelSender sender, IDictionary<string, object> message)
         {
             this._handler.Send(this.CreateMessage(message), this.GetSender(sender));
         }
 
-        private Message CreateMessage(IDictionary<string, string> message)
+        private Message CreateMessage(IDictionary<string, object> message)
         {
             Message msg = new Message();
             msg.MessageType = MessageType.SEND;

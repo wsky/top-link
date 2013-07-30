@@ -41,6 +41,7 @@
     <Compile Include="EndpointTest.cs" />
     <Compile Include="InteropeTest.cs" />
     <Compile Include="JsonSerializerTest.cs" />
+    <Compile Include="MessageIOTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebSocketChannelTest.cs" />
   </ItemGroup>

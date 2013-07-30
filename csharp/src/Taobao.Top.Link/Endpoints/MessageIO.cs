@@ -12,14 +12,15 @@ namespace Taobao.Top.Link.Endpoints
         {
             var buffer = new BinaryReader(input);
             Message msg = new Message();
-            msg.MessageType = buffer.ReadInt16();
+            msg.ProtocolVersion = buffer.ReadByte();
+            msg.MessageType = buffer.ReadByte();
             // read kv
-            IDictionary<string, string> dict = new Dictionary<string, string>();
+            IDictionary<string, object> dict = new Dictionary<string, object>();
             short headerType = buffer.ReadInt16();
             while (headerType != MessageType.HeaderType.EndOfHeaders)
             {
                 if (headerType == MessageType.HeaderType.Custom)
-                    dict.Add(ReadCountedString(buffer), ReadCountedString(buffer));
+                    dict.Add(ReadCountedString(buffer), ReadCustomValue(buffer));
                 else if (headerType == MessageType.HeaderType.StatusCode)
                     msg.StatusCode = buffer.ReadInt32();
                 else if (headerType == MessageType.HeaderType.StatusPhrase)
@@ -36,7 +37,9 @@ namespace Taobao.Top.Link.Endpoints
         public static void WriteMessage(Stream input, Message message)
         {
             var buffer = new BinaryWriter(input);
-            buffer.Write(message.MessageType);
+            buffer.Write((byte)message.ProtocolVersion);
+            buffer.Write((byte)message.MessageType);
+
             if (message.StatusCode > 0)
             {
                 buffer.Write(MessageType.HeaderType.StatusCode);
@@ -85,11 +88,71 @@ namespace Taobao.Top.Link.Endpoints
             else
                 buffer.Write(0);
         }
-        private static void WriteCustomHeader(BinaryWriter buffer, string name, string value)
+        private static void WriteCustomHeader(BinaryWriter buffer, string name, object value)
         {
             buffer.Write(MessageType.HeaderType.Custom);
             WriteCountedString(buffer, name);
-            WriteCountedString(buffer, value);
+            WriteCustomValue(buffer, value);
+        }
+        private static object ReadCustomValue(BinaryReader buffer)
+        {
+            byte format = buffer.ReadByte();
+            switch (format)
+            {
+                case MessageType.ValueFormat.Void:
+                    return null;
+                case MessageType.ValueFormat.Byte:
+                    return buffer.ReadByte();
+                case MessageType.ValueFormat.Int16:
+                    return buffer.ReadInt16();
+                case MessageType.ValueFormat.Int32:
+                    return buffer.ReadInt32();
+                case MessageType.ValueFormat.Int64:
+                    return buffer.ReadInt64();
+                case MessageType.ValueFormat.Date:
+                    return new DateTime(buffer.ReadInt64());
+                default:
+                    return ReadCountedString(buffer);
+            }
+        }
+        private static void WriteCustomValue(BinaryWriter buffer, object value)
+        {
+            if (value == null)
+            {
+                buffer.Write(MessageType.ValueFormat.Void);
+                return;
+            }
+            Type type = value.GetType();
+            if (typeof(byte).Equals(type) || typeof(Byte).Equals(type))
+            {
+                buffer.Write(MessageType.ValueFormat.Byte);
+                buffer.Write((byte)value);
+            }
+            else if (typeof(short).Equals(type))
+            {
+                buffer.Write(MessageType.ValueFormat.Int16);
+                buffer.Write((short)value);
+            }
+            else if (typeof(int).Equals(type) || typeof(Int32).Equals(type))
+            {
+                buffer.Write(MessageType.ValueFormat.Int32);
+                buffer.Write((int)value);
+            }
+            else if (typeof(long).Equals(type) || typeof(Int64).Equals(type))
+            {
+                buffer.Write(MessageType.ValueFormat.Int64);
+                buffer.Write((long)value);
+            }
+            else if (typeof(DateTime).Equals(type))
+            {
+                buffer.Write(MessageType.ValueFormat.Date);
+                buffer.Write(((DateTime)value).Ticks);
+            }
+            else
+            {
+                buffer.Write(MessageType.ValueFormat.CountedString);
+                WriteCountedString(buffer, (string)value);
+            }
         }
     }
 }

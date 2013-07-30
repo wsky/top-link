@@ -16,7 +16,7 @@ namespace Taobao.Top.Link.Endpoints
 
         /// <summary>get received message
         /// </summary>
-        public IDictionary<string, string> Message { get; internal set; }
+        public IDictionary<string, object> Message { get; internal set; }
         /// <summary>get where the message sent from
         /// </summary>
         public Identity MessageFrom { get; internal set; }
@@ -36,7 +36,7 @@ namespace Taobao.Top.Link.Endpoints
         /// <summary>reply message
         /// </summary>
         /// <param name="message"></param>
-        public void Reply(IDictionary<string, string> message)
+        public void Reply(IDictionary<string, object> message)
         {
             this._handler.Send(this.CreateMessage(message), this._channelContext.Sender);
         }
@@ -52,7 +52,7 @@ namespace Taobao.Top.Link.Endpoints
             this._handler.Send(msg, this._channelContext.Sender);
         }
 
-        private Message CreateMessage(IDictionary<string, string> message)
+        private Message CreateMessage(IDictionary<string, object> message)
         {
             Message msg = new Message();
             msg.MessageType = MessageType.SENDACK;

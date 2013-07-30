@@ -46,7 +46,7 @@ namespace Taobao.Top.Link.Endpoints
             }
         }
 
-        internal IDictionary<string, string> SendAndWait(EndpointProxy e
+        internal IDictionary<string, object> SendAndWait(EndpointProxy e
             , IChannelSender sender
             , Message message
             , int timeout)
@@ -167,6 +167,6 @@ namespace Taobao.Top.Link.Endpoints
             return msg.StatusCode > 0 || !string.IsNullOrEmpty(msg.StatusPhase);
         }
 
-        public delegate void OnAckMessage(IDictionary<string, string> message, Identity messageFrom);
+        public delegate void OnAckMessage(IDictionary<string, object> message, Identity messageFrom);
     }
 }

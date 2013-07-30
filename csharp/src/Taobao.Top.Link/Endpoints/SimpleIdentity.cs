@@ -17,12 +17,12 @@ namespace Taobao.Top.Link.Endpoints
 
         public Identity Parse(object data)
         {
-            return new SimpleIdentity((data as IDictionary<String, String>)["name"]);
+            return new SimpleIdentity((data as IDictionary<string, string>)["name"]);
         }
 
         public void Render(object to)
         {
-            (to as IDictionary<String, String>).Add("name", this.Name);
+            (to as IDictionary<string, object>).Add("name", this.Name);
         }
 
         public bool Equals(Identity id)

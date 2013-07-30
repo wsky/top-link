@@ -9,7 +9,7 @@ namespace Taobao.Top.Link.Endpoints
     {
         private EventWaitHandle _handle;
         private Exception _error;
-        private IDictionary<string, string> _return;
+        private IDictionary<string, object> _return;
 
         /// <summary>get which endpoint to send
         /// </summary>
@@ -27,7 +27,7 @@ namespace Taobao.Top.Link.Endpoints
         }
         /// <summary>get reply
         /// </summary>
-        public IDictionary<string, string> Return
+        public IDictionary<string, object> Return
         {
             get { return this._return; }
             internal set

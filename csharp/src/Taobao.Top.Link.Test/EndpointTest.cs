@@ -43,7 +43,7 @@ namespace Taobao.Top.Link.Test
         {
             var e = new Endpoint(new SimpleIdentity("e1"));
             var id = new SimpleIdentity("e2");
-            var msg = new Dictionary<string, string>();
+            var msg = new Dictionary<string, object>();
             msg.Add("k", "k");
             var handle = new EventWaitHandle(false, EventResetMode.AutoReset);
             e.OnAckMessage += (s, ack) =>
@@ -60,7 +60,7 @@ namespace Taobao.Top.Link.Test
         {
             var e = new Endpoint(new SimpleIdentity("e1"));
             var id = new SimpleIdentity("e2");
-            var msg = new Dictionary<string, string>();
+            var msg = new Dictionary<string, object>();
             msg.Add("k", "k");
             Assert.AreEqual(msg["k"], e.GetEndpoint(id, URI.ToString()).SendAndWait(msg)["k"]);
         }

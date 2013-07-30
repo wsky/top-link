@@ -67,7 +67,7 @@ namespace Taobao.Top.Link.Endpoints
         /// <param name="uri">target address</param>
         /// <param name="extras">passed as connect message</param>
         /// <returns></returns>
-        public EndpointProxy GetEndpoint(Identity target, string uri, IDictionary<string, string> extras)
+        public EndpointProxy GetEndpoint(Identity target, string uri, IDictionary<string, object> extras)
         {
             EndpointProxy e = this.GetEndpoint(target) ?? this.CreateProxy();
             e.Identity = target;
@@ -79,7 +79,7 @@ namespace Taobao.Top.Link.Endpoints
             // connect message
             Message msg = new Message();
             msg.MessageType = MessageType.CONNECT;
-            IDictionary<string, string> content = new Dictionary<string, string>();
+            IDictionary<string, object> content = new Dictionary<string, object>();
             this.Identity.Render(content);
             // pass extra data
             if (extras != null)
