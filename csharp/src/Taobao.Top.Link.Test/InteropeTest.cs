@@ -5,6 +5,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
 using NUnit.Framework;
 using Taobao.Top.Link.Channel;
+using Taobao.Top.Link.Endpoints;
 using Taobao.Top.Link.Remoting;
 using Taobao.Top.Link.Remoting.Serialization.Json;
 
@@ -65,6 +66,13 @@ namespace Taobao.Top.Link.Test
                 , "tcp://localhost:8001/remote") as TestService;
             Assert.AreEqual("hi", testService.Echo("hi"));
             Assert.AreEqual(1, testService.Echo(1));
+        }
+
+        public void EndpointTest()
+        {
+            var e = new Endpoint(new SimpleIdentity("e1"));
+            //TODO: connect to java mock server
+            e.GetEndpoint(new SimpleIdentity("e2"), "ws://10.235.174.30:8000/");
         }
 
         private DynamicProxy CreateProxy(Type type)
