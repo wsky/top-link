@@ -1,10 +1,10 @@
 package com.taobao.top.link.endpoint;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.taobao.top.link.BufferManager;
@@ -26,7 +26,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 	private Logger logger;
 	private Endpoint endpoint;
 	private AtomicInteger flag;
-	private Map<String, SendCallback> callbackByFlag;
+	private Map<Integer, SendCallback> callbackByFlag;
 	// all connect in/out endpoints
 	private Map<String, Identity> idByToken;
 	private Scheduler<Identity> scheduler;
@@ -39,8 +39,8 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 	public EndpointChannelHandler(LoggerFactory loggerFactory) {
 		this.logger = loggerFactory.create(this);
 		this.flag = new AtomicInteger();
-		this.callbackByFlag = new HashMap<String, SendCallback>();
-		this.idByToken = new HashMap<String, Identity>();
+		this.callbackByFlag = new ConcurrentHashMap<Integer, SendCallback>();
+		this.idByToken = new ConcurrentHashMap<String, Identity>();
 	}
 
 	protected void setEndpoint(Endpoint endpoint) {
@@ -62,12 +62,16 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 	// all send in Endpoint module must call here
 	protected final void pending(Message msg, ChannelSender sender, SendCallback callback) throws ChannelException {
 		if (callback != null) {
-			msg.flag = this.flag.incrementAndGet();
-			this.callbackByFlag.put(Integer.toString(msg.flag), callback);
+			callback.flag = msg.flag = this.flag.incrementAndGet();
+			this.callbackByFlag.put(msg.flag, callback);
 		}
 		final ByteBuffer buffer = BufferManager.getBuffer();
 		MessageIO.writeMessage(buffer, msg);
 		sender.send(buffer, new InnerSendHandler(buffer));
+	}
+
+	public void cancel(SendCallback callback) {
+		this.callbackByFlag.remove(callback.flag);
 	}
 
 	@Override
@@ -96,7 +100,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 
-		SendCallback callback = this.callbackByFlag.remove(Integer.toString(msg.flag));
+		SendCallback callback = this.callbackByFlag.remove(msg.flag);
 
 		if (msg.messageType == MessageType.CONNECTACK) {
 			this.handleConnectAck(callback, msg);

@@ -149,10 +149,13 @@ public class Endpoint {
 			int timeout) throws LinkException {
 		SendCallback callback = new SendCallback(e);
 		this.channelHandler.pending(message, sender, callback);
-		callback.waitReturn(timeout);
-		if (callback.getError() != null) {
-			throw callback.getError();
+		try {
+			callback.waitReturn(timeout);
+		} finally{
+			this.channelHandler.cancel(callback);
 		}
+		if (callback.getError() != null)
+			throw callback.getError();
 		return callback.getReturn();
 	}
 

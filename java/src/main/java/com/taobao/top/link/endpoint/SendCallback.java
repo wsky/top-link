@@ -13,6 +13,8 @@ public class SendCallback {
 	private LinkException error;
 	private Map<String, Object> _return;
 
+	public Integer flag;
+	
 	public SendCallback(EndpointProxy endpointProxy) {
 		this.endpointProxy = endpointProxy;
 		this.latch = new CountDownLatch(1);
