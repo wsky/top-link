@@ -11,10 +11,13 @@ namespace Taobao.Top.Link.Endpoints
     {
         internal static int TIMOUT = 5000;
         private ILog _log;
-        private IClientChannelSelector _channelSelector;
         // in/out endpoints
         private IList<EndpointProxy> _connected;
         private EndpointHandler _handler;
+
+        /// <summary>get or set clientChannelSelector
+        /// </summary>
+        public IClientChannelSelector ChannelSelector { get; set; }
 
         /// <summary>message received, see RTT based
         /// </summary>
@@ -33,7 +36,7 @@ namespace Taobao.Top.Link.Endpoints
             this._connected = new List<EndpointProxy>();
             this._log = loggerFactory.Create(this);
             this.Identity = identity;
-            this._channelSelector = new ClientChannelSharedSelector(loggerFactory);
+            this.ChannelSelector = new ClientChannelSharedSelector(loggerFactory);
             this._handler = new EndpointHandler(loggerFactory);
             this._handler.MessageHandler = ctx => OnMessage(this, ctx);
             this._handler.AckMessageHandler = (m, i) => OnAckMessage(this, new AckMessageArgs(m, i));
@@ -74,7 +77,7 @@ namespace Taobao.Top.Link.Endpoints
             // always clear, cached proxy will have broken channel
             e.Remove(uri);
             // always reget channel, make sure it's valid
-            IClientChannel channel = this._channelSelector.GetChannel(new Uri(uri));
+            IClientChannel channel = this.ChannelSelector.GetChannel(new Uri(uri));
             e.Add(channel);
             // connect message
             Message msg = new Message();
