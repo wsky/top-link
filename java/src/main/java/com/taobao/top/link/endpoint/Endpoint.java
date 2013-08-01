@@ -14,7 +14,6 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelSender;
-import com.taobao.top.link.channel.ClientChannel;
 import com.taobao.top.link.channel.ClientChannelSelector;
 import com.taobao.top.link.channel.ClientChannelSharedSelector;
 import com.taobao.top.link.channel.ServerChannel;
@@ -105,13 +104,6 @@ public class Endpoint {
 	// connect to target via special uri
 	public synchronized EndpointProxy getEndpoint(
 			Identity target, URI uri, Map<String, Object> extras) throws LinkException {
-		EndpointProxy e = this.getEndpoint(target);
-		// always clear, cached proxy will have broken channel
-		e.remove(uri);
-		// always reget channel, make sure it's valid
-		ClientChannel channel = this.channelSelector.getChannel(uri);
-		channel.setChannelHandler(this.channelHandler);
-		e.add(channel);
 		// connect message
 		Message msg = new Message();
 		msg.messageType = MessageType.CONNECT;
@@ -121,6 +113,17 @@ public class Endpoint {
 		if (extras != null)
 			content.putAll(extras);
 		msg.content = content;
+
+		EndpointProxy e = this.getEndpoint(target);
+		// always clear, cached proxy will have broken channel
+		e.remove(uri);
+		// always reget channel, make sure it's valid
+		ClientChannelWrapper channel = new ClientChannelWrapper(
+				// set default version on this channel
+				this.channelSelector.getChannel(uri), msg.protocolVersion);
+		channel.setChannelHandler(this.channelHandler);
+		e.add(channel);
+		// send connect
 		this.sendAndWait(e, channel, msg, TIMOUT);
 		return e;
 	}
@@ -151,7 +154,7 @@ public class Endpoint {
 		this.channelHandler.pending(message, sender, callback);
 		try {
 			callback.waitReturn(timeout);
-		} finally{
+		} finally {
 			this.channelHandler.cancel(callback);
 		}
 		if (callback.getError() != null)

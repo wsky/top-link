@@ -18,14 +18,14 @@ public class EndpointProxy {
 	private Identity identity;
 	// known by both side
 	private String token;
-	private List<ChannelSender> senders;
-	private Map<String, ClientChannel> clientChannels;
+	private List<ChannelSenderWrapper> senders;
+	private Map<String, ClientChannelWrapper> clientChannels;
 	private Random random;
 	private Endpoint endpoint;
 
 	protected EndpointProxy(Endpoint endpoint) {
-		this.senders = new ArrayList<ChannelSender>();
-		this.clientChannels = new HashMap<String, ClientChannel>();
+		this.senders = new ArrayList<ChannelSenderWrapper>();
+		this.clientChannels = new HashMap<String, ClientChannelWrapper>();
 		this.random = new Random();
 		this.endpoint = endpoint;
 	}
@@ -42,18 +42,18 @@ public class EndpointProxy {
 		return this.token;
 	}
 
-	protected synchronized void add(ChannelSender sender) {
+	protected synchronized void add(ChannelSenderWrapper sender) {
 		this.senders.add(sender);
-		if (sender instanceof ClientChannel) {
-			ClientChannel channel = (ClientChannel) sender;
+		if (sender instanceof ClientChannelWrapper) {
+			ClientChannelWrapper channel = (ClientChannelWrapper) sender;
 			this.clientChannels.put(channel.getUri().toString(), channel);
 		}
 	}
 
 	protected synchronized void remove(ChannelSender sender) {
 		this.senders.remove(sender);
-		if (sender instanceof ClientChannel) {
-			ClientChannel channel = (ClientChannel) sender;
+		if (sender instanceof ClientChannelWrapper) {
+			ClientChannelWrapper channel = (ClientChannelWrapper) sender;
 			this.clientChannels.remove(channel.getUri().toString());
 		}
 	}
@@ -89,11 +89,12 @@ public class EndpointProxy {
 		return this.sendAndWait(null, message, timeout);
 	}
 
-	public Map<String, Object> sendAndWait(ChannelSender sender,
+	public Map<String, Object> sendAndWait(ChannelSenderWrapper sender,
 			Map<String, Object> message, int timeout) throws LinkException {
+		ChannelSenderWrapper senderWrapper = this.getSenders(sender);
 		return this.endpoint.sendAndWait(this,
-				this.getSenders(sender),
-				this.createMessage(message),
+				senderWrapper,
+				this.createMessage(message, senderWrapper),
 				timeout);
 	}
 
@@ -101,19 +102,22 @@ public class EndpointProxy {
 		this.send(null, message);
 	}
 
-	public void send(ChannelSender sender, Map<String, Object> message) throws ChannelException {
-		this.endpoint.send(this.getSenders(sender), this.createMessage(message));
+	public void send(ChannelSenderWrapper sender, Map<String, Object> message) throws ChannelException {
+		ChannelSenderWrapper senderWrapper = this.getSenders(sender);
+		this.endpoint.send(senderWrapper, this.createMessage(message, senderWrapper));
 	}
 
-	private Message createMessage(Map<String, Object> message) {
+	private Message createMessage(Map<String, Object> message, ChannelSenderWrapper senderWrapper) {
 		Message msg = new Message();
+		// use sender's protocol version
+		msg.protocolVersion = senderWrapper.getProtocolVersion();
 		msg.messageType = MessageType.SEND;
 		msg.content = message;
 		msg.token = this.token;
 		return msg;
 	}
 
-	private ChannelSender getSenders(ChannelSender sender) throws ChannelException {
+	private ChannelSenderWrapper getSenders(ChannelSenderWrapper sender) throws ChannelException {
 		if (this.senders.isEmpty())
 			throw new ChannelException(Text.E_NO_SENDER);
 		if (this.senders.contains(sender))

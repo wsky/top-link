@@ -41,6 +41,7 @@ public class EndpointContext {
 
 	private Message createMessage(Map<String, Object> message) {
 		Message msg = new Message();
+		// reply with incoming message's version
 		msg.protocolVersion = this.origin.protocolVersion;
 		msg.messageType = MessageType.SENDACK;
 		msg.flag = this.origin.flag;

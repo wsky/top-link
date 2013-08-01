@@ -16,7 +16,6 @@ import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelContext;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.ChannelSender;
-import com.taobao.top.link.channel.ServerChannelSender;
 import com.taobao.top.link.channel.ChannelSender.SendHandler;
 import com.taobao.top.link.channel.SimpleChannelHandler;
 import com.taobao.top.link.schedule.Scheduler;
@@ -154,7 +153,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		}
 
 		EndpointContext endpointContext = new EndpointContext(context, this.endpoint, msgFrom, msg);
-		
+
 		try {
 			this.endpoint.getMessageHandler().onMessage(endpointContext);
 		} catch (Exception e) {
@@ -177,13 +176,16 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 	// deal with connect-in message from endpoint,
 	// parse identity send from endpoint and assign it a token,
 	// token just used for routing message-from, not auth
-	private void handleConnect(ChannelContext context, Message message) throws ChannelException {
-		Message ack = this.createMessage(message);
+	private void handleConnect(ChannelContext context, Message connectMessage) throws ChannelException {
+		Message ack = this.createConnectAckMessage(connectMessage);
 		ack.messageType = MessageType.CONNECTACK;
 		try {
-			Identity id = this.endpoint.getIdentity().parse(message.content);
+			Identity id = this.endpoint.getIdentity().parse(connectMessage.content);
 			EndpointProxy proxy = this.endpoint.getEndpoint(id);
-			proxy.add(context.getSender());
+			// set connect-in version as the sender protocol version
+			ChannelSenderWrapper senderWrapper =
+					new ChannelSenderWrapper(context.getSender(), connectMessage.protocolVersion);
+			proxy.add(senderWrapper);
 			// FIXME:not thread-safe
 			if (proxy.getToken() == null) {
 				// uuid for token? or get from id?
@@ -193,8 +195,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			this.idByToken.put(proxy.getToken(), id);
 
 			if (this.stateHandler != null)
-				this.stateHandler.onConnect(proxy,
-						(ServerChannelSender) context.getSender());
+				this.stateHandler.onConnect(proxy, senderWrapper);
 
 			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());
 		} catch (LinkException e) {
@@ -241,12 +242,12 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 				(msg.statusPhase != null && msg.statusPhase != "");
 	}
 
-	private Message createMessage(Message origin) {
+	private Message createConnectAckMessage(Message connectMessage) {
 		Message msg = new Message();
 		// version match with message from
-		msg.protocolVersion = origin.protocolVersion;
-		msg.flag = origin.flag;
-		msg.token = origin.token;
+		msg.protocolVersion = connectMessage.protocolVersion;
+		msg.flag = connectMessage.flag;
+		msg.token = connectMessage.token;
 		return msg;
 	}
 
