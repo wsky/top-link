@@ -70,9 +70,22 @@ namespace Taobao.Top.Link.Test
 
         public void EndpointTest()
         {
-            var e = new Endpoint(new SimpleIdentity("e1"));
-            //TODO: connect to java mock server
-            e.GetEndpoint(new SimpleIdentity("e2"), "ws://10.235.174.30:8000/");
+            var e = new Endpoint(new DefaultLoggerFactory(true, true, true, true, true), new SimpleIdentity("e1"));
+            EndpointProxy proxy = e.GetEndpoint(new SimpleIdentity("e2"), "ws://localhost:9090/");
+            var msg = new Dictionary<string, object>();
+            msg.Add("byte", (byte)1);
+            msg.Add("string", "string");
+            msg.Add("int16", (short)123);
+            msg.Add("int32", 156);
+            msg.Add("int64", 178L);
+            msg.Add("date", DateTime.Now);
+            var msg2 = proxy.SendAndWait(msg);
+            foreach (var i in msg)
+            {
+                Assert.AreEqual(msg[i.Key], msg2[i.Key]);
+                Assert.AreEqual(msg[i.Key].GetType(), msg2[i.Key].GetType());
+                Console.WriteLine(i.Key + "=" + msg2[i.Key]);
+            }
         }
 
         private DynamicProxy CreateProxy(Type type)

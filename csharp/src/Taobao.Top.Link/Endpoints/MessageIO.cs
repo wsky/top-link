@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Taobao.Top.Link.Endpoints
 {
-    //simple protocol impl
+    //simple protocol impl, match protocolVersion=2
     public class MessageIO
     {
         public static Message ReadMessage(Stream input)

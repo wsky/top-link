@@ -16,16 +16,16 @@ namespace Taobao.Top.Link
         }
 
         public bool IsDebugEnabled { get; private set; }
-        public bool IsErrorEnabled { get; private set; }
-        public bool IsFatalEnabled { get; private set; }
         public bool IsInfoEnabled { get; private set; }
         public bool IsWarnEnabled { get; private set; }
+        public bool IsErrorEnabled { get; private set; }
+        public bool IsFatalEnabled { get; private set; }
 
         public DefaultLoggerFactory(bool isDebugEnabled
-            , bool isErrorEnabled
-            , bool isFatalEnabled
             , bool isInfoEnabled
-            , bool isWarnEnabled)
+            , bool isWarnEnabled
+            , bool isErrorEnabled
+            , bool isFatalEnabled)
         {
             this.IsDebugEnabled = isDebugEnabled;
             this.IsInfoEnabled = isInfoEnabled;

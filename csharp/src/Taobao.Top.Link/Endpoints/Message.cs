@@ -20,7 +20,7 @@ namespace Taobao.Top.Link.Endpoints
 
         public Message()
         {
-            this.ProtocolVersion = 1;
+            this.ProtocolVersion = 2;
         }
     }
 }
