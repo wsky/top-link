@@ -7,26 +7,17 @@ import com.taobao.top.link.channel.ChannelContext;
 
 public class EndpointContext {
 	private ChannelContext channelContext;
-	private Map<String, Object> message;
-	private Identity messageFrom;
-	private int flag;
-	private String token;
 	private Endpoint endpoint;
+	private Identity messageFrom;
+	private Message origin;
 
 	public EndpointContext(ChannelContext channelContext,
 			Endpoint endpoint,
-			Identity messageFrom,
-			int flag,
-			String token) {
+			Identity messageFrom, Message origin) {
 		this.channelContext = channelContext;
 		this.endpoint = endpoint;
 		this.messageFrom = messageFrom;
-		this.flag = flag;
-		this.token = token;
-	}
-
-	protected void setMessage(Map<String, Object> message) {
-		this.message = message;
+		this.origin = origin;
 	}
 
 	public Identity getMessageFrom() {
@@ -34,7 +25,7 @@ public class EndpointContext {
 	}
 
 	public Map<String, Object> getMessage() {
-		return this.message;
+		return this.origin.content;
 	}
 
 	public void reply(Map<String, Object> message) throws LinkException {
@@ -50,10 +41,11 @@ public class EndpointContext {
 
 	private Message createMessage(Map<String, Object> message) {
 		Message msg = new Message();
+		msg.protocolVersion = this.origin.protocolVersion;
 		msg.messageType = MessageType.SENDACK;
+		msg.flag = this.origin.flag;
+		msg.token = this.origin.token;
 		msg.content = message;
-		msg.flag = this.flag;
-		msg.token = this.token;
 		return msg;
 	}
 }

@@ -153,9 +153,8 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 
-		EndpointContext endpointContext = new EndpointContext(
-				context, this.endpoint, msgFrom, msg.flag, msg.token);
-		endpointContext.setMessage(msg.content);
+		EndpointContext endpointContext = new EndpointContext(context, this.endpoint, msgFrom, msg);
+		
 		try {
 			this.endpoint.getMessageHandler().onMessage(endpointContext);
 		} catch (Exception e) {
@@ -244,6 +243,8 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 
 	private Message createMessage(Message origin) {
 		Message msg = new Message();
+		// version match with message from
+		msg.protocolVersion = origin.protocolVersion;
 		msg.flag = origin.flag;
 		msg.token = origin.token;
 		return msg;
