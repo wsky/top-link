@@ -10,8 +10,18 @@ import org.junit.Test;
 
 public class MessageIOTest {
 	@Test
-	public void read_write_test() {
+	public void read_write_v1_test() {
+		this.read_write_test(1);
+	}
+
+	@Test
+	public void read_write_v2_test() {
+		this.read_write_test(2);
+	}
+
+	public void read_write_test(int version) {
 		Message msg = new Message();
+		msg.protocolVersion = version;
 		msg.messageType = MessageType.SEND;
 		msg.flag = 10;
 		msg.token = "abc";
@@ -33,6 +43,7 @@ public class MessageIOTest {
 		// buffer.flip();//flip in write
 		Message msg2 = MessageIO.readMessage(buffer);
 
+		assertEquals(msg.protocolVersion, msg2.protocolVersion);
 		assertEquals(msg.messageType, msg2.messageType);
 		assertEquals(msg.flag, msg2.flag);
 		assertEquals(msg.token, msg2.token);

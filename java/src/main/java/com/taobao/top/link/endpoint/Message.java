@@ -4,7 +4,8 @@ import java.util.Map;
 
 // just simple version
 public class Message {
-	public int protocolVersion = 1;
+	// version upgrade to 2 at 20130801
+	public int protocolVersion = 2;
 	public short messageType;
 
 	public int statusCode;
