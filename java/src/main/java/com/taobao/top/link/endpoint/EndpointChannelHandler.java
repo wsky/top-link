@@ -267,7 +267,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		}
 
 		@Override
-		public void onSendComplete() {
+		public void onSendComplete(boolean success) {
 			BufferManager.returnBuffer(this.buffer);
 		}
 

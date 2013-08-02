@@ -93,13 +93,19 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 			// TODO: onSendComplete just do returnbuffer currently, should add
 			// callback to do this like netty
 			if (sendHandler != null)
-				sendHandler.onSendComplete();
+				//maybe not success
+				sendHandler.onSendComplete(true);
 		}
 	}
 
 	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		this.send(ByteBuffer.wrap(data, offset, length), null);
+	}
+	
+	@Override
+	public boolean sendSync(ByteBuffer dataBuffer, SendHandler sendHandler, int timeoutMilliseconds) throws ChannelException {
+		throw new ChannelException(Text.DO_NOT_SUPPORT);
 	}
 
 	private void checkChannel() throws ChannelException {

@@ -2,6 +2,7 @@ package com.taobao.top.link;
 
 // special log/error text here, easy support culture
 public class Text {
+	public static String DO_NOT_SUPPORT = "do not support currently";
 	public static String REACH_MAX_IDLE = "reach max idle time";
 	public static String REACH_MAX_IDLE_AND_CLOSE = "reach maxIdleTimeSeconds=%s, close client channel";
 

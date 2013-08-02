@@ -166,7 +166,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		responseBuffer.flip();
 		context.reply(responseBuffer, new SendHandler() {
 			@Override
-			public void onSendComplete() {
+			public void onSendComplete(boolean success) {
 				BufferManager.returnBuffer(responseBuffer);
 			}
 		});

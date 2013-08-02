@@ -127,7 +127,7 @@ public class DynamicProxy implements InvocationHandler {
 		try {
 			clientChannel.send(buffer, new SendHandler() {
 				@Override
-				public void onSendComplete() {
+				public void onSendComplete(boolean success) {
 					BufferManager.returnBuffer(buffer);
 				}
 			});
