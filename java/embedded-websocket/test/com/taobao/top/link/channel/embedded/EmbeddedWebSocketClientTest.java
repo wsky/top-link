@@ -102,6 +102,7 @@ public class EmbeddedWebSocketClientTest {
 		serverChannelWrapper.stop();
 		Thread.sleep(100);
 		assertFalse(clientChannel.isConnected());
+		serverChannelWrapper.run();
 
 	}
 
