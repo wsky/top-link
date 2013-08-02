@@ -107,6 +107,15 @@ public class EndpointProxy {
 		this.endpoint.send(senderWrapper, this.createMessage(message, senderWrapper));
 	}
 
+	public boolean sendSync(Map<String, Object> message, int timeout) throws ChannelException {
+		return this.sendSync(null, message, timeout);
+	}
+
+	public boolean sendSync(ChannelSenderWrapper sender, Map<String, Object> message, int timeout) throws ChannelException {
+		ChannelSenderWrapper senderWrapper = this.getSenders(sender);
+		return this.endpoint.sendSync(senderWrapper, this.createMessage(message, senderWrapper), timeout);
+	}
+
 	private Message createMessage(Map<String, Object> message, ChannelSenderWrapper senderWrapper) {
 		Message msg = new Message();
 		// use sender's protocol version

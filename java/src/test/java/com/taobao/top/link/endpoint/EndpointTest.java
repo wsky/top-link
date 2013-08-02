@@ -30,6 +30,7 @@ public class EndpointTest {
 		URI = new URI("ws://localhost:8000/link");
 		e1 = run(id1, URI.getPort(), 30, handlerWrapper = new MessageHandlerWrapper());
 		handlerWrapper.doReply = true;
+		handlerWrapper.print = true;
 	}
 
 	@Before
@@ -58,6 +59,30 @@ public class EndpointTest {
 		msg.put("key2", "abcefg");
 
 		e2.getEndpoint(id1, URI).send(msg);
+
+		// target
+		handlerWrapper.waitHandler(2000);
+		handlerWrapper.assertHandler(1);
+		assertEquals(msg.get("key1"), handlerWrapper.lastMessage.get("key1"));
+		assertEquals(msg.get("key2"), handlerWrapper.lastMessage.get("key2"));
+		// e2
+		handlerWrapper2.waitHandler(2000);
+		handlerWrapper2.assertHandler(1);
+		assertEquals(msg.get("key1"), handlerWrapper2.lastMessage.get("key1"));
+		assertEquals(msg.get("key2"), handlerWrapper2.lastMessage.get("key2"));
+	}
+
+	@Test
+	public void send_sync_test() throws LinkException, InterruptedException {
+		Endpoint e2 = new Endpoint(id2);
+		MessageHandlerWrapper handlerWrapper2 = new MessageHandlerWrapper();
+		e2.setMessageHandler(handlerWrapper2);
+
+		HashMap<String, Object> msg = new HashMap<String, Object>();
+		msg.put("key1", "abc中文");
+		msg.put("key2", "abcefg");
+
+		assertTrue(e2.getEndpoint(id1, URI).sendSync(msg, 10));
 
 		// target
 		handlerWrapper.waitHandler(2000);

@@ -146,6 +146,10 @@ public class Endpoint {
 		this.channelHandler.pending(message, sender);
 	}
 
+	protected boolean sendSync(ChannelSender sender, Message message, int timeout) throws ChannelException {
+		return this.channelHandler.flush(message, sender, timeout);
+	}
+
 	protected Map<String, Object> sendAndWait(EndpointProxy e,
 			ChannelSender sender,
 			Message message,
