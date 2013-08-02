@@ -13,6 +13,7 @@ import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.netty.NettyChannelSender;
 
@@ -22,17 +23,22 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 	}
 
 	@Override
-	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
-		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
-		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-		this.send(frame, sendHandler);
-	}
-
-	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-		this.send(frame, null);
+		this.send(frame, null, 0);
+	}
+
+	@Override
+	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
+		this.sendSync(dataBuffer, sendHandler, 0);
+	}
+
+	@Override
+	public boolean sendSync(ByteBuffer dataBuffer, SendHandler sendHandler, int timeoutMilliseconds) throws ChannelException {
+		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
+		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
+		return this.send(frame, sendHandler, timeoutMilliseconds);
 	}
 
 	@Override
@@ -40,27 +46,34 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 		this.channel.write(new CloseWebSocketFrame(1000, reason));
 	}
 
-	private void send(WebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
+	private boolean send(WebSocketFrame frame, final SendHandler sendHandler, int timeout) throws ChannelException {
+		// do not support fragmentation
 		frame.setFinalFragment(true);
 
-		// FIXME rewrite to sendSync(int timeout)
-		final CountDownLatch latch = new CountDownLatch(1);
+		// weather sendSync enabled
+		final CountDownLatch latch = timeout > 0 ? new CountDownLatch(1) : null;
 
 		this.channel.write(frame).addListener(new ChannelFutureListener() {
 			@Override
-			public void operationComplete(ChannelFuture arg0) throws Exception {
-				latch.countDown();
+			public void operationComplete(ChannelFuture future) throws Exception {
+				if (latch != null)
+					latch.countDown();
+				else if (sendHandler != null)
+					sendHandler.onSendComplete(future.isSuccess());
 			}
 		});
 
+		if (latch == null)
+			return true;
+
+		boolean success = false;
 		try {
-			if (!latch.await(100, TimeUnit.MILLISECONDS))
-				throw new ChannelException("flush timeout in 100ms");
+			return success = latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			throw new ChannelException(e.getMessage(), e);
+			throw new ChannelException(Text.WS_SEND_SYNC_ERROR, e);
 		} finally {
 			if (sendHandler != null)
-				sendHandler.onSendComplete();
+				sendHandler.onSendComplete(success);
 		}
 	}
 

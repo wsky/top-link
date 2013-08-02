@@ -16,6 +16,7 @@ public class Text {
 	public static String WS_CONNECTION_CLOSED_BY = "connection closed: %s|%s";
 	public static String WS_NOT_FINAL = "received a frame that not final fragment, not support!";
 	public static String WS_SEND_ERROR = "send error";
+	public static String WS_SEND_SYNC_ERROR = "sendSync error";
 	
 	public static String ERROR_AT_CLIENT = "exceptionCaught at client";
 	public static String ERROR_AT_SERVER = "exceptionCaught at server";
