@@ -41,7 +41,7 @@ namespace Taobao.Top.Link.Channel.WebSocket
 
             socket.Connect();
 
-            if (!h.WaitOne(timeout))
+            if (!h.WaitOne(timeout, false))
                 throw new LinkException("connect timeout");
             if (h.IsError)
                 throw new LinkException(h.Error);

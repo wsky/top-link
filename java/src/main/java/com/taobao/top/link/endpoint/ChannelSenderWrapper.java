@@ -20,7 +20,7 @@ public class ChannelSenderWrapper implements ChannelSender {
 		return this.protocolVersion;
 	}
 	
-	protected ChannelSender getChannelSender() {
+	public ChannelSender getChannelSender() {
 		return this.sender;
 	}
 

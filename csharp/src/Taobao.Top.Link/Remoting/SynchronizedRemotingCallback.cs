@@ -44,7 +44,7 @@ namespace Taobao.Top.Link.Remoting
         {
             if (timeout > 0)
             {
-                if (!this._handle.WaitOne(timeout))
+                if (!this._handle.WaitOne(timeout, false))
                     throw new RemotingException("remoting execution timeout");
             }
             else

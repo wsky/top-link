@@ -49,7 +49,7 @@ namespace Taobao.Top.Link.Endpoints
         {
             if (timeout > 0)
             {
-                if (!this._handle.WaitOne(timeout))
+                if (!this._handle.WaitOne(timeout, false))
                     throw new LinkException(Text.E_EXECUTE_TIMEOUT);
             }
             else
