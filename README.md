@@ -39,7 +39,7 @@ build_java.ps1
 custom package:
 ```shell
 cd java
-mvn -DgroupId=yourDomain -DartifactId=yourId -DfinalName=jarName clean package
+mvn -DgroupId=yourDomain -DartifactId=yourId -DfinalName=jarName -DdateVersion=-20130802 clean package
 ```
 
 C#
