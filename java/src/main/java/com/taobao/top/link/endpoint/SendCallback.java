@@ -14,7 +14,7 @@ public class SendCallback {
 	private Map<String, Object> _return;
 
 	public Integer flag;
-	
+
 	public SendCallback(EndpointProxy endpointProxy) {
 		this.endpointProxy = endpointProxy;
 		this.latch = new CountDownLatch(1);
@@ -48,9 +48,10 @@ public class SendCallback {
 
 	public void waitReturn(int timeout) throws LinkException {
 		try {
-			if (timeout > 0 && !this.latch.await(timeout, TimeUnit.MILLISECONDS))
-				throw new LinkException(Text.E_EXECUTE_TIMEOUT);
-			else
+			if (timeout > 0) {
+				if (!this.latch.await(timeout, TimeUnit.MILLISECONDS))
+					throw new LinkException(Text.E_EXECUTE_TIMEOUT);
+			} else
 				this.latch.await();
 		} catch (InterruptedException e) {
 			throw new LinkException(Text.E_UNKNOWN_ERROR, e);

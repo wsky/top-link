@@ -43,9 +43,10 @@ public class SynchronizedRemotingCallback extends RemotingCallback {
 
 	public void waitReturn(int timeout) throws RemotingException {
 		try {
-			if (timeout > 0 && !this.latch.await(timeout, TimeUnit.MILLISECONDS))
-				throw new RemotingException(Text.RPC_EXECUTE_TIMEOUT);
-			else
+			if (timeout > 0) {
+				if (!this.latch.await(timeout, TimeUnit.MILLISECONDS))
+					throw new RemotingException(Text.RPC_EXECUTE_TIMEOUT);
+			} else
 				this.latch.await();
 		} catch (InterruptedException e) {
 			throw new RemotingException(Text.RPC_WAIT_INTERRUPTED, e);
