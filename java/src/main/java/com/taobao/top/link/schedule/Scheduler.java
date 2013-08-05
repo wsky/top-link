@@ -118,7 +118,7 @@ public class Scheduler<T> {
 			throw new LinkException(Text.SCHEDULE_TASK_REFUSED, e);
 		}
 
-		//if (this.semaphore.getQueueLength() > 0)
+		// if (this.semaphore.getQueueLength() > 0)
 		this.semaphore.release();
 	}
 
@@ -141,6 +141,7 @@ public class Scheduler<T> {
 		return false;
 	}
 
+	// can override here to control pending count of t
 	protected boolean haveReachMaxPendingCount(T t, Queue<Runnable> queue, Runnable task) {
 		return queue.size() >= this.max;
 	}
@@ -150,9 +151,9 @@ public class Scheduler<T> {
 		int c = 0;
 		do {
 			flag = false;
+			Entry<T, Queue<Runnable>> entry;
 			Iterator<Entry<T, Queue<Runnable>>> iterator = this.tasks.entrySet().iterator();
 			while (iterator.hasNext()) {
-				Entry<T, Queue<Runnable>> entry;
 				try {
 					entry = iterator.next();
 				} catch (Exception e) {
@@ -169,7 +170,7 @@ public class Scheduler<T> {
 				if (queue == null)
 					continue;
 
-				Runnable task = queue.peek();
+				Runnable task = this.peek(queue);
 
 				flag = flag ? flag : (queue.size() - 1 > 0);
 
@@ -178,7 +179,7 @@ public class Scheduler<T> {
 
 				try {
 					this.threadPool.execute(task);
-					queue.poll();
+					this.poll(queue);
 					c++;
 				} catch (RejectedExecutionException e) {
 					if (this.logger.isDebugEnabled())
@@ -192,10 +193,14 @@ public class Scheduler<T> {
 			this.logger.debug(Text.SCHEDULE_TASK_DISPATCHED, c);
 	}
 
-	protected final void stopChecker() {
-		if (this.checker == null)
-			return;
-		this.checker.cancel();
+	// peek task to run
+	protected Runnable peek(Queue<Runnable> queue) {
+		return queue.peek();
+	}
+
+	// drop finished task
+	protected void poll(Queue<Runnable> queue) {
+		queue.poll();
 	}
 
 	protected final void disposeDispatcher() throws InterruptedException {
@@ -222,5 +227,11 @@ public class Scheduler<T> {
 				}
 			}
 		}, delay, period);
+	}
+
+	protected final void stopChecker() {
+		if (this.checker == null)
+			return;
+		this.checker.cancel();
 	}
 }

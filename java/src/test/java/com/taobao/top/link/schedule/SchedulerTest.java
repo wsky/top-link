@@ -2,11 +2,15 @@ package com.taobao.top.link.schedule;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 
@@ -208,5 +212,120 @@ public class SchedulerTest {
 		System.out.println(count * thread + " cost=" + (System.currentTimeMillis() - begin));
 		scheduler.stop();
 		// 1000 cost=182
+	}
+
+	@Test
+	public void schedule_by_type_and_batch_test() throws LinkException, InterruptedException {
+		final AtomicInteger batchCounter = new AtomicInteger();
+		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory) {
+			private List<Runnable> batched = new ArrayList<Runnable>();
+
+			@Override
+			protected Runnable peek(Queue<Runnable> queue) {
+				if (batched.size() > 0)
+					return batched.get(0);
+
+				Runnable first = queue.poll();
+				if (first == null)
+					return null;
+				batched.add(first);
+				if (!(first instanceof Task1))
+					return first;
+
+				int i = 10;
+				while (i-- > 0 && queue.peek() instanceof Task1)
+					batched.add(queue.poll());
+
+				if (batched.size() == 1)
+					return batched.get(0);
+
+				final Object[] tasks = batched.toArray();
+				Runnable batchedTask = new Runnable() {
+					@Override
+					public void run() {
+						for (Object t : tasks) {
+							try {
+								((Runnable) t).run();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				};
+				batched.clear();
+				batched.add(batchedTask);
+				batchCounter.incrementAndGet();
+				return batchedTask;
+			}
+
+			@Override
+			protected void poll(Queue<Runnable> queue) {
+				batched.clear();
+			}
+		};
+		scheduler.setUserMaxPendingCount(10000);
+
+		CountDownLatch latch = new CountDownLatch(3);
+		AtomicInteger counter = new AtomicInteger();
+		AtomicLong threadId = new AtomicLong();
+
+		scheduler.schedule("user", new Task1(latch, counter, 0, threadId));
+		scheduler.schedule("user", new Task1(latch, counter, 1, threadId));
+		scheduler.schedule("user", new Task1(latch, counter, 2, threadId));
+		scheduler.start();
+		latch.await();
+		scheduler.stop();
+
+		batchCounter.set(0);
+		latch = new CountDownLatch(4);
+		counter = new AtomicInteger();
+		threadId = new AtomicLong();
+		scheduler.schedule("user", new Task2(latch));
+		scheduler.schedule("user", new Task1(latch, counter, 0, threadId));
+		scheduler.schedule("user", new Task1(latch, counter, 1, threadId));
+		scheduler.schedule("user", new Task2(latch));
+		scheduler.start();
+		latch.await();
+		assertEquals(1, batchCounter.get());
+		scheduler.stop();
+	}
+
+	class Task1 implements Runnable {
+		CountDownLatch latch;
+		AtomicInteger counter;
+		int expected;
+		AtomicLong threadId;
+
+		public Task1(CountDownLatch latch, AtomicInteger counter, int expected, AtomicLong threadId) {
+			this.latch = latch;
+			this.counter = counter;
+			this.expected = expected;
+			this.threadId = threadId;
+		}
+
+		@Override
+		public void run() {
+			if (this.threadId.get() <= 0)
+				this.threadId.set(Thread.currentThread().getId());
+			// sequence and in one thread
+			assertEquals(this.expected, this.counter.getAndIncrement());
+			assertEquals(this.threadId.get(), Thread.currentThread().getId());
+			this.latch.countDown();
+			System.out.println("task1 executed. expected=" + this.expected + " in thread#" + Thread.currentThread().getId());
+		}
+	}
+
+	class Task2 implements Runnable {
+		CountDownLatch latch;
+
+		public Task2(CountDownLatch latch) {
+			this.latch = latch;
+		}
+
+		@Override
+		public void run() {
+			this.latch.countDown();
+			System.out.println("task2 executed in thread#" + Thread.currentThread().getId());
+		}
 	}
 }
