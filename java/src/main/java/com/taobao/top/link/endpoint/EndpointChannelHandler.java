@@ -148,8 +148,8 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		this.scheduler.schedule(msgFrom, this.createTask(context, msg, msgFrom));
 	}
 
-	protected Runnable createTask(final ChannelContext context, final Message message, final Identity messageFrom) {
-		return new Runnable() {
+	private Runnable createTask(final ChannelContext context, final Message message, final Identity messageFrom) {
+		return new MessageScheduleTask(message) {
 			@Override
 			public void run() {
 				try {
@@ -161,7 +161,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		};
 	}
 
-	protected final void internalOnMessage(ChannelContext context, Message msg, Identity msgFrom) throws LinkException {
+	private void internalOnMessage(ChannelContext context, Message msg, Identity msgFrom) throws LinkException {
 		if (msg.messageType == MessageType.SENDACK) {
 			this.endpoint.getMessageHandler().onMessage(msg.content, msgFrom);
 			return;
