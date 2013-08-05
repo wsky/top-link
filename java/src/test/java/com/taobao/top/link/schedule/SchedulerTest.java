@@ -8,6 +8,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -284,6 +287,9 @@ public class SchedulerTest {
 		scheduler.schedule("user", new Task1(latch, counter, 0, threadId));
 		scheduler.schedule("user", new Task1(latch, counter, 1, threadId));
 		scheduler.schedule("user", new Task2(latch));
+		// only 1 thread that batched task should be dispath in next time, would
+		// be dropped
+		scheduler.setThreadPool(new ThreadPoolExecutor(1, 1, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
 		scheduler.start();
 		latch.await();
 		assertEquals(1, batchCounter.get());
