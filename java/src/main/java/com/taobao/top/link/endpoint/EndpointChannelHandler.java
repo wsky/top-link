@@ -83,6 +83,11 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 	public void onConnect(ChannelContext context) throws Exception {
 	}
 
+	@Override
+	public void onError(ChannelContext context) throws Exception {
+		this.logger.error(Text.E_CHANNEL_ERROR, context.getError());
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void onMessage(ChannelContext context) throws Exception {
@@ -97,8 +102,8 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			this.onMessage(context, buffer);
 	}
 
-	private void onMessage(final ChannelContext context, ByteBuffer buffer) throws LinkException {
-		final Message msg = MessageIO.readMessage(buffer);
+	private void onMessage(ChannelContext context, ByteBuffer buffer) throws LinkException {
+		Message msg = MessageIO.readMessage(buffer);
 
 		if (msg.messageType == MessageType.CONNECT) {
 			this.handleConnect(context, msg);
@@ -112,7 +117,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 
-		final Identity msgFrom = this.idByToken.get(msg.token);
+		Identity msgFrom = this.idByToken.get(msg.token);
 		// must CONNECT/CONNECTACK for got token before SEND
 		if (msgFrom == null) {
 			LinkException error = new LinkException(Text.E_UNKNOWN_MSG_FROM);
@@ -140,19 +145,23 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 		// dispatch
-		this.scheduler.schedule(msgFrom, new Runnable() {
+		this.scheduler.schedule(msgFrom, this.createTask(context, msg, msgFrom));
+	}
+
+	protected Runnable createTask(final ChannelContext context, final Message message, final Identity messageFrom) {
+		return new Runnable() {
 			@Override
 			public void run() {
 				try {
-					internalOnMessage(context, msg, msgFrom);
+					internalOnMessage(context, message, messageFrom);
 				} catch (LinkException e) {
 					logger.error(e);
 				}
 			}
-		});
+		};
 	}
 
-	private void internalOnMessage(ChannelContext context, Message msg, Identity msgFrom) throws LinkException {
+	protected final void internalOnMessage(ChannelContext context, Message msg, Identity msgFrom) throws LinkException {
 		if (msg.messageType == MessageType.SENDACK) {
 			this.endpoint.getMessageHandler().onMessage(msg.content, msgFrom);
 			return;
@@ -172,11 +181,6 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			else
 				endpointContext.error(0, this.parseStatusPhase(e));
 		}
-	}
-
-	@Override
-	public void onError(ChannelContext context) throws Exception {
-		this.logger.error(Text.E_CHANNEL_ERROR, context.getError());
 	}
 
 	// deal with connect-in message from endpoint,
