@@ -2,8 +2,6 @@ package com.taobao.top.link.schedule;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -219,51 +217,17 @@ public class SchedulerTest {
 
 	@Test
 	public void schedule_by_type_and_batch_test() throws LinkException, InterruptedException {
-		final AtomicInteger batchCounter = new AtomicInteger();
-		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory) {
-			private List<Runnable> batched = new ArrayList<Runnable>();
-
+		BatchedScheduler<String> scheduler = new BatchedScheduler<String>(loggerFactory) {
 			@Override
-			protected Runnable peek(Queue<Runnable> queue) {
-				if (batched.size() > 0)
-					return batched.get(0);
-
-				Runnable first = queue.poll();
-				if (first == null)
-					return null;
-				batched.add(first);
-				if (!(first instanceof Task1))
-					return first;
-
-				int i = 10;
-				while (i-- > 0 && queue.peek() instanceof Task1)
-					batched.add(queue.poll());
-
-				if (batched.size() == 1)
-					return batched.get(0);
-
-				final Object[] tasks = batched.toArray();
-				Runnable batchedTask = new Runnable() {
-					@Override
-					public void run() {
-						for (Object t : tasks) {
-							try {
-								((Runnable) t).run();
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				};
-				batched.clear();
-				batched.add(batchedTask);
-				batchCounter.incrementAndGet();
-				return batchedTask;
+			protected boolean enableBatch(Runnable task) {
+				return task instanceof Task1;
 			}
 
 			@Override
-			protected void poll(Queue<Runnable> queue) {
-				batched.clear();
+			protected boolean areInSameBatch(Runnable next, Runnable first) {
+				return next != null &&
+						first instanceof Task1 && 
+						next instanceof Task1;
 			}
 		};
 		scheduler.setUserMaxPendingCount(10000);
@@ -279,7 +243,6 @@ public class SchedulerTest {
 		latch.await();
 		scheduler.stop();
 
-		batchCounter.set(0);
 		latch = new CountDownLatch(4);
 		counter = new AtomicInteger();
 		threadId = new AtomicLong();
@@ -287,12 +250,10 @@ public class SchedulerTest {
 		scheduler.schedule("user", new Task1(latch, counter, 0, threadId));
 		scheduler.schedule("user", new Task1(latch, counter, 1, threadId));
 		scheduler.schedule("user", new Task2(latch));
-		// only 1 thread that batched task should be dispath in next time, would
-		// be dropped
+		// only 1 thread that batched task should be dispath in next time, would be dropped
 		scheduler.setThreadPool(new ThreadPoolExecutor(1, 1, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
 		scheduler.start();
 		latch.await();
-		assertEquals(1, batchCounter.get());
 		scheduler.stop();
 	}
 
