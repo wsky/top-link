@@ -14,6 +14,7 @@ import com.clarkware.junitperf.LoadTest;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
+import com.taobao.top.link.schedule.BatchedScheduler;
 import com.taobao.top.link.schedule.Scheduler;
 
 import junit.framework.Test;
@@ -32,7 +33,7 @@ public class EndpointPerf extends TestCase {
 		// TimedTest timedTest = new TimedTest(loadTest, 10000, false);
 
 		long begin = System.currentTimeMillis();
-		new TestRunner(new ResultPrinter(System.out){ 
+		new TestRunner(new ResultPrinter(System.out) {
 			@Override
 			public void startTest(Test test) {
 			}
@@ -64,8 +65,14 @@ public class EndpointPerf extends TestCase {
 		this.serverProxy = new Endpoint(new DefaultIdentity("client")).getEndpoint(serverIdentity, uri);
 	}
 
+	// have OOM problem
 	public void send_test() throws ChannelException {
 		this.serverProxy.send(msg);
+	}
+
+	// only suitable for server push mode
+	public void send_sync_test() throws ChannelException {
+		this.serverProxy.sendSync(msg, 200);
 	}
 
 	public void send_wait_test() throws LinkException {
@@ -92,7 +99,24 @@ public class EndpointPerf extends TestCase {
 		scheduler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
 		scheduler.setUserMaxPendingCount(1000);
 		scheduler.start();
+
+		BatchedScheduler<Identity> batchedScheduler = new BatchedScheduler<Identity>() {
+			@Override
+			protected int getBatchSize(Runnable task) {
+				return 100;
+			}
+
+			@Override
+			protected boolean areInSameBatch(Runnable next, Runnable first) {
+				return true;
+			}
+		};
+		batchedScheduler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
+		batchedScheduler.setUserMaxPendingCount(1000);
+		batchedScheduler.start();
+
 		this.server.setScheduler(scheduler);
+		this.server.setScheduler(batchedScheduler);
 		this.server.bind(new WebSocketServerChannel(uri.getPort(), true));
 	}
 }
