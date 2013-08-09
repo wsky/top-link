@@ -36,7 +36,7 @@ namespace Taobao.Top.Link.Channel
             if (!this.HaveChannel(url))
                 lock (this._lockObject)
                     if (!this.HaveChannel(url))
-                        this._channels.Add(url, this.WrapChannel(this.Connect(uri, CONNECTTIMEOUT)));
+                        this.AddChannel(url, this.WrapChannel(this.Connect(uri, CONNECTTIMEOUT)));
 
             return _channels[url];
         }
@@ -55,6 +55,13 @@ namespace Taobao.Top.Link.Channel
         private bool HaveChannel(string url)
         {
             return this._channels.ContainsKey(url) && this._channels[url].IsConnected;
+        }
+        private void AddChannel(string url, IClientChannel channel)
+        {
+            if (this._channels.ContainsKey(url))
+                this._channels[url] = channel;
+            else
+                this._channels.Add(url, channel);
         }
     }
 }
