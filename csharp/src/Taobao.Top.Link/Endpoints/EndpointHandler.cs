@@ -146,7 +146,11 @@ namespace Taobao.Top.Link.Endpoints
                 callback.Target.Token = msg.Token;
                 // store token from target endpoint for receiving it's message
                 // next time
-                this._idByToken.Add(msg.Token, callback.Target.Identity);
+                if (this._idByToken.ContainsKey(msg.Token))
+                    this._idByToken[msg.Token] = callback.Target.Identity;
+                else
+                    this._idByToken.Add(msg.Token, callback.Target.Identity);
+
                 this._log.InfoFormat(Text.E_CONNECT_SUCCESS, callback.Target.Identity, msg.Token);
             }
         }
