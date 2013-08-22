@@ -21,23 +21,28 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 	private int port;
 	private String path;
 	private int maxMessageSize;
+	private int minThreadCount = 20;
 	private int maxThreadCount = 200;
 	private HandshakerBean handshaker;
 
-	public void setPort(String port) {
-		this.port = Integer.parseInt(port);
+	public void setPort(int value) {
+		this.port = value;
 	}
 
 	public void setPath(String path) {
 		this.path = path;
 	}
 
-	public void setMaxMessageSize(String maxMessageSize) {
-		this.maxMessageSize = Integer.parseInt(maxMessageSize);
+	public void setMaxMessageSize(int value) {
+		this.maxMessageSize = value;
 	}
 
-	public void setMaxBusinessThreadCount(String maxThreadCount) {
-		this.maxThreadCount = Integer.parseInt(maxThreadCount);
+	public void setMinBusinessThreadCount(int value) {
+		this.minThreadCount = value;
+	}
+
+	public void setMaxBusinessThreadCount(int value) {
+		this.maxThreadCount = value;
 	}
 
 	public void setHandshaker(HandshakerBean handshaker) {
@@ -68,10 +73,10 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 				defaultServerChannelHandler(new SpringRemotingServerChannelHandler(loggerFactory, this.handshaker)).
 				websocket(this.port).
 				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory)).
-				businessThreadPool(new ThreadPoolExecutor(20,
+				businessThreadPool(new ThreadPoolExecutor(
+						this.minThreadCount,
 						this.maxThreadCount,
-						300,
-						TimeUnit.SECONDS,
+						300, TimeUnit.SECONDS,
 						new SynchronousQueue<Runnable>()));
 	}
 }

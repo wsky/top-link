@@ -83,6 +83,7 @@ assertEquals("hi", sampleService.echo("hi"));
 		<property name="port" value="8889" />
 		<property name="path" value="api" />
 		<property name="maxMessageSize" value="1024" />
+		<property name="minBusinessThreadCount" value="20" />
 		<property name="maxBusinessThreadCount" value="200" />
 	</bean>
 	<bean class="com.taobao.top.link.remoting.ServiceBean">
