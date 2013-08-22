@@ -31,7 +31,7 @@ public class Text {
 	public static String E_ID_DUPLICATE = "target identity can not equal itself";
 	public static String E_CREATE_NEW = "create new EndpointProxy by identity";
 	public static String E_UNKNOWN_MSG_FROM = "uknown message from";
-	public static String E_GOT_ERROR = "got error: %s|%s";
+	public static String E_GOT_ERROR = "got error from %s: %s|%s";
 	public static String E_CHANNEL_ERROR = "channel error";
 	public static String E_ACCEPT = "%s accept a connect-in endpoint#%s and assign token#%s";
 	public static String E_REFUSE = "refuse a connect-in endpoint";

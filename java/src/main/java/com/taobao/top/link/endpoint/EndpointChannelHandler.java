@@ -132,7 +132,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			this.handleCallback(callback, msg, msgFrom);
 			return;
 		} else if (this.isError(msg)) {
-			this.logger.error(Text.E_GOT_ERROR, msg.statusCode, msg.statusPhase);
+			this.logger.error(Text.E_GOT_ERROR, msgFrom, msg.statusCode, msg.statusPhase);
 			return;
 		}
 
