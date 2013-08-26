@@ -46,10 +46,12 @@ public class WebSocketChannelTest {
 			@Override
 			public void onConnect(ChannelContext context) throws Exception {
 				connectedSender = (ServerChannelSender) context.getSender();
+				System.out.println(connectedSender.getLocalAddress());
+				System.out.println(connectedSender.getRemoteAddress());
 			}
 
 			@Override
-			public void onClosed(String reason) {				
+			public void onClosed(String reason) {
 			}
 		});
 	}

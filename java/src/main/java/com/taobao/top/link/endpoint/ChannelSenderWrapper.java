@@ -1,5 +1,6 @@
 package com.taobao.top.link.endpoint;
 
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 import com.taobao.top.link.channel.ChannelException;
@@ -47,5 +48,15 @@ public class ChannelSenderWrapper implements ChannelSender {
 	@Override
 	public void close(String reason) {
 		this.sender.close(reason);
+	}
+
+	@Override
+	public SocketAddress getLocalAddress() {
+		return this.sender.getLocalAddress();
+	}
+
+	@Override
+	public SocketAddress getRemoteAddress() {
+		return this.sender.getRemoteAddress();
 	}
 }

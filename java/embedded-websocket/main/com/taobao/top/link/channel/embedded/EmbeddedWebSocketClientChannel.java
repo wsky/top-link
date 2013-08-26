@@ -1,5 +1,6 @@
 package com.taobao.top.link.channel.embedded;
 
+import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 
@@ -123,5 +124,15 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	private void delayPing() {
 		if (this.timer != null)
 			this.timer.delay();
+	}
+
+	@Override
+	public SocketAddress getLocalAddress() {
+		return null;
+	}
+
+	@Override
+	public SocketAddress getRemoteAddress() {
+		return null;
 	}
 }
