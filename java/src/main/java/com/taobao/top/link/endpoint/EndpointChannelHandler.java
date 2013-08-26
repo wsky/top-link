@@ -196,10 +196,12 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			ChannelSenderWrapper senderWrapper =
 					new ChannelSenderWrapper(context.getSender(), connectMessage.protocolVersion);
 			proxy.add(senderWrapper);
-			// FIXME:not thread-safe
 			if (proxy.getToken() == null) {
-				// uuid for token? or get from id?
-				proxy.setToken(UUID.randomUUID().toString());
+				synchronized (proxy) {
+					if (proxy.getToken() == null)
+						// uuid for token? or get from id?
+						proxy.setToken(UUID.randomUUID().toString());
+				}
 			}
 			ack.token = proxy.getToken();
 			this.idByToken.put(proxy.getToken(), id);
