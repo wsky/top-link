@@ -13,12 +13,12 @@ public class Text {
 	public static String CONNECT_FAIL = "connect fail";
 	public static String CONNECT_TIMEOUT = "connect timeout";
 	public static String CHANNEL_CLOSED = "channel closed";
-	
+
 	public static String WS_CONNECTION_CLOSED_BY = "connection closed: %s|%s";
 	public static String WS_NOT_FINAL = "received a frame that not final fragment, not support!";
 	public static String WS_SEND_ERROR = "send error";
 	public static String WS_SEND_SYNC_ERROR = "sendSync error";
-	
+
 	public static String ERROR_AT_CLIENT = "exceptionCaught at client";
 	public static String ERROR_AT_SERVER = "exceptionCaught at server";
 
@@ -26,7 +26,7 @@ public class Text {
 	public static String SERVER_STOP = "server channel shutdown";
 
 	public static String TCP_CHANNEL_CLOSED = "tcp channel closed";
-	
+
 	public static String E_UNBIND_ERROR = "unbind error";
 	public static String E_ID_DUPLICATE = "target identity can not equal itself";
 	public static String E_CREATE_NEW = "create new EndpointProxy by identity";
@@ -36,13 +36,14 @@ public class Text {
 	public static String E_ACCEPT = "%s accept a connect-in endpoint#%s and assign token#%s";
 	public static String E_REFUSE = "refuse a connect-in endpoint";
 	public static String E_CONNECT_SUCCESS = "sucessfully connect to endpoint#%s, and got token#%s";
+	public static String E_NULL_TOKEN = "got empty token";
 	public static String E_NO_CALLBACK = "receive CONNECTACK, but no callback to handle it";
 	public static String E_NO_SENDER = "do not have any valid channel to send";
 	public static String E_EXECUTE_TIMEOUT = "execution timeout";
 	public static String E_UNKNOWN_ERROR = "uknown error";
 	public static String E_IDENTITY_NOT_MATCH_WITH_CALLBACK = "message's identity(%s) not match callback's(%s)";
 	public static String E_SINGLE_ALLOW = "only allow sinle endpoint connected on a channel";
-	
+
 	public static String RPC_POOL_BUSY = "channel pool is busy, retry later";
 	public static String RPC_CAN_NOT_GET_CHANNEL = "can not get channel";
 	public static String RPC_SEND_ERROR = "send error";
@@ -53,7 +54,7 @@ public class Text {
 	public static String RPC_PENDING_CALL = "pending methodCall#%s";
 	public static String RPC_GET_RETURN = "receive methodReturn of methodCall#%s";
 	public static String RPC_RETURN_ERROR = "remote reutrn error#%s: %s";
-	
+
 	public static String SCHEDULE_START = "scheduler start";
 	public static String SCHEDULE_STOP = "scheduler stop";
 	public static String SCHEDULE_GOT_MAX = "reach max task pending count %s";

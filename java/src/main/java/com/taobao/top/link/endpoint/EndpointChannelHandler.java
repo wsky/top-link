@@ -117,7 +117,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 
-		Identity msgFrom = this.idByToken.get(msg.token);
+		Identity msgFrom = msg.token != null ? this.idByToken.get(msg.token) : null;
 		// must CONNECT/CONNECTACK for got token before SEND
 		if (msgFrom == null) {
 			LinkException error = new LinkException(Text.E_UNKNOWN_MSG_FROM);
@@ -225,7 +225,9 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			throw new LinkException(Text.E_NO_CALLBACK);
 		if (this.isError(msg))
 			callback.setError(new LinkException(msg.statusCode, msg.statusPhase));
-		else {
+		else if (msg.token == null) {
+			callback.setError(new LinkException(Text.E_NULL_TOKEN));
+		} else {
 			callback.setComplete();
 			// set token for proxy for sending message next time
 			callback.getTarget().setToken(msg.token);
