@@ -179,6 +179,14 @@ public class EndpointTest {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+
+	@Test
+	public void unknown_message_from_test() throws LinkException {
+		Endpoint e2 = new Endpoint(id2);
+		EndpointProxy proxy = e2.getEndpoint(id1, URI);
+		proxy.setToken(null);
+		proxy.send(null);
 
 	}
 

@@ -120,7 +120,15 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		Identity msgFrom = msg.token != null ? this.idByToken.get(msg.token) : null;
 		// must CONNECT/CONNECTACK for got token before SEND
 		if (msgFrom == null) {
-			LinkException error = new LinkException(Text.E_UNKNOWN_MSG_FROM);
+			LinkException error = new LinkException(String.format(
+					"%s: v=%s, type=%s, flag=%s, code=%s, phase=%s, content=%s",
+					Text.E_UNKNOWN_MSG_FROM,
+					msg.protocolVersion,
+					msg.messageType,
+					msg.flag,
+					msg.statusCode,
+					msg.statusPhase,
+					msg.content));
 			if (callback == null)
 				throw error;
 			callback.setError(error);
@@ -213,7 +221,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		} catch (LinkException e) {
 			ack.statusCode = e.getErrorCode();
 			ack.statusPhase = this.parseStatusPhase(e);
-			this.logger.warn(Text.E_REFUSE, e);
+			this.logger.error(Text.E_REFUSE, e);
 		}
 		final ByteBuffer buffer = BufferManager.getBuffer();
 		MessageIO.writeMessage(buffer, ack);
