@@ -4,11 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.Map;
 
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.junit.Test;
 
-import com.taobao.top.link.channel.tcp.TcpServerChannel;
+import com.taobao.top.link.netcat.netty.NettyNetCatCommandServerChannel;
 
 public class CommandTest {
 	@Test
@@ -28,14 +26,8 @@ public class CommandTest {
 	}
 
 	public static void main(String[] args) {
-		TcpServerChannel serverChannel = new TcpServerChannel(8888) {
-			@Override
-			protected void prepareCodec(ChannelPipeline pipeline) {
-				pipeline.addLast("decoder", new StringDecoder());
-			}
-		};
-		NetCatCommandServerChannelHandler handler = new NetCatCommandServerChannelHandler();
-		handler.addProcessor(new CommandProcessor() {
+		NettyNetCatCommandServerChannel serverChannel = new NettyNetCatCommandServerChannel(8888);
+		serverChannel.addProcessor(new CommandProcessor() {
 			@Override
 			public void process(Map<String, String> input, NetCatOuputWriter writer) {
 				writer.write(input.toString());
@@ -46,7 +38,6 @@ public class CommandTest {
 				return "echo";
 			}
 		});
-		serverChannel.setChannelHandler(handler);
 		serverChannel.run();
 		// echo "echo -i 1 -a abc"|nc localhost 8888
 	}
