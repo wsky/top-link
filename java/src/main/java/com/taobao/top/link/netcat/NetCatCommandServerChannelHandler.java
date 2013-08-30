@@ -28,7 +28,7 @@ public class NetCatCommandServerChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Override
-	public void onMessage(final ChannelContext context) throws Exception {
+	public void onMessage(final ChannelContext context) {
 		String line = (String) context.getMessage();
 
 		if (this.logger.isDebugEnabled())
@@ -47,7 +47,7 @@ public class NetCatCommandServerChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 
-		processor.process(this.parseInput(arr, 1), new NetCatOuputWriter() {
+		NetCatOuputWriter writer = new NetCatOuputWriter() {
 			@Override
 			public void write(String value) {
 				byte[] data = (value + "\n").getBytes();
@@ -57,7 +57,13 @@ public class NetCatCommandServerChannelHandler extends SimpleChannelHandler {
 					logger.error(e);
 				}
 			}
-		});
+		};
+		
+		try {
+			processor.process(this.parseInput(arr, 1), writer);
+		} catch (Exception e) {
+			writer.write(e.getMessage());
+		}
 	}
 
 	protected Map<String, String> parseInput(String[] input, int from) {

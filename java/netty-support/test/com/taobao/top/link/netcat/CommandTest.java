@@ -30,6 +30,8 @@ public class CommandTest {
 		serverChannel.addProcessor(new CommandProcessor() {
 			@Override
 			public void process(Map<String, String> input, NetCatOuputWriter writer) {
+				if (input.containsKey("error"))
+					throw new NullPointerException("error");
 				writer.write(input.toString());
 			}
 
