@@ -1,8 +1,12 @@
 package com.taobao.top.link.endpoint;
 
+import static org.junit.Assert.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,6 +28,7 @@ public class EndpointWithEmbeddedClientTest {
 		Endpoint endpoint = new Endpoint(id1);
 		MessageHandlerWrapper handlerWrapper = new MessageHandlerWrapper();
 		handlerWrapper.doReply = true;
+		// handlerWrapper.print = true;
 		endpoint.setMessageHandler(handlerWrapper);
 		endpoint.bind(new WebSocketServerChannel(uri.getPort()));
 	}
@@ -44,7 +49,7 @@ public class EndpointWithEmbeddedClientTest {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
 		e2.getEndpoint(id1, uri);
-		
+
 		HashMap<String, Object> msg = new HashMap<String, Object>();
 		String k = "";
 		for (int i = 0; i < 128; i++) {
@@ -60,7 +65,7 @@ public class EndpointWithEmbeddedClientTest {
 		e2.getEndpoint(id1).sendAndWait(msg);
 	}
 
-	//@Test
+	// @Test
 	public void perf_simply_test() throws LinkException {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
@@ -71,7 +76,7 @@ public class EndpointWithEmbeddedClientTest {
 			k += "i";
 		}
 		msg.put("key", k);
-		
+
 		int total = 100000;
 		long begin = System.currentTimeMillis();
 		for (int i = 0; i < total; i++) {
@@ -83,5 +88,39 @@ public class EndpointWithEmbeddedClientTest {
 				((float) total / (float) cost) * 1000,
 				(float) cost / (float) total));
 		// total:100000, cost:8296ms, tps:12054.002call/s, time:0.08296ms
+	}
+
+	@Test
+	public void send_parse_test() throws LinkException {
+		Endpoint e2 = new Endpoint(id2);
+		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
+		HashMap<String, Object> msg = new HashMap<String, Object>();
+		msg.put("content1", "{\"k\":\"123\"}");
+		msg.put("content2", "{\"k\":\"123\"}");
+		msg.put("content3", "{\"k\":\"123\"}");
+		msg.put("content4", new Date());
+		e2.getEndpoint(id1, uri);
+		for (int i = 0; i < 100; i++)
+			e2.getEndpoint(id1).sendAndWait(msg);
+	}
+
+	@Test
+	public void on_error_test() throws LinkException, InterruptedException {
+		Endpoint e2 = new Endpoint(id2);
+		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
+		e2.setMessageHandler(new MessageHandler() {
+			@Override
+			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+				throw new NullPointerException();
+			}
+
+			@Override
+			public void onMessage(EndpointContext context) throws Exception {
+			}
+		});
+		EndpointProxy proxy = e2.getEndpoint(id1, uri);
+		proxy.send(null);
+		Thread.sleep(500);
+		assertFalse(proxy.hasValidSender());
 	}
 }

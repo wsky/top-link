@@ -57,6 +57,7 @@ public class EmbeddedWebSocketHandler implements WebSocketHandler {
 		try {
 			this.getHandler().onMessage(this.createContext(frame.getContents()));
 		} catch (Exception e) {
+			this.clientChannel.close(e.getMessage());
 			this.error(e);
 		}
 	}

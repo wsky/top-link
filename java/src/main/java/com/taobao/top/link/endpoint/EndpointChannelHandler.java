@@ -121,10 +121,12 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		// must CONNECT/CONNECTACK for got token before SEND
 		if (msgFrom == null) {
 			LinkException error = new LinkException(String.format(
-					"%s: v=%s, type=%s, flag=%s, code=%s, phase=%s, content=%s",
+					"[%s] %s: v=%s, type=%s, token=%s, flag=%s, code=%s, phase=%s, content=%s",
+					this.endpoint.getIdentity(),
 					Text.E_UNKNOWN_MSG_FROM,
 					msg.protocolVersion,
 					msg.messageType,
+					msg.token,
 					msg.flag,
 					msg.statusCode,
 					msg.statusPhase,

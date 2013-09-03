@@ -182,12 +182,13 @@ public class EndpointTest {
 	}
 
 	@Test
-	public void unknown_message_from_test() throws LinkException {
+	public void unknown_message_from_test() throws LinkException, InterruptedException {
 		Endpoint e2 = new Endpoint(id2);
 		EndpointProxy proxy = e2.getEndpoint(id1, URI);
 		proxy.setToken(null);
 		proxy.send(null);
-
+		Thread.sleep(1000);
+		assertFalse(proxy.hasValidSender());
 	}
 
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {

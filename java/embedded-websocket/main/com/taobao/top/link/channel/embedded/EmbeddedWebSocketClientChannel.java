@@ -53,7 +53,8 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	@Override
 	public void close(String reason) {
 		try {
-			CloseFrame frame = new CloseFrame(1000, reason);
+			CloseFrame frame = new CloseFrame(1000,
+					reason != null ? reason : Text.WS_UNKNOWN_ERROR);
 			frame.mask();
 			this.socket.send(frame);
 		} catch (WebSocketException e) {
@@ -94,7 +95,7 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 			// TODO: onSendComplete just do returnbuffer currently, should add
 			// callback to do this like netty
 			if (sendHandler != null)
-				//maybe not success
+				// maybe not success
 				sendHandler.onSendComplete(true);
 		}
 	}
@@ -103,7 +104,7 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		this.send(ByteBuffer.wrap(data, offset, length), null);
 	}
-	
+
 	@Override
 	public boolean sendSync(ByteBuffer dataBuffer, SendHandler sendHandler, int timeoutMilliseconds) throws ChannelException {
 		throw new ChannelException(Text.DO_NOT_SUPPORT);
