@@ -31,7 +31,7 @@ public class MessageEncoder02 implements MessageEncoder {
 			buffer.putShort(HeaderType.Flag);
 			buffer.putInt(message.flag);
 		}
-		if (message.token != null && message.token != "") {
+		if (message.token != null && !message.token.equals("")) {
 			buffer.putShort(HeaderType.Token);
 			writeCountedString(buffer, message.token);
 		}
