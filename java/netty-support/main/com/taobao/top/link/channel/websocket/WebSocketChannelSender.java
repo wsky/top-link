@@ -66,14 +66,17 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 		if (latch == null)
 			return true;
 
-		boolean success = false;
+		// boolean success = false;
 		try {
-			return success = latch.await(timeout, TimeUnit.MILLISECONDS);
+			return latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			throw new ChannelException(Text.WS_SEND_SYNC_ERROR, e);
 		} finally {
-			if (sendHandler != null)
-				sendHandler.onSendComplete(success);
+			// not safe, timeout message already in netty sendbuffer and will be
+			// sent later,
+			// if buffer clear in onSendComplete, client will got wrong message
+			// if (sendHandler != null)
+			// sendHandler.onSendComplete(success);
 		}
 	}
 

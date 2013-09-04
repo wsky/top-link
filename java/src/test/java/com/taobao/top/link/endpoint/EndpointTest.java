@@ -191,6 +191,31 @@ public class EndpointTest {
 		assertFalse(proxy.hasValidSender());
 	}
 
+	@Test
+	public void send_sync_timeout_and_buffer_clear_test() throws LinkException, InterruptedException {
+		Endpoint e2 = new Endpoint(id2);
+		e2.setMessageHandler(new MessageHandler() {
+			@Override
+			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+			}
+
+			@Override
+			public void onMessage(EndpointContext context) throws Exception {
+				// System.out.println(context.getMessage());
+				Thread.sleep(1500);
+			}
+		});
+		e2.getEndpoint(id1, URI);
+		final EndpointProxy proxy = e1.getEndpoint(id2);
+
+		final HashMap<String, Object> msg = new HashMap<String, Object>();
+		msg.put("key1", "abc中文");
+		msg.put("key2", "abcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefg");
+
+		// not works in localhost
+		proxy.sendSync(msg, 10);
+	}
+
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(port);
 		Endpoint endpoint = new Endpoint(id);
