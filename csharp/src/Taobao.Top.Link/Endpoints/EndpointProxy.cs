@@ -10,7 +10,6 @@ namespace Taobao.Top.Link.Endpoints
     public class EndpointProxy
     {
         private IList<IChannelSender> _senders;
-        private IDictionary<String, IClientChannel> _clientChannels;
         private Random _random;
         private EndpointHandler _handler;
 
@@ -24,43 +23,38 @@ namespace Taobao.Top.Link.Endpoints
         public EndpointProxy(EndpointHandler handler)
         {
             this._senders = new List<IChannelSender>();
-            this._clientChannels = new Dictionary<string, IClientChannel>();
             this._random = new Random();
             this._handler = handler;
         }
 
         internal void Add(IChannelSender sender)
         {
-            lock (this._senders)
-            {
-                this._senders.Add(sender);
-                if (sender is IClientChannel)
-                {
-                    var channel = (IClientChannel)sender;
-                    this._clientChannels.Add(channel.Uri.ToString(), channel);
-                }
-            }
+            if (!this._senders.Contains(sender))
+                lock (this._senders)
+                    if (!this._senders.Contains(sender))
+                        this._senders.Add(sender);
         }
+
         internal void Remove(IChannelSender sender)
         {
             lock (this._senders)
-            {
                 this._senders.Remove(sender);
-                if (sender is IClientChannel)
-                {
-                    var channel = (IClientChannel)sender;
-                    this._clientChannels.Remove(channel.Uri.ToString());
-                }
-            }
         }
+
         internal void Remove(string uri)
         {
             lock (this._senders)
             {
-                if (!this._clientChannels.ContainsKey(uri)) return;
-                var channel = this._clientChannels[uri];
-                this._clientChannels.Remove(uri);
-                this._senders.Remove(channel);
+                for (var i = 0; i < this._senders.Count; i++)
+                {
+                    var channel = this._senders[i] as IClientChannel;
+                    if (channel == null)
+                        continue;
+                    if (!channel.Uri.ToString().Equals(uri))
+                        continue;
+                    this._senders.Remove(channel);
+                    i--;
+                }
             }
         }
 

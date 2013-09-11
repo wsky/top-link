@@ -35,7 +35,27 @@ namespace Taobao.Top.Link.Test
         {
             var e = new Endpoint(new SimpleIdentity("e1"));
             Assert.NotNull(e.GetEndpoint(new SimpleIdentity("e2"), URI.ToString()));
+            Assert.NotNull(e.GetEndpoint(new SimpleIdentity("e2"), URI.ToString()));
             Assert.NotNull(e.GetEndpoint(new SimpleIdentity("e2")));
+        }
+
+        [TestCase]
+        public void ConcurrentConnectTest()
+        {
+            var e = new Endpoint(new SimpleIdentity("e1"));
+            var c = 0;
+            while (c++ < 10)
+            {
+                var handles = new AutoResetEvent[10];
+                for (var i = 0; i < handles.Length; i++)
+                    new Thread(h =>
+                    {
+                        Assert.NotNull(e.GetEndpoint(new SimpleIdentity("e2"), URI.ToString()));
+                        (h as AutoResetEvent).Set();
+                    }).Start(handles[i] = new AutoResetEvent(false));
+
+                AutoResetEvent.WaitAll(handles);
+            }
         }
 
         [TestCase]

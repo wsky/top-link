@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Taobao.Top.Link.Channel;
 
@@ -46,6 +47,7 @@ namespace Taobao.Top.Link.Endpoints
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
+        [MethodImplAttribute(MethodImplOptions.Synchronized)]
         public EndpointProxy GetEndpoint(Identity target)
         {
             if (target.Equals(this.Identity))
@@ -70,6 +72,7 @@ namespace Taobao.Top.Link.Endpoints
         /// <param name="uri">target address</param>
         /// <param name="extras">passed as connect message</param>
         /// <returns></returns>
+        [MethodImplAttribute(MethodImplOptions.Synchronized)]
         public EndpointProxy GetEndpoint(Identity target, string uri, IDictionary<string, object> extras)
         {
             EndpointProxy e = this.GetEndpoint(target) ?? this.CreateProxy();

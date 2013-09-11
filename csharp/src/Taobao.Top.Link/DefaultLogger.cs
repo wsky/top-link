@@ -102,7 +102,8 @@ namespace Taobao.Top.Link
         }
         private void Write(Level level, object message)
         {
-            Console.WriteLine("[{0}] [{1}] [{2}] - {3}"
+            Console.WriteLine("{0} [{1}] [{2}] [{3}] - {4}"
+                , DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                 , level
                 , this.Name
                 , Thread.CurrentThread.Name
