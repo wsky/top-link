@@ -58,7 +58,7 @@ public class EndpointWithEmbeddedClientTest {
 		msg.put("key", k);
 		e2.getEndpoint(id1).sendAndWait(msg);
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			k += k;
 		}
 		msg.put("key", k);
