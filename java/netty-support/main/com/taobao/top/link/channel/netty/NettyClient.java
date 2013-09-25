@@ -24,6 +24,10 @@ import com.taobao.top.link.channel.X509AlwaysTrustManager;
 public abstract class NettyClient {
 	private static TrustManager[] trustAllCerts = new TrustManager[] { new X509AlwaysTrustManager() };
 
+	private static NioClientSocketChannelFactory nioClientSocketChannelFactory = new NioClientSocketChannelFactory(
+			Executors.newCachedThreadPool(),
+			Executors.newCachedThreadPool());
+
 	public static InetSocketAddress parse(URI uri) {
 		return new InetSocketAddress(uri.getHost(), uri.getPort() > 0 ? uri.getPort() : 80);
 	}
@@ -46,7 +50,9 @@ public abstract class NettyClient {
 				sslHandler.handshake().syncUninterruptibly();
 			return channel;
 		} catch (Exception e) {
-			bootstrap.releaseExternalResources();
+			// only release when application unload
+			// https://github.com/wsky/top-link/issues/79
+			// bootstrap.releaseExternalResources();
 			throw new ChannelException(Text.CONNECT_ERROR, e);
 		}
 	}
@@ -56,10 +62,7 @@ public abstract class NettyClient {
 			ChannelHandler handler,
 			SslHandler sslHandler,
 			int connectTimeoutMillis) {
-		ClientBootstrap bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
-				Executors.newCachedThreadPool(),
-				Executors.newCachedThreadPool()));
-
+		ClientBootstrap bootstrap = new ClientBootstrap(nioClientSocketChannelFactory);
 		bootstrap.setOption("tcpNoDelay", true);
 		bootstrap.setOption("reuseAddress", true);
 		bootstrap.setOption("connectTimeoutMillis", connectTimeoutMillis);
