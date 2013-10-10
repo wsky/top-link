@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 // https://gist.github.com/wsky/5538632
 // easy timer task, support delay and reset
 public class ResetableTimer {
-private boolean running;
+	private volatile boolean running;
 	private Thread boss;
 	private ExecutorService threadPool;
 
@@ -60,6 +60,7 @@ private boolean running;
 		this.running = false;
 		this.boss.join();
 		this.boss = null;
+		this.threadPool.shutdown();
 	}
 
 	public void delay() {
