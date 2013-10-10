@@ -23,6 +23,10 @@ import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ServerChannel;
 
 public abstract class NettyServerChannel extends ServerChannel {
+	private static NioServerSocketChannelFactory nioServerSocketChannelFactory = new NioServerSocketChannelFactory(
+			Executors.newCachedThreadPool(),
+			Executors.newCachedThreadPool());
+
 	private ServerBootstrap bootstrap;
 	protected ChannelGroup allChannels;
 	protected SSLContext sslContext;
@@ -38,10 +42,7 @@ public abstract class NettyServerChannel extends ServerChannel {
 
 	@Override
 	public void run() {
-		this.bootstrap = new ServerBootstrap(
-				new NioServerSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
+		this.bootstrap = new ServerBootstrap(nioServerSocketChannelFactory);
 		// http://netty.io/3.6/xref/org/jboss/netty/channel/socket/nio/DefaultNioSocketChannelConfig.html
 		// http://stackoverflow.com/questions/8655973/latency-in-netty-due-to-passing-requests-from-boss-thread-to-worker-thread
 		// http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/socket/ServerSocketChannelConfig.html
@@ -88,7 +89,8 @@ public abstract class NettyServerChannel extends ServerChannel {
 	@Override
 	public void stop() {
 		this.allChannels.close().awaitUninterruptibly();
-		this.bootstrap.releaseExternalResources();
+		// FIXME releaseExternalResources will close nioServerSocketChannelFactory
+		// this.bootstrap.releaseExternalResources();
 		this.logger.info(Text.SERVER_STOP);
 	}
 
