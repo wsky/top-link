@@ -16,7 +16,7 @@ import com.taobao.top.link.channel.netty.NettyClientChannel;
 public class WebSocketClientChannel extends WebSocketChannelSender implements ClientChannel, NettyClientChannel {
 	private URI uri;
 	private ChannelHandler channelHandler;
-	private ResetableTimer timer;
+	private ResetableTimer heartbeatTimer;
 
 	public WebSocketClientChannel() {
 		super(null);
@@ -53,16 +53,23 @@ public class WebSocketClientChannel extends WebSocketChannelSender implements Cl
 	}
 
 	@Override
+	public void close(String reason) {
+		this.stopHeartbeat();
+		super.close(reason);
+	}
+
+	@Override
 	public void setHeartbeatTimer(ResetableTimer timer) {
-		this.timer = timer;
-		this.timer.setTask(new Runnable() {
+		this.stopHeartbeat();
+		this.heartbeatTimer = timer;
+		this.heartbeatTimer.setTask(new Runnable() {
 			@Override
 			public void run() {
 				if (isConnected())
 					channel.write(new PingWebSocketFrame());
 			}
 		});
-		this.timer.start();
+		this.heartbeatTimer.start();
 	}
 
 	@Override
@@ -81,18 +88,24 @@ public class WebSocketClientChannel extends WebSocketChannelSender implements Cl
 		// prevent unknown exception after connected and get channel
 		// channel.write is async default
 		if (!this.channel.isConnected()) {
-			if (this.timer != null)
-				try {
-					this.timer.stop();
-				} catch (InterruptedException e) {
-				}
+			this.stopHeartbeat();
 			throw new ChannelException(Text.CHANNEL_CLOSED);
 		}
 		this.delayPing();
 	}
 
 	private void delayPing() {
-		if (this.timer != null)
-			this.timer.delay();
+		if (this.heartbeatTimer != null)
+			this.heartbeatTimer.delay();
+	}
+
+	private void stopHeartbeat() {
+		if (this.heartbeatTimer != null)
+			try {
+				this.heartbeatTimer.stop();
+				this.heartbeatTimer = null;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 	}
 }
