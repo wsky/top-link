@@ -39,8 +39,10 @@ public class ClientChannelPooledSelector implements ClientChannelSelector {
 
 		try {
 			return this.channels.get(url).chekOut();
+		} catch (ChannelException e) {
+			throw e;
 		} catch (Throwable e) {
-			throw (ChannelException) e;
+			throw new ChannelException(Text.GET_CHANNEL_ERROR, e);
 		}
 	}
 

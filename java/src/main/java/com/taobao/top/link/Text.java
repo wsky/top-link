@@ -13,6 +13,8 @@ public class Text {
 	public static String CONNECT_FAIL = "connect fail";
 	public static String CONNECT_TIMEOUT = "connect timeout";
 	public static String CHANNEL_CLOSED = "channel closed";
+	
+	public static String GET_CHANNEL_ERROR = "get channel error";
 
 	public static String WS_CONNECTION_CLOSED_BY = "connection closed: %s|%s";
 	public static String WS_NOT_FINAL = "received a frame that not final fragment, not support!";
