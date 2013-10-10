@@ -20,9 +20,19 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	protected WebSocket socket;
 	protected Exception error;
 	private ChannelHandler channelHandler;
-	private ResetableTimer timer;
+	private ResetableTimer heartbeatTimer;
 
 	public EmbeddedWebSocketClientChannel() {
+	}
+
+	@Override
+	public SocketAddress getLocalAddress() {
+		return null;
+	}
+
+	@Override
+	public SocketAddress getRemoteAddress() {
+		return null;
 	}
 
 	public ChannelHandler getChannelHandler() {
@@ -52,6 +62,7 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 
 	@Override
 	public void close(String reason) {
+		this.stopHeartbeat();
 		try {
 			CloseFrame frame = new CloseFrame(1000,
 					reason != null ? reason : Text.WS_UNKNOWN_ERROR);
@@ -64,8 +75,9 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 
 	@Override
 	public void setHeartbeatTimer(ResetableTimer timer) {
-		this.timer = timer;
-		this.timer.setTask(new Runnable() {
+		this.stopHeartbeat();
+		this.heartbeatTimer = timer;
+		this.heartbeatTimer.setTask(new Runnable() {
 			@Override
 			public void run() {
 				if (!isConnected())
@@ -78,7 +90,7 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 				}
 			}
 		});
-		this.timer.start();
+		this.heartbeatTimer.start();
 	}
 
 	@Override
@@ -112,28 +124,24 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 
 	private void checkChannel() throws ChannelException {
 		if (!this.socket.isConnected()) {
-			if (this.timer != null)
-				try {
-					this.timer.stop();
-				} catch (InterruptedException e) {
-				}
+			this.stopHeartbeat();
 			throw new ChannelException(Text.CHANNEL_CLOSED);
 		}
 		this.delayPing();
 	}
 
 	private void delayPing() {
-		if (this.timer != null)
-			this.timer.delay();
+		if (this.heartbeatTimer != null)
+			this.heartbeatTimer.delay();
 	}
 
-	@Override
-	public SocketAddress getLocalAddress() {
-		return null;
-	}
-
-	@Override
-	public SocketAddress getRemoteAddress() {
-		return null;
+	private void stopHeartbeat() {
+		if (this.heartbeatTimer != null)
+			try {
+				this.heartbeatTimer.stop();
+				this.heartbeatTimer = null;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 	}
 }
