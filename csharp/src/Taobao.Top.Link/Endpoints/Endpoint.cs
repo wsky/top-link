@@ -81,7 +81,6 @@ namespace Taobao.Top.Link.Endpoints
             e.Remove(uri);
             // always reget channel, make sure it's valid
             IClientChannel channel = this.ChannelSelector.GetChannel(new Uri(uri));
-            e.Add(channel);
             // connect message
             Message msg = new Message();
             msg.MessageType = MessageType.CONNECT;
@@ -93,6 +92,7 @@ namespace Taobao.Top.Link.Endpoints
                     content.Add(p);
             msg.Content = content;
             this._handler.SendAndWait(e, channel, msg, TIMOUT);
+            e.Add(channel);
             return e;
         }
 
