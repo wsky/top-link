@@ -38,9 +38,12 @@ public class MessageIOTest {
 		msg.content.put("int64", (long) 100);
 		msg.content.put("date", new Date());
 
+		if (version == 2)
+			msg.content.put("byte[]", "hi".getBytes());
+
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
 		MessageIO.writeMessage(buffer, msg);
-		// buffer.flip();//flip in write
+
 		Message msg2 = MessageIO.readMessage(buffer);
 
 		assertEquals(msg.protocolVersion, msg2.protocolVersion);
@@ -59,5 +62,10 @@ public class MessageIOTest {
 		assertEquals(msg.content.get("int32"), msg2.content.get("int32"));
 		assertEquals(msg.content.get("int64"), msg2.content.get("int64"));
 		assertEquals(msg.content.get("date"), msg2.content.get("date"));
+
+		if (version == 2)
+			assertEquals(
+					new String((byte[]) msg.content.get("byte[]")),
+					new String((byte[]) msg2.content.get("byte[]")));
 	}
 }
