@@ -24,5 +24,6 @@ public class MessageType {
 		public final static byte Int32 = 4;
 		public final static byte Int64 = 5;
 		public final static byte Date = 6;
+		public final static byte ByteArray = 7;
 	}
 }

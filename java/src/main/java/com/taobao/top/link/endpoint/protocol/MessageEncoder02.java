@@ -88,6 +88,11 @@ public class MessageEncoder02 implements MessageEncoder {
 		} else if (Date.class.equals(type)) {
 			buffer.put(ValueFormat.Date);
 			buffer.putLong(((Date) value).getTime());
+		} else if (value instanceof byte[]) {
+			buffer.put(ValueFormat.ByteArray);
+			byte[] data = (byte[]) value;
+			buffer.putInt(data.length);
+			buffer.put(data);
 		} else {
 			buffer.put(ValueFormat.CountedString);
 			writeCountedString(buffer, (String) value);

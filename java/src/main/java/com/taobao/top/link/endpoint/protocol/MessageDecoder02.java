@@ -72,6 +72,10 @@ public class MessageDecoder02 implements MessageDecoder {
 		case ValueFormat.Date:
 			long ticks = buffer.getLong();
 			return new Date(ticks);
+		case ValueFormat.ByteArray:
+			byte[] byteArray = new byte[buffer.getInt()];
+			buffer.get(byteArray);
+			return byteArray;
 		default:
 			return readCountedString(buffer);
 		}
