@@ -3,8 +3,11 @@ package com.taobao.top.link.schedule;
 import static org.junit.Assert.*;
 
 import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -52,6 +55,50 @@ public class SchedulerTest {
 		}).start();
 		semaphore.acquire();
 		semaphore.acquire(2);
+	}
+
+	@Test
+	public void dispatch_test() throws LinkException, InterruptedException {
+		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
+		final CountDownLatch latch = new CountDownLatch(10);
+		for (int i = 0; i < 10; i++)
+			scheduler.schedule("user-" + i, new Runnable() {
+				@Override
+				public void run() {
+					latch.countDown();
+				}
+			});
+		scheduler.dispatch();
+		latch.await();
+	}
+
+	@Test
+	public void dispatch_reject_test() throws LinkException, InterruptedException {
+		final Queue<Runnable> queue = new ArrayBlockingQueue<Runnable>(2, false);
+		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory) {
+			@Override
+			protected Queue<Runnable> createTaskQueue(String t) {
+				assertEquals("user", t);
+				return queue;
+			}
+		};
+		scheduler.setThreadPool(new ThreadPoolExecutor(1, 1, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()) {
+			@Override
+			public void execute(Runnable command) {
+				throw new RejectedExecutionException();
+			}
+		});
+		scheduler.schedule("user", new Runnable() {
+			@Override
+			public void run() {
+			}
+		});
+		scheduler.dispatch();
+		assertEquals(1, queue.size());
+
+		scheduler.setThreadPool(Executors.newFixedThreadPool(1));
+		scheduler.dispatch();
+		assertEquals(0, queue.size());
 	}
 
 	@Test
@@ -226,7 +273,7 @@ public class SchedulerTest {
 			@Override
 			protected boolean areInSameBatch(Runnable next, Runnable first) {
 				return next != null &&
-						first instanceof Task1 && 
+						first instanceof Task1 &&
 						next instanceof Task1;
 			}
 		};
