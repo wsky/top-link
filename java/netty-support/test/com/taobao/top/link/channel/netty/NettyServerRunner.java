@@ -5,7 +5,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 
-public class NettyServerTest {
+public class NettyServerRunner {
 	public static void main(String[] args) {
 		int prev = Thread.getAllStackTraces().keySet().size();
 		System.out.println(prev);
