@@ -8,6 +8,7 @@ using Taobao.Top.Link.Channel;
 using Taobao.Top.Link.Endpoints;
 using Taobao.Top.Link.Remoting;
 using Taobao.Top.Link.Remoting.Serialization.Json;
+using Taobao.Top.Link.Util;
 
 namespace Taobao.Top.Link.Test
 {
@@ -79,9 +80,20 @@ namespace Taobao.Top.Link.Test
             msg.Add("int32", 156);
             msg.Add("int64", 178L);
             msg.Add("date", DateTime.Now);
+            msg.Add("byte[]", GZIPHelper.Zip(Encoding.UTF8.GetBytes("hi")));
             var msg2 = proxy.SendAndWait(msg);
             foreach (var i in msg)
             {
+                if (msg2[i.Key] is byte[])
+                {
+                    foreach (var b in msg2[i.Key] as byte[])
+                        Console.Write(b + ",");
+                    Console.WriteLine();
+                    var str = Encoding.UTF8.GetString(GZIPHelper.Unzip(msg2[i.Key] as byte[]));
+                    Assert.AreEqual("hi", str);
+                    Console.WriteLine(i.Key + "=" + str);
+                    continue;
+                }
                 Assert.AreEqual(msg[i.Key], msg2[i.Key]);
                 Assert.AreEqual(msg[i.Key].GetType(), msg2[i.Key].GetType());
                 Console.WriteLine(i.Key + "=" + msg2[i.Key]);
