@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="DynamicProxyTest.cs" />
     <Compile Include="EndpointTest.cs" />
+    <Compile Include="GZIPHelperTest.cs" />
     <Compile Include="InteropeTest.cs" />
     <Compile Include="JsonSerializerTest.cs" />
     <Compile Include="MessageIOTest.cs" />

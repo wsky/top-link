@@ -87,6 +87,7 @@
     <Compile Include="Remoting\TcpRemotingHelper.cs" />
     <Compile Include="ResetableTimer.cs" />
     <Compile Include="Text.cs" />
+    <Compile Include="Util\GZIPHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\RemotingProtocolParser\csharp\RemotingProtocolParser\RemotingProtocolParser-Core.csproj">
