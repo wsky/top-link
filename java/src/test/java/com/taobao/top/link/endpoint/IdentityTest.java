@@ -46,10 +46,11 @@ public class IdentityTest {
 			e2.getEndpoint(id1, URI);
 		} catch (LinkException e) {
 			assertEquals("id error", e.getMessage());
+			assertFalse(e2.getEndpoint(id1).hasValidSender());
 			throw e;
 		}
 	}
-	
+
 	@Test(expected = LinkException.class)
 	public void connect_self_test() throws LinkException {
 		try {

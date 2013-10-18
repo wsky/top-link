@@ -122,9 +122,9 @@ public class Endpoint {
 				// set default version on this channel
 				this.channelSelector.getChannel(uri), msg.protocolVersion);
 		channel.setChannelHandler(this.channelHandler);
-		e.add(channel);
 		// send connect
 		this.sendAndWait(e, channel, msg, TIMOUT);
+		e.add(channel);
 		return e;
 	}
 
