@@ -34,5 +34,23 @@ namespace Taobao.Top.Link.Test
             Console.WriteLine(str);
             Assert.AreEqual("hi", str);
         }
+
+        [TestCase]
+        public void ZipLengthTest()
+        {
+            var str = "";
+            for (var i = 0; i < 1024; i++)
+                str += "abcd";
+            this.Zip(str);
+        }
+
+        private void Zip(string str)
+        {
+            var data = Encoding.UTF8.GetBytes(str);
+            Console.WriteLine(data.Length);
+            var zipped = GZIPHelper.Zip(data);
+            Console.WriteLine(zipped.Length);
+            Assert.AreEqual(str, Encoding.UTF8.GetString(GZIPHelper.Unzip(zipped)));
+        }
     }
 }
