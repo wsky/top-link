@@ -23,6 +23,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 	private int maxMessageSize;
 	private int minThreadCount = 20;
 	private int maxThreadCount = 200;
+	private boolean disableBusinessThread;
 	private HandshakerBean handshaker;
 
 	public void setPort(int value) {
@@ -43,6 +44,10 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 
 	public void setMaxBusinessThreadCount(int value) {
 		this.maxThreadCount = value;
+	}
+
+	public void setDisableBusinessThread(boolean value) {
+		this.disableBusinessThread = value;
 	}
 
 	public void setHandshaker(HandshakerBean handshaker) {
@@ -73,7 +78,7 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 				defaultServerChannelHandler(new SpringRemotingServerChannelHandler(loggerFactory, this.handshaker)).
 				websocket(this.port).
 				addProcessor(this.path, new SpringMethodCallProcessor(this.beanFactory)).
-				businessThreadPool(new ThreadPoolExecutor(
+				businessThreadPool(this.disableBusinessThread ? null : new ThreadPoolExecutor(
 						this.minThreadCount,
 						this.maxThreadCount,
 						300, TimeUnit.SECONDS,
