@@ -29,7 +29,8 @@ public class Scheduler<T> {
 
 	private Map<T, Queue<Runnable>> tasks;
 	private ExecutorService threadPool;
-	
+	private Runnable rejectedTask;
+
 	protected Logger logger;
 	protected int max = 100;
 	protected boolean running;
@@ -101,6 +102,7 @@ public class Scheduler<T> {
 				this.threadPool.execute(task);
 				return;
 			} catch (RejectedExecutionException e) {
+				throw new LinkException(e.getMessage());
 			}
 		}
 
@@ -150,6 +152,13 @@ public class Scheduler<T> {
 	}
 
 	protected final void dispatch() {
+		if (this.getRejectedTask() != null) {
+			if (this.executeTask(this.getRejectedTask()))
+				this.setRejectedTask(null);
+			else
+				return;
+		}
+
 		boolean flag;
 		int c = 0;
 		do {
@@ -174,22 +183,19 @@ public class Scheduler<T> {
 				if (queue == null)
 					continue;
 
-				Runnable task = this.peek(queue);
-
-				flag = flag ? flag : (queue.size() - 1 > 0);
+				Runnable task = this.poll(queue);
 
 				if (task == null)
 					continue;
 
-				try {
-					this.threadPool.execute(task);
-					this.poll(queue);
-					c++;
-				} catch (RejectedExecutionException e) {
-					if (this.logger.isDebugEnabled())
-						this.logger.debug(e);
-					break;
+				if (!this.executeTask(task)) {
+					this.setRejectedTask(task);
+					return;
 				}
+
+				c++;
+
+				flag = flag ? flag : queue.size() > 0;
 			}
 		} while (flag);
 
@@ -197,14 +203,27 @@ public class Scheduler<T> {
 			this.logger.debug(Text.SCHEDULE_TASK_DISPATCHED, c);
 	}
 
-	// peek task to run
-	protected Runnable peek(Queue<Runnable> queue) {
-		return queue.peek();
+	protected boolean executeTask(Runnable task) {
+		try {
+			this.threadPool.execute(task);
+			return true;
+		} catch (RejectedExecutionException e) {
+			if (this.logger.isDebugEnabled())
+				this.logger.debug(e);
+			return false;
+		}
 	}
 
-	// drop finished task
-	protected void poll(Queue<Runnable> queue) {
-		queue.poll();
+	protected void setRejectedTask(Runnable task) {
+		this.rejectedTask = task;
+	}
+
+	protected Runnable getRejectedTask() {
+		return this.rejectedTask;
+	}
+
+	protected Runnable poll(Queue<Runnable> queue) {
+		return queue.poll();
 	}
 
 	protected final void disposeDispatcher() throws InterruptedException {

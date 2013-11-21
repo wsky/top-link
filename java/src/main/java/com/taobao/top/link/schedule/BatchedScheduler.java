@@ -20,21 +20,16 @@ public class BatchedScheduler<T> extends Scheduler<T> {
 	}
 
 	@Override
-	protected Runnable peek(Queue<Runnable> queue) {
-		// if threadpool full, batched would be returned next time
-		if (this.batched.size() > 0)
-			return this.batched.get(0);
-
+	protected Runnable poll(Queue<Runnable> queue) {
 		Runnable first = queue.poll();
 
 		if (first == null)
 			return null;
 
-		// must store it
-		this.batched.add(first);
-
 		if (!this.enableBatch(first))
 			return first;
+
+		this.batched.add(first);
 
 		int i = this.getBatchSize(first);
 		while (i-- > 0 && this.areInSameBatch(queue.peek(), first))
@@ -46,6 +41,7 @@ public class BatchedScheduler<T> extends Scheduler<T> {
 
 		// must be render to a clone array
 		final Object[] tasks = this.batched.toArray();
+		this.batched.clear();
 		Runnable batchedTask = new Runnable() {
 			@Override
 			public void run() {
@@ -57,14 +53,7 @@ public class BatchedScheduler<T> extends Scheduler<T> {
 					}
 			}
 		};
-		this.batched.clear();
-		this.batched.add(batchedTask);
 		return batchedTask;
-	}
-
-	@Override
-	protected void poll(Queue<Runnable> queue) {
-		batched.clear();
 	}
 
 	protected boolean enableBatch(Runnable task) {

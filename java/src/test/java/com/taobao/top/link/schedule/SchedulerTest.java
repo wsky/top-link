@@ -94,10 +94,12 @@ public class SchedulerTest {
 			}
 		});
 		scheduler.dispatch();
-		assertEquals(1, queue.size());
+		assertNotNull(scheduler.getRejectedTask());
+		assertEquals(0, queue.size());
 
 		scheduler.setThreadPool(Executors.newFixedThreadPool(1));
 		scheduler.dispatch();
+		assertNull(scheduler.getRejectedTask());
 		assertEquals(0, queue.size());
 	}
 
@@ -189,7 +191,6 @@ public class SchedulerTest {
 	public void got_max_test() throws InterruptedException, LinkException {
 		Scheduler<String> scheduler = new Scheduler<String>();
 		scheduler.setUserMaxPendingCount(10);
-		scheduler.start();
 		for (int i = 0; i < 100; i++) {
 			try {
 				scheduler.schedule("user", new Runnable() {
@@ -198,7 +199,6 @@ public class SchedulerTest {
 					}
 				});
 			} catch (LinkException e) {
-				scheduler.stop();
 				assertEquals(String.format(Text.SCHEDULE_GOT_MAX, 10), e.getMessage());
 				throw e;
 			}
