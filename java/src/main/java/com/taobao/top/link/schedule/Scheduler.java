@@ -1,5 +1,6 @@
 package com.taobao.top.link.schedule;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -160,8 +161,9 @@ public class Scheduler<T> {
 				} catch (Exception e) {
 					if (this.logger.isDebugEnabled())
 						this.logger.debug(e);
-					// rerun while java.util.ConcurrentModificationException
-					flag = true;
+					// iterator got concurrent problem
+					if (e instanceof ConcurrentModificationException)
+						flag = true;
 					break;
 				}
 				if (entry == null)
