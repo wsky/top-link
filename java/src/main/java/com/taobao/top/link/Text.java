@@ -13,7 +13,7 @@ public class Text {
 	public static String CONNECT_FAIL = "connect fail";
 	public static String CONNECT_TIMEOUT = "connect timeout";
 	public static String CHANNEL_CLOSED = "channel closed";
-	
+
 	public static String GET_CHANNEL_ERROR = "get channel error";
 
 	public static String WS_CONNECTION_CLOSED_BY = "connection closed: %s|%s";
@@ -64,4 +64,5 @@ public class Text {
 	public static String SCHEDULE_TASK_REFUSED = "task refused";
 	public static String SCHEDULE_TASK_DISPATCHED = "dispatch %s tasks";
 	public static String SCHEDULE_DISPATCHER_DOWN = "dispatcher down! restarting...";
+	public static String SCHEDULE_DISPATCHER_NAME = "top-link-schedule-dispather";
 }

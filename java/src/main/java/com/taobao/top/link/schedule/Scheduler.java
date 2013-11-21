@@ -64,13 +64,14 @@ public class Scheduler<T> {
 					try {
 						semaphore.tryAcquire(1, TimeUnit.SECONDS);
 					} catch (InterruptedException e) {
-						if (logger.isDebugEnabled())
-							logger.debug(e);
+						logger.error(e);
 					}
 					dispatch();
 				}
 			}
 		});
+		this.dispatcher.setDaemon(true);
+		this.dispatcher.setName(Text.SCHEDULE_DISPATCHER_NAME);
 		this.dispatcher.start();
 		this.prepareChecker(10000, 10000);
 
