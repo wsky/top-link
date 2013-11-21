@@ -22,16 +22,17 @@ import com.taobao.top.link.LoggerFactory;
 import com.taobao.top.link.Text;
 
 public class Scheduler<T> {
-	protected int max = 100;
-	protected Logger logger;
 	private Object lock;
 	private Semaphore semaphore;
 	private Thread dispatcher;
-	protected boolean running;
 	private Timer checker;
 
 	private Map<T, Queue<Runnable>> tasks;
 	private ExecutorService threadPool;
+	
+	protected Logger logger;
+	protected int max = 100;
+	protected boolean running;
 
 	public Scheduler() {
 		this(DefaultLoggerFactory.getDefault());
