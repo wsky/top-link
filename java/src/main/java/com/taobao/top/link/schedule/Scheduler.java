@@ -195,7 +195,8 @@ public class Scheduler<T> {
 
 				c++;
 
-				flag = flag ? flag : queue.size() > 0;
+				if (!flag)
+					flag = queue.size() > 0;
 			}
 		} while (flag);
 
