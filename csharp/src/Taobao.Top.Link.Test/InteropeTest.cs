@@ -80,7 +80,8 @@ namespace Taobao.Top.Link.Test
             msg.Add("int32", 156);
             msg.Add("int64", 178L);
             msg.Add("date", DateTime.Now);
-            msg.Add("byte[]", GZIPHelper.Zip(Encoding.UTF8.GetBytes("hi")));
+            var content = "hi中文";
+            msg.Add("byte[]", GZIPHelper.Zip(Encoding.UTF8.GetBytes(content)));
             var msg2 = proxy.SendAndWait(msg);
             foreach (var i in msg)
             {
@@ -90,7 +91,7 @@ namespace Taobao.Top.Link.Test
                         Console.Write(b + ",");
                     Console.WriteLine();
                     var str = Encoding.UTF8.GetString(GZIPHelper.Unzip(msg2[i.Key] as byte[]));
-                    Assert.AreEqual("hi", str);
+                    Assert.AreEqual(content, str);
                     Console.WriteLine(i.Key + "=" + str);
                     continue;
                 }
