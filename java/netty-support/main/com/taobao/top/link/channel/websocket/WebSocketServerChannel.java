@@ -2,7 +2,6 @@ package com.taobao.top.link.channel.websocket;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 
@@ -27,7 +26,6 @@ public class WebSocketServerChannel extends NettyServerChannel {
 
 	public WebSocketServerChannel(LoggerFactory factory, int port, boolean cumulative) {
 		super(factory, port);
-		this.allChannels = new DefaultChannelGroup();
 		this.cumulative = cumulative;
 	}
 	
