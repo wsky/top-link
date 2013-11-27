@@ -13,6 +13,10 @@ public interface ChannelSender {
 	public SocketAddress getLocalAddress();
 	public SocketAddress getRemoteAddress();
 	
+	// channel context
+	public Object getContext(Object key);
+	public void setContext(Object key, Object value);
+	
 	public interface SendHandler {
 		public void onSendComplete(boolean success);
 	}

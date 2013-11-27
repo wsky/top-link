@@ -3,6 +3,8 @@ package com.taobao.top.link.channel.embedded;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.taobao.top.link.ResetableTimer;
 import com.taobao.top.link.Text;
@@ -21,8 +23,10 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	protected Exception error;
 	private ChannelHandler channelHandler;
 	private ResetableTimer heartbeatTimer;
-
+	private Map<Object, Object> context;
+	
 	public EmbeddedWebSocketClientChannel() {
+		this.context = new HashMap<Object, Object>();
 	}
 
 	@Override
@@ -33,6 +37,16 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 	@Override
 	public SocketAddress getRemoteAddress() {
 		return null;
+	}
+	
+	@Override
+	public Object getContext(Object key) {
+		return this.context.get(key);
+	}
+
+	@Override
+	public void setContext(Object key, Object value) {
+		this.context.put(key, value);
 	}
 
 	public ChannelHandler getChannelHandler() {

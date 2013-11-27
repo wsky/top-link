@@ -59,4 +59,14 @@ public class ChannelSenderWrapper implements ChannelSender {
 	public SocketAddress getRemoteAddress() {
 		return this.sender.getRemoteAddress();
 	}
+
+	@Override
+	public Object getContext(Object key) {
+		return this.sender.getContext(key);
+	}
+
+	@Override
+	public void setContext(Object key, Object value) {
+		this.sender.setContext(key, value);
+	}
 }
