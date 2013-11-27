@@ -107,7 +107,7 @@ public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 							this.handshaker.getMaxFramePayloadLength()));
 	}
 
-	private void handleWebSocketFrame(final ChannelHandlerContext ctx,
+	protected void handleWebSocketFrame(final ChannelHandlerContext ctx,
 			WebSocketFrame frame) throws Exception {
 		if (frame instanceof CloseWebSocketFrame) {
 			this.logger.info(Text.WS_CONNECTION_CLOSED_BY,
