@@ -212,8 +212,8 @@ public class EndpointTest {
 		msg.put("key1", "abc中文");
 		msg.put("key2", "abcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefg");
 
-		// not works in localhost
-		proxy.sendSync(msg, 10);
+		while (proxy.sendSync(msg, 10))
+			;
 	}
 
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {
