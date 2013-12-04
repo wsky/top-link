@@ -16,6 +16,7 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ChannelTimeoutException;
 import com.taobao.top.link.channel.netty.NettyChannelSender;
 
 public abstract class WebSocketChannelSender extends NettyChannelSender {
@@ -80,7 +81,7 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 		// boolean success = false;
 		try {
 			if (!latch.await(this.timeout, TimeUnit.MILLISECONDS))
-				throw new ChannelException(String.format(Text.WS_SEND_SYNC_TIMEOUT, this.timeout));
+				throw new ChannelTimeoutException(String.format(Text.WS_SEND_SYNC_TIMEOUT, timeout));
 		} catch (InterruptedException e) {
 			throw new ChannelException(Text.WS_SEND_SYNC_ERROR, e);
 		} finally {

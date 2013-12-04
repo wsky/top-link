@@ -13,8 +13,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.taobao.top.link.LinkException;
-import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
+import com.taobao.top.link.channel.ChannelTimeoutException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.Endpoint;
 import com.taobao.top.link.endpoint.EndpointProxy;
@@ -172,7 +172,8 @@ public class EndpointTest {
 		proxy.setToken(old);
 	}
 
-	// @Test(expected = ChannelException.class)
+	@Ignore
+	@Test(expected = ChannelTimeoutException.class)
 	public void send_timeout_and_test() throws Exception {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setMessageHandler(new MessageHandler() {
@@ -192,13 +193,8 @@ public class EndpointTest {
 		msg.put("key1", "abc中文");
 		msg.put("key2", "abcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefg");
 
-		try {
-			while (true)
-				proxy.send(msg);
-		} catch (Exception e) {
-			assertEquals(String.format(Text.WS_SEND_SYNC_TIMEOUT, 2000), e.getMessage());
-			throw e;
-		}
+		while (true)
+			proxy.send(msg);
 	}
 
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {
