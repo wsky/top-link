@@ -193,8 +193,14 @@ public class EndpointTest {
 		msg.put("key1", "abc中文");
 		msg.put("key2", "abcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefg");
 
-		while (true)
-			proxy.send(msg);
+		try {
+			while (true)
+				proxy.send(msg);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		proxy.send(msg);
+
 	}
 
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {
