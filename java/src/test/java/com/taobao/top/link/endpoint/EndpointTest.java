@@ -9,9 +9,11 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.taobao.top.link.LinkException;
+import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
 import com.taobao.top.link.endpoint.Endpoint;
@@ -36,6 +38,7 @@ public class EndpointTest {
 	@Before
 	public void clear() {
 		handlerWrapper.clear();
+		handlerWrapper.doError = false;
 	}
 
 	@Test
@@ -59,30 +62,6 @@ public class EndpointTest {
 		msg.put("key2", "abcefg");
 
 		e2.getEndpoint(id1, URI).send(msg);
-
-		// target
-		handlerWrapper.waitHandler(2000);
-		handlerWrapper.assertHandler(1);
-		assertEquals(msg.get("key1"), handlerWrapper.lastMessage.get("key1"));
-		assertEquals(msg.get("key2"), handlerWrapper.lastMessage.get("key2"));
-		// e2
-		handlerWrapper2.waitHandler(2000);
-		handlerWrapper2.assertHandler(1);
-		assertEquals(msg.get("key1"), handlerWrapper2.lastMessage.get("key1"));
-		assertEquals(msg.get("key2"), handlerWrapper2.lastMessage.get("key2"));
-	}
-
-	@Test
-	public void send_sync_test() throws LinkException, InterruptedException {
-		Endpoint e2 = new Endpoint(id2);
-		MessageHandlerWrapper handlerWrapper2 = new MessageHandlerWrapper();
-		e2.setMessageHandler(handlerWrapper2);
-
-		HashMap<String, Object> msg = new HashMap<String, Object>();
-		msg.put("key1", "abc中文");
-		msg.put("key2", "abcefg");
-
-		assertTrue(e2.getEndpoint(id1, URI).sendSync(msg, 10));
 
 		// target
 		handlerWrapper.waitHandler(2000);
@@ -181,18 +160,20 @@ public class EndpointTest {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void unknown_message_from_test() throws LinkException, InterruptedException {
 		Endpoint e2 = new Endpoint(id2);
 		EndpointProxy proxy = e2.getEndpoint(id1, URI);
+		String old = proxy.getToken();
 		proxy.setToken(null);
 		proxy.send(null);
 		Thread.sleep(1000);
 		assertFalse(proxy.hasValidSender());
+		proxy.setToken(old);
 	}
 
-	@Test
-	public void send_sync_timeout_and_buffer_clear_test() throws LinkException, InterruptedException {
+	// @Test(expected = ChannelException.class)
+	public void send_timeout_and_test() throws Exception {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setMessageHandler(new MessageHandler() {
 			@Override
@@ -201,8 +182,7 @@ public class EndpointTest {
 
 			@Override
 			public void onMessage(EndpointContext context) throws Exception {
-				// System.out.println(context.getMessage());
-				Thread.sleep(1500);
+				Thread.sleep(10000);
 			}
 		});
 		e2.getEndpoint(id1, URI);
@@ -212,8 +192,13 @@ public class EndpointTest {
 		msg.put("key1", "abc中文");
 		msg.put("key2", "abcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefgabcefg");
 
-		while (proxy.sendSync(msg, 10))
-			;
+		try {
+			while (true)
+				proxy.send(msg);
+		} catch (Exception e) {
+			assertEquals(String.format(Text.WS_SEND_SYNC_TIMEOUT, 2000), e.getMessage());
+			throw e;
+		}
 	}
 
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {

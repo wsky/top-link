@@ -7,7 +7,6 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 
-import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.netty.NettyChannelSender;
 
@@ -24,11 +23,6 @@ public abstract class TcpChannelSender extends NettyChannelSender {
 	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		this.send(ChannelBuffers.wrappedBuffer(dataBuffer), sendHandler);
-	}
-
-	@Override
-	public boolean sendSync(ByteBuffer dataBuffer, SendHandler sendHandler, int timeoutMilliseconds) throws ChannelException {
-		throw new ChannelException(Text.DO_NOT_SUPPORT);
 	}
 
 	@Override

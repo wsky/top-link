@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Ignore;
 
 import com.clarkware.junitperf.LoadTest;
+import com.taobao.top.link.BufferManager;
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
@@ -24,11 +25,20 @@ import junit.textui.TestRunner;
 
 @Ignore
 public class EndpointPerf extends TestCase {
-	public static void main(String[] args) throws URISyntaxException, LinkException {
-		int user = 200, per = 10000;
+	public static void main(String[] args) throws Exception {
+		EndpointPerf testCase = new EndpointPerf("send_wait_test");
+		run_test(testCase, 1, 1000);
+		run_test(testCase, 10, 10000);
+		
+		testCase.setName("send_test");
+		for (int i = 0; i < 100; i++)
+			run_test(testCase, 1, 10000);
+		System.exit(0);
+	}
+
+	private static void run_test(EndpointPerf testCase, int user, int per) throws Exception {
 		int total = user * per;
 
-		EndpointPerf testCase = new EndpointPerf("send_wait_test");
 		LoadTest loadTest = new LoadTest(testCase, user, per);
 		// TimedTest timedTest = new TimedTest(loadTest, 10000, false);
 
@@ -44,9 +54,6 @@ public class EndpointPerf extends TestCase {
 				total, cost,
 				((float) total / (float) cost) * 1000,
 				(float) cost / (float) total));
-
-		// testCase.clear();
-		System.exit(0);
 	}
 
 	private Endpoint server;
@@ -55,7 +62,7 @@ public class EndpointPerf extends TestCase {
 
 	public EndpointPerf(String name) throws URISyntaxException, LinkException {
 		super(name);
-
+		BufferManager.setBufferSize(200);
 		URI uri = new URI("ws://localhost:8080/");
 		Identity serverIdentity = new DefaultIdentity("server");
 		msg = new HashMap<String, Object>();
@@ -65,14 +72,8 @@ public class EndpointPerf extends TestCase {
 		this.serverProxy = new Endpoint(new DefaultIdentity("client")).getEndpoint(serverIdentity, uri);
 	}
 
-	// have OOM problem
 	public void send_test() throws ChannelException {
 		this.serverProxy.send(msg);
-	}
-
-	// only suitable for server push mode
-	public void send_sync_test() throws ChannelException {
-		this.serverProxy.sendSync(msg, 200);
 	}
 
 	public void send_wait_test() throws LinkException {
@@ -112,7 +113,7 @@ public class EndpointPerf extends TestCase {
 			}
 		};
 		batchedScheduler.setThreadPool(new ThreadPoolExecutor(20, 200, 300, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
-		batchedScheduler.setUserMaxPendingCount(1000);
+		batchedScheduler.setUserMaxPendingCount(100000);
 		batchedScheduler.start();
 
 		this.server.setScheduler(scheduler);

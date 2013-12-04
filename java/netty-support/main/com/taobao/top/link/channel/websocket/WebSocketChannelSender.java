@@ -3,6 +3,7 @@ package com.taobao.top.link.channel.websocket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -18,27 +19,34 @@ import com.taobao.top.link.channel.ChannelException;
 import com.taobao.top.link.channel.netty.NettyChannelSender;
 
 public abstract class WebSocketChannelSender extends NettyChannelSender {
+	private AtomicInteger pendingCount = new AtomicInteger();
+	private int maxPendingCount = 1000;
+	private int timeout = 2000;
+
 	public WebSocketChannelSender(Channel channel) {
 		super(channel);
+	}
+
+	public void setMaxPendingCount(int value) {
+		this.maxPendingCount = value;
+	}
+
+	public void setTimeoutMillis(int value) {
+		this.timeout = value;
 	}
 
 	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-		this.send(frame, null, 0);
+		this.send(frame, null);
 	}
 
 	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
-		this.sendSync(dataBuffer, sendHandler, 0);
-	}
-
-	@Override
-	public boolean sendSync(ByteBuffer dataBuffer, SendHandler sendHandler, int timeoutMilliseconds) throws ChannelException {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
-		return this.send(frame, sendHandler, timeoutMilliseconds);
+		this.send(frame, sendHandler);
 	}
 
 	@Override
@@ -46,16 +54,19 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 		this.channel.write(new CloseWebSocketFrame(1000, reason));
 	}
 
-	private boolean send(WebSocketFrame frame, final SendHandler sendHandler, int timeout) throws ChannelException {
+	private void send(WebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
 		// do not support fragmentation
 		frame.setFinalFragment(true);
 
 		// weather sendSync enabled
-		final CountDownLatch latch = timeout > 0 ? new CountDownLatch(1) : null;
+		final CountDownLatch latch = this.timeout > 0 &&
+				this.pendingCount.incrementAndGet() > this.maxPendingCount ?
+				new CountDownLatch(1) : null;
 
 		this.channel.write(frame).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
+				pendingCount.decrementAndGet();
 				if (latch != null)
 					latch.countDown();
 				else if (sendHandler != null)
@@ -64,11 +75,12 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 		});
 
 		if (latch == null)
-			return true;
+			return;
 
 		// boolean success = false;
 		try {
-			return latch.await(timeout, TimeUnit.MILLISECONDS);
+			if (!latch.await(this.timeout, TimeUnit.MILLISECONDS))
+				throw new ChannelException(String.format(Text.WS_SEND_SYNC_TIMEOUT, this.timeout));
 		} catch (InterruptedException e) {
 			throw new ChannelException(Text.WS_SEND_SYNC_ERROR, e);
 		} finally {

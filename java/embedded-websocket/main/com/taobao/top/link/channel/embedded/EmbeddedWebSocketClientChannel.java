@@ -131,11 +131,6 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 		this.send(ByteBuffer.wrap(data, offset, length), null);
 	}
 
-	@Override
-	public boolean sendSync(ByteBuffer dataBuffer, SendHandler sendHandler, int timeoutMilliseconds) throws ChannelException {
-		throw new ChannelException(Text.DO_NOT_SUPPORT);
-	}
-
 	private void checkChannel() throws ChannelException {
 		if (!this.socket.isConnected()) {
 			this.stopHeartbeat();

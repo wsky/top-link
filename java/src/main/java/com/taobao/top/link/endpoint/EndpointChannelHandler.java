@@ -54,12 +54,6 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		this.stateHandler = stateHandler;
 	}
 
-	protected final boolean flush(Message msg, ChannelSender sender, int timeout) throws ChannelException {
-		ByteBuffer buffer = BufferManager.getBuffer();
-		MessageIO.writeMessage(buffer, msg);
-		return sender.sendSync(buffer, new InnerSendHandler(buffer), timeout);
-	}
-
 	protected final void pending(Message msg, ChannelSender sender) throws ChannelException {
 		this.pending(msg, sender, null);
 	}

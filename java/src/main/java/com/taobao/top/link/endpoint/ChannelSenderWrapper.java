@@ -39,11 +39,6 @@ public class ChannelSenderWrapper implements ChannelSender {
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		this.sender.send(dataBuffer, sendHandler);
 	}
-	
-	@Override
-	public boolean sendSync(ByteBuffer dataBuffer, SendHandler sendHandler, int timeoutMilliseconds) throws ChannelException {
-		return this.sender.sendSync(dataBuffer, sendHandler, timeoutMilliseconds);
-	}
 
 	@Override
 	public void close(String reason) {
