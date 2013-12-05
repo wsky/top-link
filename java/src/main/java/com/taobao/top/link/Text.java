@@ -47,6 +47,7 @@ public class Text {
 	public static String E_UNKNOWN_ERROR = "uknown error";
 	public static String E_IDENTITY_NOT_MATCH_WITH_CALLBACK = "message's identity(%s) not match callback's(%s)";
 	public static String E_SINGLE_ALLOW = "only allow sinle endpoint connected on a channel";
+	public static String E_UNKNOWN_MSG_TYPE = "uknown message type %s";
 
 	public static String RPC_POOL_BUSY = "channel pool is busy, retry later";
 	public static String RPC_CAN_NOT_GET_CHANNEL = "can not get channel";

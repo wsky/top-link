@@ -140,6 +140,10 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 
+		if (msg.messageType != MessageType.SEND && 
+				msg.messageType != MessageType.SENDACK)
+			throw new LinkException(String.format(Text.E_UNKNOWN_MSG_TYPE, msg.messageType));
+
 		// raise onMessage for async receive mode
 		if (this.endpoint.getMessageHandler() == null)
 			return;
