@@ -39,6 +39,10 @@ public class EndpointContext {
 		this.endpoint.send(this.channelContext.getSender(), msg);
 	}
 
+	public void disconnectChannel(String reason) {
+		this.channelContext.getSender().close(reason);
+	}
+
 	private Message createMessage(Map<String, Object> message) {
 		Message msg = new Message();
 		// reply with incoming message's version

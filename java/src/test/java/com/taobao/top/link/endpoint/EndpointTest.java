@@ -203,6 +203,30 @@ public class EndpointTest {
 
 	}
 
+	@Test
+	public void disconnect_channel_test() throws LinkException {
+		Endpoint e2 = new Endpoint(id2);
+		e2.setMessageHandler(new MessageHandler() {
+			@Override
+			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+			}
+
+			@Override
+			public void onMessage(EndpointContext context) throws Exception {
+				context.reply(null);
+				context.disconnectChannel("close test");
+			}
+		});
+		e2.getEndpoint(id1, URI);
+		EndpointProxy proxy = e1.getEndpoint(id2);
+		try {
+			proxy.sendAndWait(null, 100);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertFalse(proxy.hasValidSender());
+	}
+
 	private static Endpoint run(Identity id, int port, int maxIdleSecond, MessageHandler handler) throws InterruptedException {
 		WebSocketServerChannel serverChannel = new WebSocketServerChannel(port);
 		Endpoint endpoint = new Endpoint(id);
