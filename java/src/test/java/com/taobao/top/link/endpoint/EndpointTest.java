@@ -117,7 +117,7 @@ public class EndpointTest {
 			}
 
 			@Override
-			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+			public void onAckMessage(EndpointBaseContext context) {
 			}
 		});
 		try {
@@ -178,7 +178,7 @@ public class EndpointTest {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+			public void onAckMessage(EndpointBaseContext context) {
 			}
 
 			@Override
@@ -208,7 +208,7 @@ public class EndpointTest {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+			public void onAckMessage(EndpointBaseContext context) {
 			}
 
 			@Override

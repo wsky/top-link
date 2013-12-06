@@ -17,11 +17,11 @@ public class MessageHandlerWrapper implements MessageHandler {
 	public boolean print;
 
 	@Override
-	public void onMessage(Map<String, Object> message, Identity messageFrom) {
-		lastMessage = message;
+	public void onAckMessage(EndpointBaseContext context) {
+		lastMessage = context.getMessage();
 		receive.incrementAndGet();
 		if (print)
-			System.out.println("MessageHandlerWrapper-onMessage: " + message);
+			System.out.println("MessageHandlerWrapper-onMessage: " + context.getMessage());
 	}
 
 	@Override

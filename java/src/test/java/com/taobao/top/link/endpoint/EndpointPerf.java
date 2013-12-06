@@ -88,7 +88,7 @@ public class EndpointPerf extends TestCase {
 		this.server = new Endpoint(serverIdentity);
 		this.server.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+			public void onAckMessage(EndpointBaseContext context) {
 			}
 
 			@Override

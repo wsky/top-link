@@ -140,7 +140,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			return;
 		}
 
-		if (msg.messageType != MessageType.SEND && 
+		if (msg.messageType != MessageType.SEND &&
 				msg.messageType != MessageType.SENDACK)
 			throw new LinkException(String.format(Text.E_UNKNOWN_MSG_TYPE, msg.messageType));
 
@@ -169,14 +169,15 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 		};
 	}
 
-	private void internalOnMessage(ChannelContext context, Message msg, Identity msgFrom) throws LinkException {
-		if (msg.messageType == MessageType.SENDACK) {
-			this.endpoint.getMessageHandler().onMessage(msg.content, msgFrom);
+	private void internalOnMessage(ChannelContext context, Message message, Identity messageFrom) throws LinkException {
+		if (message.messageType == MessageType.SENDACK) {
+			this.endpoint.getMessageHandler().onAckMessage(
+					new EndpointBaseContext(context, messageFrom, message));
 			return;
 		}
 
-		EndpointContext endpointContext = new EndpointContext(context, this.endpoint, msgFrom, msg);
-
+		EndpointContext endpointContext = new
+				EndpointContext(context, messageFrom, message, this.endpoint);
 		try {
 			this.endpoint.getMessageHandler().onMessage(endpointContext);
 		} catch (Exception e) {

@@ -3,7 +3,6 @@ package com.taobao.top.link.endpoint;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.Map;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
@@ -17,8 +16,8 @@ public class EndpointRunner {
 		e.bind(new WebSocketServerChannel(uri.getPort()));
 		e.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(Map<String, Object> message, Identity messageFrom) {
-				System.out.println(message);
+			public void onAckMessage(EndpointBaseContext context) {
+				System.out.println(context.getMessage());
 			}
 
 			@Override

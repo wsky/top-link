@@ -6,7 +6,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -110,7 +109,7 @@ public class EndpointWithEmbeddedClientTest {
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
 		e2.setMessageHandler(new MessageHandler() {
 			@Override
-			public void onMessage(Map<String, Object> message, Identity messageFrom) {
+			public void onAckMessage(EndpointBaseContext context) {
 				throw new NullPointerException();
 			}
 

@@ -1,36 +1,19 @@
 package com.taobao.top.link.endpoint;
 
-import java.net.SocketAddress;
 import java.util.Map;
 
 import com.taobao.top.link.LinkException;
 import com.taobao.top.link.channel.ChannelContext;
 
-public class EndpointContext {
-	private ChannelContext channelContext;
+public class EndpointContext extends EndpointBaseContext {	
 	private Endpoint endpoint;
-	private Identity messageFrom;
-	private Message origin;
 
 	public EndpointContext(ChannelContext channelContext,
-			Endpoint endpoint,
-			Identity messageFrom, Message origin) {
-		this.channelContext = channelContext;
+			Identity messageFrom,
+			Message origin,
+			Endpoint endpoint) {
+		super(channelContext, messageFrom, origin);
 		this.endpoint = endpoint;
-		this.messageFrom = messageFrom;
-		this.origin = origin;
-	}
-
-	public SocketAddress getRemoteAddress() {
-		return this.channelContext.getSender().getRemoteAddress();
-	}
-
-	public Identity getMessageFrom() {
-		return this.messageFrom;
-	}
-
-	public Map<String, Object> getMessage() {
-		return this.origin.content;
 	}
 
 	public void reply(Map<String, Object> message) throws LinkException {
@@ -42,10 +25,6 @@ public class EndpointContext {
 		msg.statusCode = statusCode;
 		msg.statusPhase = statusPhase;
 		this.endpoint.send(this.channelContext.getSender(), msg);
-	}
-
-	public void disconnectChannel(String reason) {
-		this.channelContext.getSender().close(reason);
 	}
 
 	private Message createMessage(Map<String, Object> message) {
