@@ -1,5 +1,6 @@
 package com.taobao.top.link.endpoint;
 
+import java.net.SocketAddress;
 import java.util.Map;
 
 import com.taobao.top.link.LinkException;
@@ -18,6 +19,10 @@ public class EndpointContext {
 		this.endpoint = endpoint;
 		this.messageFrom = messageFrom;
 		this.origin = origin;
+	}
+
+	public SocketAddress getRemoteAddress() {
+		return this.channelContext.getSender().getRemoteAddress();
 	}
 
 	public Identity getMessageFrom() {
