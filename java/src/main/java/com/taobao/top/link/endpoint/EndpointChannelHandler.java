@@ -216,7 +216,7 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			this.idByToken.put(proxy.getToken(), id);
 
 			if (this.stateHandler != null)
-				this.stateHandler.onConnect(proxy, senderWrapper);
+				this.stateHandler.onConnect(proxy, senderWrapper, id);
 
 			this.logger.info(Text.E_ACCEPT, this.endpoint.getIdentity(), id, proxy.getToken());
 		} catch (LinkException e) {
