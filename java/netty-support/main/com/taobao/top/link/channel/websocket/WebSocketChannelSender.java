@@ -20,6 +20,9 @@ import com.taobao.top.link.channel.ChannelTimeoutException;
 import com.taobao.top.link.channel.netty.NettyChannelSender;
 
 public abstract class WebSocketChannelSender extends NettyChannelSender {
+	public static int MaxTotalPendingCount = 50000;
+	public static AtomicInteger TotalPendingCount = new AtomicInteger();
+
 	private AtomicInteger pendingCount = new AtomicInteger();
 	private int maxPendingCount = 1000;
 	private int timeout = 2000;
@@ -60,14 +63,17 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 		frame.setFinalFragment(true);
 
 		// weather sendSync enabled
-		final CountDownLatch latch = this.timeout > 0 &&
-				this.pendingCount.incrementAndGet() > this.maxPendingCount ?
-				new CountDownLatch(1) : null;
+		final CountDownLatch latch = this.isHighwater() &&
+				this.timeout > 0 ?
+				new CountDownLatch(1) :
+				null;
 
 		this.channel.write(frame).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
+				TotalPendingCount.decrementAndGet();
 				pendingCount.decrementAndGet();
+
 				if (latch != null)
 					latch.countDown();
 				else if (sendHandler != null)
@@ -91,6 +97,12 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 			// if (sendHandler != null)
 			// sendHandler.onSendComplete(success);
 		}
+	}
+
+	private boolean isHighwater() {
+		int self = this.pendingCount.incrementAndGet();
+		int total = TotalPendingCount.incrementAndGet();
+		return self > this.maxPendingCount || total > MaxTotalPendingCount;
 	}
 
 }
