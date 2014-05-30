@@ -102,7 +102,7 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 	private boolean isHighwater() {
 		int self = this.pendingCount.incrementAndGet();
 		int total = TotalPendingCount.incrementAndGet();
-		return self > this.maxPendingCount || total > MaxTotalPendingCount;
+		return self > this.maxPendingCount || (MaxTotalPendingCount > 0 && total > MaxTotalPendingCount);
 	}
 
 }
