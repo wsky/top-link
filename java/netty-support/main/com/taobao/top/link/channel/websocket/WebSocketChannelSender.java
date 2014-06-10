@@ -22,68 +22,72 @@ import com.taobao.top.link.channel.netty.NettyChannelSender;
 public abstract class WebSocketChannelSender extends NettyChannelSender {
 	public static int MaxTotalPendingCount = 50000;
 	public static AtomicInteger TotalPendingCount = new AtomicInteger();
-
+	
 	private AtomicInteger pendingCount = new AtomicInteger();
 	private int maxPendingCount = 1000;
 	private int timeout = 2000;
-
+	
 	public WebSocketChannelSender(Channel channel) {
 		super(channel);
 	}
-
+	
 	public void setMaxPendingCount(int value) {
 		this.maxPendingCount = value;
 	}
-
+	
 	public void setTimeoutMillis(int value) {
 		this.timeout = value;
 	}
-
+	
+	public int getPendingCount() {
+		return this.pendingCount.get();
+	}
+	
 	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		this.send(frame, null);
 	}
-
+	
 	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		this.send(frame, sendHandler);
 	}
-
+	
 	@Override
 	public void close(String reason) {
 		this.channel.write(new CloseWebSocketFrame(1000, reason));
 	}
-
+	
 	private void send(WebSocketFrame frame, final SendHandler sendHandler) throws ChannelException {
 		// do not support fragmentation
 		frame.setFinalFragment(true);
-
+		
 		// weather sendSync enabled
 		final CountDownLatch latch = this.isHighwater() &&
 				this.timeout > 0 ?
 				new CountDownLatch(1) :
 				null;
-
+		
 		this.channel.write(frame).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
 				TotalPendingCount.decrementAndGet();
 				pendingCount.decrementAndGet();
-
+				
 				if (latch != null)
 					latch.countDown();
 				else if (sendHandler != null)
 					sendHandler.onSendComplete(future.isSuccess());
 			}
 		});
-
+		
 		if (latch == null)
 			return;
-
+		
 		// boolean success = false;
 		try {
 			if (!latch.await(this.timeout, TimeUnit.MILLISECONDS))
@@ -98,11 +102,11 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 			// sendHandler.onSendComplete(success);
 		}
 	}
-
+	
 	private boolean isHighwater() {
 		int self = this.pendingCount.incrementAndGet();
 		int total = TotalPendingCount.incrementAndGet();
 		return self > this.maxPendingCount || (MaxTotalPendingCount > 0 && total > MaxTotalPendingCount);
 	}
-
+	
 }
