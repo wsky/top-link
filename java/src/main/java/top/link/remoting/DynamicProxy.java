@@ -24,7 +24,7 @@ public class DynamicProxy implements InvocationHandler {
 	private ClientChannelSelector selector;
 	private RemotingClientChannelHandler channelHandler;
 
-	protected DynamicProxy(URI remoteUri,
+	public DynamicProxy(URI remoteUri,
 			ClientChannelSelector selector,
 			RemotingClientChannelHandler handler) {
 		this.remoteUri = remoteUri;

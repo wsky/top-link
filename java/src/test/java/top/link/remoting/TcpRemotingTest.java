@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import top.link.channel.tcp.TcpServerChannel;
 import top.link.remoting.DefaultRemotingServerChannelHandler;
-import top.link.remoting.NettyRemotingClientChannelSharedSelector;
-import top.link.remoting.NettyRemotingTcpServerChannel;
+import top.link.remoting.netty.NettyRemotingClientChannelSharedSelector;
+import top.link.remoting.netty.NettyRemotingTcpServerChannel;
 
 public class TcpRemotingTest {
 	private static URI uri;

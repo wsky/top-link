@@ -10,11 +10,7 @@ public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHa
 	private HashMap<String, MethodCallProcessor> services;
 
 	public DefaultRemotingServerChannelHandler() {
-		this(DefaultLoggerFactory.getDefault());
-	}
-
-	public DefaultRemotingServerChannelHandler(LoggerFactory loggerFactory) {
-		super(loggerFactory);
+		super();
 		this.services = new HashMap<String, MethodCallProcessor>();
 	}
 
