@@ -25,7 +25,6 @@ public class ClientChannelPooledSelector implements ClientChannelSelector {
 		this.lockObject = new Object();
 	}
 
-	@Override
 	public ClientChannel getChannel(final URI uri) throws ChannelException {
 		String url = uri.toString();
 		if (this.channels.get(url) == null) {
@@ -46,7 +45,6 @@ public class ClientChannelPooledSelector implements ClientChannelSelector {
 		}
 	}
 
-	@Override
 	public void returnChannel(ClientChannel channel) {
 		this.channels.get(channel.getUri().toString()).checkIn(channel);
 	}

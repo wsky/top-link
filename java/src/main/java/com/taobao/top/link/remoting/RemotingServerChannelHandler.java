@@ -53,7 +53,6 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	public abstract MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) throws Throwable;
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public final void onMessage(final ChannelContext context) throws ChannelException, NotSupportedException {
 		Object msg = context.getMessage();
 
@@ -95,7 +94,6 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		// dispatch to business workers
 		try {
 			this.threadPool.execute(new Runnable() {
-				@Override
 				public void run() {
 					try {
 						internalOnMessage(context, callContext, protocol, operation, transportHeaders, serializer);
@@ -165,7 +163,6 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 
 		responseBuffer.flip();
 		context.reply(responseBuffer, new SendHandler() {
-			@Override
 			public void onSendComplete(boolean success) {
 				BufferManager.returnBuffer(responseBuffer);
 			}

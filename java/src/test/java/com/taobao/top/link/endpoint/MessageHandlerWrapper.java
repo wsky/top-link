@@ -16,7 +16,6 @@ public class MessageHandlerWrapper implements MessageHandler {
 	public boolean doReply;
 	public boolean print;
 
-	@Override
 	public void onAckMessage(EndpointBaseContext context) {
 		lastMessage = context.getMessage();
 		receive.incrementAndGet();
@@ -24,7 +23,6 @@ public class MessageHandlerWrapper implements MessageHandler {
 			System.out.println("MessageHandlerWrapper-onMessage: " + context.getMessage());
 	}
 
-	@Override
 	public void onMessage(EndpointContext context) throws Exception {
 		lastMessage = context.getMessage();
 		receive.incrementAndGet();

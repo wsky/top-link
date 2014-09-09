@@ -28,14 +28,12 @@ public class CommandTest {
 	public static void main(String[] args) {
 		NettyNetCatCommandServerChannel serverChannel = new NettyNetCatCommandServerChannel(8888);
 		serverChannel.addProcessor(new CommandProcessor() {
-			@Override
 			public void process(Map<String, String> input, NetCatOuputWriter writer) {
 				if (input.containsKey("error"))
 					throw new NullPointerException("error");
 				writer.write(input.toString());
 			}
 
-			@Override
 			public String getName() {
 				return "echo";
 			}

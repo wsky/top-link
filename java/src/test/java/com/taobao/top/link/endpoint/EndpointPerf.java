@@ -87,11 +87,9 @@ public class EndpointPerf extends TestCase {
 	private void prepareServer(URI uri, Identity serverIdentity) {
 		this.server = new Endpoint(serverIdentity);
 		this.server.setMessageHandler(new MessageHandler() {
-			@Override
 			public void onAckMessage(EndpointBaseContext context) {
 			}
 
-			@Override
 			public void onMessage(EndpointContext context) throws Exception {
 				context.reply(context.getMessage());
 			}

@@ -66,7 +66,6 @@ public abstract class NettyServerChannel extends ServerChannel {
 		// shared timer for idle
 		final Timer timer = new HashedWheelTimer();
 		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
 				if (maxIdleTimeSeconds > 0) {

@@ -108,12 +108,10 @@ public class EndpointWithEmbeddedClientTest {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setClientChannelSelector(new EmbeddedClientChannelSharedSelector());
 		e2.setMessageHandler(new MessageHandler() {
-			@Override
 			public void onAckMessage(EndpointBaseContext context) {
 				throw new NullPointerException();
 			}
 
-			@Override
 			public void onMessage(EndpointContext context) throws Exception {
 			}
 		});

@@ -43,7 +43,6 @@ public class BatchedScheduler<T> extends Scheduler<T> {
 		final Object[] tasks = this.batched.toArray();
 		this.batched.clear();
 		Runnable batchedTask = new Runnable() {
-			@Override
 			public void run() {
 				for (Object t : tasks)
 					try {

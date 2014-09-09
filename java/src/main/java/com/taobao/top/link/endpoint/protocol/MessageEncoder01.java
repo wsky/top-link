@@ -2,7 +2,6 @@ package com.taobao.top.link.endpoint.protocol;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map.Entry;
 
@@ -12,13 +11,12 @@ import com.taobao.top.link.endpoint.MessageType.HeaderType;
 import com.taobao.top.link.endpoint.MessageType.ValueFormat;
 
 public class MessageEncoder01 implements MessageEncoder {
-	@Override
 	public void writeMessage(ByteBuffer buffer, Message message) {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
-
+		
 		buffer.put((byte) 1);
 		buffer.put((byte) message.messageType);
-
+		
 		if (message.statusCode > 0) {
 			buffer.putShort(HeaderType.StatusCode);
 			buffer.putInt(message.statusCode);
@@ -40,33 +38,33 @@ public class MessageEncoder01 implements MessageEncoder {
 				writeCustomHeader(buffer, i.getKey(), i.getValue());
 		}
 		buffer.putShort(HeaderType.EndOfHeaders);
-
+		
 		buffer.order(ByteOrder.BIG_ENDIAN);
 		buffer.flip();
 	}
-
+	
 	private static void writeCountedString(ByteBuffer buffer, String value)
 	{
 		int strLength = 0;
 		if (value != null)
 			strLength = value.length();
-
+		
 		if (strLength > 0) {
-			byte[] strBytes = value.getBytes(Charset.forName("UTF-8"));
+			byte[] strBytes = CompatibleUtil.getBytes(value, "UTF-8");
 			buffer.putInt(strBytes.length);
 			buffer.put(strBytes);
 		}
 		else
 			buffer.putInt(0);
 	}
-
+	
 	private static void writeCustomHeader(ByteBuffer buffer, String name, Object value)
 	{
 		buffer.putShort(HeaderType.Custom);
 		writeCountedString(buffer, name);
 		writeCustomValue(buffer, value);
 	}
-
+	
 	private static void writeCustomValue(ByteBuffer buffer, Object value) {
 		if (value == null) {
 			buffer.put(ValueFormat.Void);

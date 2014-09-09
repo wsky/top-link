@@ -120,7 +120,6 @@ public class SpringTest {
 		assertNotNull(bean.get("key"));
 
 		new Thread(new Runnable() {
-			@Override
 			public void run() {
 				MethodCallContextBean.setCurrentContext(
 						new MethodCallContext(new WebSocketServerChannelSender(null)));

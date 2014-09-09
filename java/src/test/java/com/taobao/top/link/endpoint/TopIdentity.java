@@ -13,7 +13,6 @@ public class TopIdentity implements Identity {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public Identity parse(Object data) throws LinkException {
 		TopIdentity identity = new TopIdentity(null);
 		HashMap<String, String> headers = (HashMap<String, String>) data;
@@ -25,12 +24,10 @@ public class TopIdentity implements Identity {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public void render(Object to) {
 		((Map<String, String>) to).put("appkey", this.appKey);
 	}
 
-	@Override
 	public boolean equals(Identity id) {
 		return this.appKey != null && this.appKey.equals(((TopIdentity) id).appKey);
 	}

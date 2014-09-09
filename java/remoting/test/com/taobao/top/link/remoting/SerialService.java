@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class SerialService extends DefaultMethodCallProcessor implements SerialInterface {
-	@Override
 	public Entity echo(String arg1,
 			byte arg2,
 			double arg3,

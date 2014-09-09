@@ -111,12 +111,10 @@ public class EndpointTest {
 	public void send_and_wait_timeout_test() throws LinkException, InterruptedException, URISyntaxException {
 		URI uri = new URI("ws://localhost:8002/link");
 		run(id1, uri.getPort(), 30, new MessageHandler() {
-			@Override
 			public void onMessage(EndpointContext context) throws Exception {
 				Thread.sleep(5000);
 			}
 
-			@Override
 			public void onAckMessage(EndpointBaseContext context) {
 			}
 		});
@@ -177,11 +175,9 @@ public class EndpointTest {
 	public void send_timeout_and_test() throws Exception {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setMessageHandler(new MessageHandler() {
-			@Override
 			public void onAckMessage(EndpointBaseContext context) {
 			}
 
-			@Override
 			public void onMessage(EndpointContext context) throws Exception {
 				Thread.sleep(10000);
 			}
@@ -207,11 +203,9 @@ public class EndpointTest {
 	public void disconnect_channel_test() throws LinkException {
 		Endpoint e2 = new Endpoint(id2);
 		e2.setMessageHandler(new MessageHandler() {
-			@Override
 			public void onAckMessage(EndpointBaseContext context) {
 			}
 
-			@Override
 			public void onMessage(EndpointContext context) throws Exception {
 				context.reply(null);
 				context.disconnectChannel("close test");

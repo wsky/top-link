@@ -5,7 +5,6 @@ import com.taobao.top.link.Text;
 import com.taobao.top.link.channel.ServerChannelSender;
 
 public class SingleProxyStateHandler implements StateHandler {
-	@Override
 	public void onConnect(EndpointProxy endpoint, ChannelSenderWrapper sender, Identity connectingIdentity) throws LinkException {
 		if (!(sender.getChannelSender() instanceof ServerChannelSender))
 			return;

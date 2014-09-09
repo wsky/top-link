@@ -45,7 +45,6 @@ public class DefaultLoggerFactory implements LoggerFactory {
 		this.isFatalEnabled = isFatalEnabled;
 	}
 
-	@Override
 	public Logger create(String type) {
 		return new DefaultLogger(type,
 				this.isDebugEnabled,
@@ -55,7 +54,6 @@ public class DefaultLoggerFactory implements LoggerFactory {
 				this.isFatalEnabled);
 	}
 
-	@Override
 	public Logger create(Class<?> type) {
 		return new DefaultLogger(type.getSimpleName(),
 				this.isDebugEnabled,
@@ -65,7 +63,6 @@ public class DefaultLoggerFactory implements LoggerFactory {
 				this.isFatalEnabled);
 	}
 
-	@Override
 	public Logger create(Object object) {
 		return new DefaultLogger(object.getClass().getSimpleName(),
 				this.isDebugEnabled,

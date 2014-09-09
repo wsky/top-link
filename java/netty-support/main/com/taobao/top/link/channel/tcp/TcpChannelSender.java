@@ -15,20 +15,16 @@ public abstract class TcpChannelSender extends NettyChannelSender {
 		super(channel);
 	}
 
-	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		this.send(ChannelBuffers.wrappedBuffer(data, offset, length), null);
 	}
 
-	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		this.send(ChannelBuffers.wrappedBuffer(dataBuffer), sendHandler);
 	}
 
-	@Override
 	public void close(String reason) {
 		channel.write(reason).addListener(new ChannelFutureListener() {
-			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
 				future.getChannel().close();
 			}
@@ -40,7 +36,6 @@ public abstract class TcpChannelSender extends NettyChannelSender {
 			this.channel.write(message);
 		else
 			this.channel.write(message).addListener(new ChannelFutureListener() {
-				@Override
 				public void operationComplete(ChannelFuture future) throws Exception {
 					if (sendHandler != null)
 						sendHandler.onSendComplete(future.isSuccess());

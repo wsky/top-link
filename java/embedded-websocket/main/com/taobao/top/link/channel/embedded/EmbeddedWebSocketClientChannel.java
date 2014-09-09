@@ -29,22 +29,18 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 		this.context = new HashMap<Object, Object>();
 	}
 
-	@Override
 	public SocketAddress getLocalAddress() {
 		return null;
 	}
 
-	@Override
 	public SocketAddress getRemoteAddress() {
 		return null;
 	}
 	
-	@Override
 	public Object getContext(Object key) {
 		return this.context.get(key);
 	}
 
-	@Override
 	public void setContext(Object key, Object value) {
 		this.context.put(key, value);
 	}
@@ -54,27 +50,22 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 		return this.channelHandler;
 	}
 
-	@Override
 	public void setUri(URI uri) {
 		this.uri = uri;
 	}
 
-	@Override
 	public URI getUri() {
 		return this.uri;
 	}
 
-	@Override
 	public void setChannelHandler(ChannelHandler handler) {
 		this.channelHandler = handler;
 	}
 
-	@Override
 	public boolean isConnected() {
 		return socket.isConnected();
 	}
 
-	@Override
 	public void close(String reason) {
 		this.stopHeartbeat();
 		try {
@@ -87,12 +78,10 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 		}
 	}
 
-	@Override
 	public void setHeartbeatTimer(ResetableTimer timer) {
 		this.stopHeartbeat();
 		this.heartbeatTimer = timer;
 		this.heartbeatTimer.setTask(new Runnable() {
-			@Override
 			public void run() {
 				if (!isConnected())
 					return;
@@ -107,7 +96,6 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 		this.heartbeatTimer.start();
 	}
 
-	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		this.checkChannel();
 		try {
@@ -126,7 +114,6 @@ public class EmbeddedWebSocketClientChannel implements ClientChannel {
 		}
 	}
 
-	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		this.send(ByteBuffer.wrap(data, offset, length), null);
 	}

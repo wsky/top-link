@@ -50,7 +50,6 @@ public class DynamicProxy implements InvocationHandler {
 		this.serializationFormat = format;
 	}
 
-	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		MethodCall methodCall = new MethodCall();
 		methodCall.Uri = this.uriString;
@@ -126,7 +125,6 @@ public class DynamicProxy implements InvocationHandler {
 
 		try {
 			clientChannel.send(buffer, new SendHandler() {
-				@Override
 				public void onSendComplete(boolean success) {
 					BufferManager.returnBuffer(buffer);
 				}

@@ -27,7 +27,6 @@ public class NetCatCommandServerChannelHandler extends SimpleChannelHandler {
 		this.processors.put(processor.getName(), processor);
 	}
 
-	@Override
 	public void onMessage(final ChannelContext context) {
 		String line = (String) context.getMessage();
 
@@ -48,7 +47,6 @@ public class NetCatCommandServerChannelHandler extends SimpleChannelHandler {
 		}
 
 		NetCatOuputWriter writer = new NetCatOuputWriter() {
-			@Override
 			public void write(String value) {
 				byte[] data = (value + "\n").getBytes();
 				try {

@@ -19,12 +19,10 @@ public class EmbeddedWebSocketHandler implements WebSocketHandler {
 		this.clientChannel = clientChannel;
 	}
 
-	@Override
 	public void onOpen(WebSocket socket) {
 		clientChannel.socket = socket;
 	}
 
-	@Override
 	public void onError(WebSocket socket, WebSocketException e) {
 		if (this.clientChannel != null)
 			this.clientChannel.error = e;
@@ -39,18 +37,15 @@ public class EmbeddedWebSocketHandler implements WebSocketHandler {
 		this.error(e);
 	}
 
-	@Override
 	public void onClose(WebSocket socket) {
 		this.clear(socket);
 		this.logger.warn(Text.CHANNEL_CLOSED);
 	}
 
-	@Override
 	public void onCloseFrame(WebSocket socket, int statusCode, String reasonText) {
 		this.logger.warn(Text.WS_CONNECTION_CLOSED_BY, statusCode, reasonText);
 	}
 
-	@Override
 	public void onMessage(WebSocket socket, Frame frame) {
 		if (!this.haveHandler())
 			return;

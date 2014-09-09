@@ -32,12 +32,10 @@ public class SpringRemotingServerChannelHandler extends DefaultRemotingServerCha
 			this.sender = sender;
 		}
 
-		@Override
 		public Object get(Object key) {
 			return this.sender.getContext(key);
 		}
 
-		@Override
 		public void set(Object key, Object value) {
 			this.sender.setContext(key, value);
 		}

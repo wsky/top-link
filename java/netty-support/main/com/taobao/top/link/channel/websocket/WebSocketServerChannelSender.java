@@ -9,7 +9,6 @@ public class WebSocketServerChannelSender extends WebSocketChannelSender impleme
 		super(channel);
 	}
 
-	@Override
 	public boolean isOpen() {
 		return this.channel.isOpen();
 	}

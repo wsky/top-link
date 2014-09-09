@@ -2,7 +2,6 @@ package com.taobao.top.link.endpoint.protocol;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -12,7 +11,6 @@ import com.taobao.top.link.endpoint.MessageType.HeaderType;
 import com.taobao.top.link.endpoint.MessageType.ValueFormat;
 
 public class MessageDecoder01 implements MessageDecoder {
-	@Override
 	public Message readMessage(ByteBuffer buffer) {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -48,7 +46,7 @@ public class MessageDecoder01 implements MessageDecoder {
 		if (size > 0) {
 			byte[] data = new byte[size];
 			buffer.get(data, 0, data.length);
-			return new String(data, Charset.forName("UTF-8"));
+			return  CompatibleUtil.newString(data, "UTF-8");
 		}
 		return null;
 	}

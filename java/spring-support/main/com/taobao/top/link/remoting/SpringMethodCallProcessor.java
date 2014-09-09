@@ -13,7 +13,6 @@ public class SpringMethodCallProcessor implements MethodCallProcessor {
 		this.readServices(beanFactory);
 	}
 
-	@Override
 	public MethodReturn process(MethodCall methodCall, MethodCallContext callContext) throws Throwable {
 		try {
 			MethodCallContextBean.setCurrentContext(callContext);

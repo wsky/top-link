@@ -17,20 +17,17 @@ public class DefaultIdentity implements Identity {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public Identity parse(Object data) throws LinkException {
 		Map<String, String> dict = (Map<String, String>) data;
 		return new DefaultIdentity(dict.get("name"));
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public void render(Object to) {
 		Map<String, String> dict = (Map<String, String>) to;
 		dict.put("name", this.name);
 	}
 
-	@Override
 	public boolean equals(Identity id) {
 		return id.getClass() == DefaultIdentity.class &&
 				this.name.equals(((DefaultIdentity) id).name);

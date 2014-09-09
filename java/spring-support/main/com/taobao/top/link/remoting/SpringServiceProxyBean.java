@@ -44,7 +44,6 @@ public class SpringServiceProxyBean implements FactoryBean, InitializingBean {
 		this.format = format;
 	}
 
-	@Override
 	public Object getObject() throws Exception {
 		DynamicProxy proxy = new DynamicProxy(this.uri, channelSelector, channelHandler);
 		proxy.setSerializationFormat(this.format);
@@ -52,17 +51,14 @@ public class SpringServiceProxyBean implements FactoryBean, InitializingBean {
 		return proxy.create(this.interfaceType, this.uri);
 	}
 
-	@Override
 	public Class<?> getObjectType() {
 		return this.interfaceType;
 	}
 
-	@Override
 	public boolean isSingleton() {
 		return true;
 	}
 
-	@Override
 	public void afterPropertiesSet() throws Exception {
 		init(this);
 	}

@@ -3,7 +3,6 @@ package com.taobao.top.link.util;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import org.junit.Test;
 
@@ -18,10 +17,10 @@ public class GZIPHelperTest {
 		zip_test(1024 * 4);
 		zip_test(1024 * 4 * 10);
 	}
-
+	
 	@Test
 	public void print() throws IOException {
-		byte[] data = "hi".getBytes(Charset.forName("UTF-8"));
+		byte[] data = "hi".getBytes("UTF-8");
 		System.out.println(data.length);
 		byte[] zipped = GZIPHelper.zip(data);
 		System.out.println(zipped.length);
@@ -30,7 +29,7 @@ public class GZIPHelperTest {
 			System.out.print(",");
 		}
 	}
-
+	
 	@Test
 	public void unzip_test() throws IOException {
 		// from c# gzip
@@ -44,24 +43,24 @@ public class GZIPHelperTest {
 				(byte) 246, (byte) 206, 74, (byte) 218, (byte) 201, (byte) 158, 33, (byte) 128, (byte) 170,
 				(byte) 200, 31, 63, 126, 124, 31, 63, 34, (byte) 230, (byte) 197, (byte) 255, 3, (byte) 172, 42, (byte) 147,
 				(byte) 216, 2, 0, 0, 0 };
-		String str = new String(GZIPHelper.unzip(data), Charset.forName("UTF-8"));
+		String str = new String(GZIPHelper.unzip(data), "UTF-8");
 		System.out.println(str);
 		assertEquals("hi", str);
 	}
-
+	
 	private void zip_test(int length) throws IOException {
 		String str = "hello!";
 		for (int i = 0; i < length; i++)
 			str += i % 10;
-
+		
 		byte[] data = str.getBytes();
 		System.out.println("unzip length=" + data.length);
-
+		
 		long begin = System.nanoTime();
 		byte[] zipped = GZIPHelper.zip(data);
 		System.out.println("zip length=" + zipped.length);
 		System.out.println("cost=" + (float) (System.nanoTime() - begin) / (1000 * 1000));
-
+		
 		assertEquals(str, new String(GZIPHelper.unzip(zipped)));
 	}
 }

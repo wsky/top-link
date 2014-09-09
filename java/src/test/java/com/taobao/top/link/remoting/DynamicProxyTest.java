@@ -68,7 +68,6 @@ public class DynamicProxyTest {
 		final SampleInterface sampleService = (SampleInterface) RemotingUtil.connect(uri, SampleInterface.class);
 		for (int i = 0; i < 4; i++) {
 			new Thread(new Runnable() {
-				@Override
 				public void run() {
 					while (flag.get()) {
 						try {

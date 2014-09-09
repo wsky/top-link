@@ -43,21 +43,18 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 		return this.pendingCount.get();
 	}
 	
-	@Override
 	public void send(byte[] data, int offset, int length) throws ChannelException {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(data, offset, length);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		this.send(frame, null);
 	}
 	
-	@Override
 	public void send(ByteBuffer dataBuffer, SendHandler sendHandler) throws ChannelException {
 		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(dataBuffer);
 		BinaryWebSocketFrame frame = new BinaryWebSocketFrame(buffer);
 		this.send(frame, sendHandler);
 	}
 	
-	@Override
 	public void close(String reason) {
 		this.channel.write(new CloseWebSocketFrame(1000, reason));
 	}
@@ -73,7 +70,6 @@ public abstract class WebSocketChannelSender extends NettyChannelSender {
 				null;
 		
 		this.channel.write(frame).addListener(new ChannelFutureListener() {
-			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
 				TotalPendingCount.decrementAndGet();
 				pendingCount.decrementAndGet();

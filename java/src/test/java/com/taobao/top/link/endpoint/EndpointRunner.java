@@ -2,7 +2,6 @@ package com.taobao.top.link.endpoint;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 
 import com.taobao.top.link.DefaultLoggerFactory;
 import com.taobao.top.link.channel.websocket.WebSocketServerChannel;
@@ -15,12 +14,10 @@ public class EndpointRunner {
 		Endpoint e = new Endpoint(new DefaultIdentity("echo_server"));
 		e.bind(new WebSocketServerChannel(uri.getPort()));
 		e.setMessageHandler(new MessageHandler() {
-			@Override
 			public void onAckMessage(EndpointBaseContext context) {
 				System.out.println(context.getMessage());
 			}
 
-			@Override
 			public void onMessage(EndpointContext context) throws Exception {
 				System.out.println(context.getMessageFrom() + "|" + context.getMessage());
 				if (context.getMessage().containsKey("byte[]")) {
@@ -30,9 +27,9 @@ public class EndpointRunner {
 						System.out.print(",");
 					}
 					System.out.println();
-					String value = new String(GZIPHelper.unzip(data), Charset.forName("UTF-8"));
+					String value = new String(GZIPHelper.unzip(data), "UTF-8");
 					System.out.println(value);
-					context.getMessage().put("byte[]", GZIPHelper.zip(value.getBytes(Charset.forName("UTF-8"))));
+					context.getMessage().put("byte[]", GZIPHelper.zip(value.getBytes("UTF-8")));
 				}
 				context.reply(context.getMessage());
 			}

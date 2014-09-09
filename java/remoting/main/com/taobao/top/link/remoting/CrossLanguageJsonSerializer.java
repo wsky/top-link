@@ -20,12 +20,10 @@ public class CrossLanguageJsonSerializer implements Serializer {
 			// SerializerFeature.DisableCircularReferenceDetect
 	};
 
-	@Override
 	public String getName() {
 		return "json";
 	}
 
-	@Override
 	public byte[] serializeMethodCall(MethodCall methodCall) throws FormatterException {
 		MethodCallWrapper wrapper = new MethodCallWrapper(methodCall);
 		wrapper.Args = methodCall.Args;
@@ -36,7 +34,6 @@ public class CrossLanguageJsonSerializer implements Serializer {
 		return JSON.toJSONBytes(wrapper, features);
 	}
 
-	@Override
 	public MethodCall deserializeMethodCall(byte[] input) throws FormatterException {
 		JSONObject obj = (JSONObject) JSON.parse(input);
 		MethodCall methodCall = new MethodCall();
@@ -76,7 +73,6 @@ public class CrossLanguageJsonSerializer implements Serializer {
 		return methodCall;
 	}
 
-	@Override
 	public byte[] serializeMethodReturn(MethodReturn methodReturn) throws FormatterException {
 		MethodReturnWrapper wrapper = new MethodReturnWrapper();
 		wrapper.ReturnValue = methodReturn.ReturnValue;
@@ -86,7 +82,6 @@ public class CrossLanguageJsonSerializer implements Serializer {
 		return JSON.toJSONBytes(wrapper, features);
 	}
 
-	@Override
 	public MethodReturn deserializeMethodReturn(byte[] input, Class<?> returnType) throws FormatterException {
 		JSONObject obj = (JSONObject) JSON.parse(input);
 		MethodReturn methodReturn = new MethodReturn();

@@ -7,7 +7,6 @@ import java.io.ObjectOutputStream;
 
 // java build-in object read/write
 public class DefaultSerializer implements Serializer {
-	@Override
 	public String getName() {
 		return "java";
 	}

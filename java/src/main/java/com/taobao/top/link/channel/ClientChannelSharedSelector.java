@@ -29,7 +29,6 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 		this.heartbeatInterval = interval;
 	}
 
-	@Override
 	public ClientChannel getChannel(URI uri) throws ChannelException {
 		final String url = uri.toString();
 		if (channels.get(url) == null ||
@@ -45,7 +44,6 @@ public class ClientChannelSharedSelector implements ClientChannelSelector {
 		return channels.get(url);
 	}
 
-	@Override
 	public void returnChannel(ClientChannel channel) {
 		// shared channel
 	}

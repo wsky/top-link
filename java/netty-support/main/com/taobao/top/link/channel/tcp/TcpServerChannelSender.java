@@ -25,7 +25,6 @@ public class TcpServerChannelSender extends TcpChannelSender implements ServerCh
 		this.context.put(key, value);
 	}
 
-	@Override
 	public boolean isOpen() {
 		return this.channel.isOpen();
 	}

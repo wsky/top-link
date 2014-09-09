@@ -25,17 +25,14 @@ public class TcpClientChannel extends TcpChannelSender implements ClientChannel,
 		super(channel);
 	}
 
-	@Override
 	public void setChannel(Channel channel) {
 		this.channel = channel;
 	}
-
-	@Override
+	
 	public void setUri(URI uri) {
 		this.uri = uri;
 	}
 
-	@Override
 	public URI getUri() {
 		return this.uri;
 	}
@@ -45,21 +42,17 @@ public class TcpClientChannel extends TcpChannelSender implements ClientChannel,
 		return this.channelHandler;
 	}
 
-	@Override
 	public void setChannelHandler(ChannelHandler handler) {
 		this.channelHandler = handler;
 	}
 
-	@Override
 	public boolean isConnected() {
 		return this.channel.isConnected();
 	}
 
-	@Override
 	public void setHeartbeatTimer(ResetableTimer timer) {
 		this.timer = timer;
 		this.timer.setTask(new Runnable() {
-			@Override
 			public void run() {
 				// if (isConnected())
 				// TODO:easy heartbeat frame

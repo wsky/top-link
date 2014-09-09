@@ -35,22 +35,18 @@ public class WebSocketChannelTest {
 		serverChannelWrapper = new WebSocketServerChannelWrapper(uri.getPort());
 		serverChannelWrapper.run();
 		serverChannelWrapper.setChannelHandler(new ChannelHandler() {
-			@Override
 			public void onMessage(ChannelContext context) throws Exception {
 			}
 
-			@Override
 			public void onError(ChannelContext context) throws Exception {
 			}
-
-			@Override
+			
 			public void onConnect(ChannelContext context) throws Exception {
 				connectedSender = (ServerChannelSender) context.getSender();
 				System.out.println(connectedSender.getLocalAddress());
 				System.out.println(connectedSender.getRemoteAddress());
 			}
 
-			@Override
 			public void onClosed(String reason) {
 			}
 		});

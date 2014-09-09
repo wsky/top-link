@@ -73,7 +73,6 @@ public class RemotingTest {
 
 		// make server broken
 		new Thread(new Runnable() {
-			@Override
 			public void run() {
 				try {
 					Thread.sleep(1000);

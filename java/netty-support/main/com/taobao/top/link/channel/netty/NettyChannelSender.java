@@ -21,22 +21,18 @@ public abstract class NettyChannelSender implements ChannelSender {
 		return this.channel;
 	}
 	
-	@Override
 	public SocketAddress getLocalAddress() {
 		return this.channel.getLocalAddress();
 	}
 	
-	@Override
 	public SocketAddress getRemoteAddress() {
 		return this.channel.getRemoteAddress();
 	}
 	
-	@Override
 	public Object getContext(Object key) {
 		return this.context.get(key);
 	}
 
-	@Override
 	public void setContext(Object key, Object value) {
 		this.context.put(key, value);
 	}

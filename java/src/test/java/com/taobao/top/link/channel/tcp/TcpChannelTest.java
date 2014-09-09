@@ -26,58 +26,55 @@ public class TcpChannelTest {
 	private static TcpServerChannelWrapper serverChannelWrapper;
 	private static LoggerFactory loggerFactory = DefaultLoggerFactory.getDefault();
 	private static CountDownLatch latch = new CountDownLatch(1);
-
+	
 	@BeforeClass
 	public static void init() throws URISyntaxException {
 		uri = new URI("tcp://localhost:8888/");
 		uriSsl = new URI("ssl://localhost:8888/");
-
+		
 		serverChannelWrapper = new TcpServerChannelWrapper(uri.getPort());
 		serverChannelWrapper.run();
 		serverChannelWrapper.setChannelHandler(new ChannelHandler() {
-			@Override
+			
 			public void onMessage(ChannelContext context) throws Exception {
 				System.out.println(context.getMessage());
 				latch.countDown();
 			}
-
-			@Override
+			
 			public void onError(ChannelContext context) throws Exception {
 			}
-
-			@Override
+			
 			public void onConnect(ChannelContext context) throws Exception {
 			}
-
-			@Override
+			
 			public void onClosed(String reason) {
 			}
 		});
 	}
-
+	
 	@AfterClass
 	public static void afterClass() {
 		serverChannelWrapper.stop();
 	}
-
+	
 	@After
 	public void after() {
 		serverChannelWrapper.setSSLContext(null);
 	}
-
+	
 	@Test
 	public void connect_test() throws ChannelException {
 		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uri, 100, Channels.pipeline());
 		assertNotNull(clientChannel);
 	}
-
+	
 	@Test
 	public void ssl_test() throws ChannelException {
 		serverChannelWrapper.ssl();
 		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uriSsl, 100, Channels.pipeline());
 		assertNotNull(clientChannel);
 	}
-
+	
 	@Test
 	public void send_test() throws ChannelException, InterruptedException {
 		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uri, 100, Channels.pipeline());

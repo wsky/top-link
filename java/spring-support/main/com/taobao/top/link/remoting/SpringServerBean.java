@@ -54,17 +54,14 @@ public class SpringServerBean implements InitializingBean, BeanFactoryAware, App
 		this.handshaker = handshaker;
 	}
 
-	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = (ListableBeanFactory) beanFactory;
 	}
 
-	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.beanFactory = applicationContext;
 	}
 
-	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (this.maxMessageSize > 0)
 			BufferManager.setBufferSize(this.maxMessageSize);

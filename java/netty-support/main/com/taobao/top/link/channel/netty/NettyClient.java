@@ -74,7 +74,6 @@ public abstract class NettyClient {
 			pipeline.addLast("handler", handler);
 
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				return pipeline;
 			}

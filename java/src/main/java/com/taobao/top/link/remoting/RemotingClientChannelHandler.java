@@ -88,7 +88,6 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 		this.callbacks.remove(callback.flag);
 	}
 
-	@Override
 	public void onMessage(ChannelContext context) {
 		Object msg = context.getMessage();
 		RemotingTcpProtocolHandle protocol = msg instanceof ByteBuffer ?

@@ -82,7 +82,6 @@ public class TimingTest {
 
 	private void runThread(final DynamicProxy proxy, final Object sync, final int from, final int to) {
 		new Thread(new Runnable() {
-			@Override
 			public void run() {
 				try {
 					for (int i = from; i < to; i++) {

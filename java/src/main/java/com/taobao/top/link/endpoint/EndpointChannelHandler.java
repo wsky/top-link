@@ -83,7 +83,6 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public final void onMessage(ChannelContext context) throws Exception {
 		Object msg = context.getMessage();
 
@@ -158,7 +157,6 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 
 	private Runnable createTask(final ChannelContext context, final Message message, final Identity messageFrom) {
 		return new MessageScheduleTask(message) {
-			@Override
 			public void run() {
 				try {
 					internalOnMessage(context, message, messageFrom);
@@ -289,7 +287,6 @@ public class EndpointChannelHandler extends SimpleChannelHandler {
 			this.buffer = buffer;
 		}
 
-		@Override
 		public void onSendComplete(boolean success) {
 			BufferManager.returnBuffer(this.buffer);
 		}
