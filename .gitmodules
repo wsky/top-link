@@ -1,12 +1,12 @@
 [submodule "java/external/RemotingProtocolParser"]
 	path = java/external/RemotingProtocolParser
-	url = git://github.com/wsky/RemotingProtocolParser.git
+	url = https://github.com/wsky/RemotingProtocolParser.git
 [submodule "java/external/websocket-client"]
 	path = java/external/websocket-client
-	url = git://github.com/wsky/websocket-client.git
+	url = https://github.com/wsky/websocket-client.git
 [submodule "csharp/external/websocket-sharp"]
 	path = csharp/external/websocket-sharp
-	url = git://github.com/wsky/websocket-sharp.git
+	url = https://github.com/wsky/websocket-sharp.git
 [submodule "csharp/external/RemotingProtocolParser"]
 	path = csharp/external/RemotingProtocolParser
-	url = git://github.com/wsky/RemotingProtocolParser.git
+	url = https://github.com/wsky/RemotingProtocolParser.git

@@ -1,9 +1,9 @@
-#git submodule add git://github.com/wsky/RemotingProtocolParser.git java/external/RemotingProtocolParser
-#git submodule add git://github.com/wsky/websocket-client.git java/external/websocket-client
+#git submodule add https://github.com/wsky/RemotingProtocolParser.git java/external/RemotingProtocolParser
+#git submodule add https://github.com/wsky/websocket-client.git java/external/websocket-client
 #git checkout top-link
-#git submodule add git://github.com/wsky/websocket-sharp.git csharp/external/websocket-sharp
+#git submodule add https://github.com/wsky/websocket-sharp.git csharp/external/websocket-sharp
 #git checkout net20
-#git submodule add git://github.com/wsky/RemotingProtocolParser.git csharp/external/RemotingProtocolParser
+#git submodule add https://github.com/wsky/RemotingProtocolParser.git csharp/external/RemotingProtocolParser
 
 git submodule init
 git submodule update
