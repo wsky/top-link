@@ -34,16 +34,16 @@
   <target name="all">
     <mkdir dir="${build.absolutepath}" />
     <exec program="${msbuild}"
-          commandline="${msbuild.params} ${msbuild.params.output} /p:DocumentationFile=${build.absolutepath}/Taobao.Top.Link.Xml"
-          workingdir="${dir}\src\Taobao.Top.Link" />
+          commandline="${msbuild.params} ${msbuild.params.output} /p:DocumentationFile=${build.absolutepath}/Top.Link.Xml"
+          workingdir="${dir}\src\Top.Link" />
     <exec program="${dir.tools}\ilmerge.exe"
-          commandline="/t:library /targetplatform:v2,${dir.net2} /out:${build.absolutepath}\lib\Taobao.Top.Link.dll Taobao.Top.Link.dll RemotingProtocolParser.dll websocket-sharp.dll /ndebug /xmldocs"
+          commandline="/t:library /targetplatform:v2,${dir.net2} /out:${build.absolutepath}\lib\Top.Link.dll Top.Link.dll RemotingProtocolParser.dll websocket-sharp.dll /ndebug /xmldocs"
           workingdir="${build.absolutepath}" />
     <copy todir="${build.absolutepath}/lib/">
       <fileset basedir="${build.absolutepath}">
         <include name="Newtonsoft.Json.dll" />
-        <include name="Taobao.Top.Link.pdb" />
-        <include name="Taobao.Top.Link.dll.mdb" />
+        <include name="Top.Link.pdb" />
+        <include name="Top.Link.dll.mdb" />
       </fileset>
     </copy>
   </target>
@@ -52,14 +52,14 @@
     <if test="${runtime=='dotnet'}">
       <exec program="${msbuild}"
             commandline="${msbuild.params} ${msbuild.params.output}\test"
-            workingdir="${dir}\src\Taobao.Top.Link.Test" />
-      <exec program="${nunit}" commandline="Taobao.Top.Link.Test.dll" workingdir="${build.absolutepath}\test"/>
+            workingdir="${dir}\src\Top.Link.Test" />
+      <exec program="${nunit}" commandline="Top.Link.Test.dll" workingdir="${build.absolutepath}\test"/>
     </if>
     <if test="${runtime=='mono'}">
       <exec program="${msbuild}"
             commandline="${msbuild.params} ${msbuild.params.output}/test_mono"
-            workingdir="${dir}\src\Taobao.Top.Link.Test" />
-      <exec program="mono" commandline="${nunit} Taobao.Top.Link.Test.dll" workingdir="${build.absolutepath}\test_mono"/>
+            workingdir="${dir}\src\Top.Link.Test" />
+      <exec program="mono" commandline="${nunit} Top.Link.Test.dll" workingdir="${build.absolutepath}\test_mono"/>
     </if>
   </target>
   

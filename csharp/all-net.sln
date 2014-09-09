@@ -5,11 +5,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{49
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "websocket-sharp", "external\websocket-sharp\websocket-sharp\websocket-sharp.csproj", "{B357BAC7-529E-4D81-A0D2-71041B19C8DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taobao.Top.Link", "src\Taobao.Top.Link\Taobao.Top.Link.csproj", "{4989E149-3A5D-406D-9A42-F4DC3F3950F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Top.Link", "src\Top.Link\Top.Link.csproj", "{4989E149-3A5D-406D-9A42-F4DC3F3950F4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemotingProtocolParser-Core", "external\RemotingProtocolParser\csharp\RemotingProtocolParser\RemotingProtocolParser-Core.csproj", "{C9063E8A-5F48-4C2E-A89C-031C53E75918}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taobao.Top.Link.Test", "src\Taobao.Top.Link.Test\Taobao.Top.Link.Test.csproj", "{061B2353-31C0-4F84-BABE-842163BCDFF9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Top.Link.Test", "src\Top.Link.Test\Top.Link.Test.csproj", "{061B2353-31C0-4F84-BABE-842163BCDFF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
