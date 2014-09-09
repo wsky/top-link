@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Taobao.Top.Link.Channel;
+using Top.Link.Channel;
 
-namespace Taobao.Top.Link.Endpoints
+namespace Top.Link.Endpoints
 {
     /// <summary>logic endpoint local proxy object
     /// </summary>

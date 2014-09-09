@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link
+namespace Top.Link
 {
     //special log/error text here, easy support culture
     public class Text

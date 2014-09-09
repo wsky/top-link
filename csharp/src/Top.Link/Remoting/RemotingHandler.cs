@@ -4,11 +4,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using RemotingProtocolParser.TCP;
-using Taobao.Top.Link.Channel;
-using Taobao.Top.Link.Remoting.Protocol;
-using Taobao.Top.Link.Remoting.Serialization;
+using Top.Link.Channel;
+using Top.Link.Remoting.Protocol;
+using Top.Link.Remoting.Serialization;
 
-namespace Taobao.Top.Link.Remoting
+namespace Top.Link.Remoting
 {
     /// <summary>deal with protocol/callback
     /// </summary>

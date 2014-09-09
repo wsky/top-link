@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
-using Taobao.Top.Link.Channel;
-using Taobao.Top.Link.Channel.WebSocket;
+using Top.Link.Channel;
+using Top.Link.Channel.WebSocket;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
-namespace Taobao.Top.Link.Test
+namespace Top.Link.Test
 {
     [TestFixture]
     public class WebSocketChannelTest

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link.Channel.WebSocket
+namespace Top.Link.Channel.WebSocket
 {
     class WebSocketClientHelper
     {

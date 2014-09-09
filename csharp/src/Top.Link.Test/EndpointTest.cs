@@ -4,11 +4,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
-using Taobao.Top.Link.Endpoints;
+using Top.Link.Endpoints;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
-namespace Taobao.Top.Link.Test
+namespace Top.Link.Test
 {
     [TestFixture]
     public class EndpointTest

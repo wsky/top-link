@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Taobao.Top.Link.Channel;
-using Taobao.Top.Link.Remoting.Serialization.Json;
+using Top.Link.Channel;
+using Top.Link.Remoting.Serialization.Json;
 
-namespace Taobao.Top.Link.Remoting
+namespace Top.Link.Remoting
 {
     /// <summary>remoting helper for easy using
     /// </summary>

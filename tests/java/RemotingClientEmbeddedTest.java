@@ -1,10 +1,10 @@
 import java.net.URI;
 
-import com.taobao.top.link.remoting.RemotingService;
-import com.taobao.top.link.remoting.RemotingConfiguration;
-import com.taobao.top.link.remoting.DynamicProxy;
-import com.taobao.top.link.remoting.MethodCall;
-import com.taobao.top.link.channel.embedded.EmbeddedClientChannelSharedSelector;
+import top.link.remoting.RemotingService;
+import top.link.remoting.RemotingConfiguration;
+import top.link.remoting.DynamicProxy;
+import top.link.remoting.MethodCall;
+import top.link.channel.embedded.EmbeddedClientChannelSharedSelector;
 
 public class RemotingClientEmbeddedTest {
 	public static void main(String[] args) throws Throwable {

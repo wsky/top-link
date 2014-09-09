@@ -1,8 +1,8 @@
 import java.net.URI;
 
-import com.taobao.top.link.remoting.RemotingService;
-import com.taobao.top.link.remoting.DynamicProxy;
-import com.taobao.top.link.remoting.MethodCall;
+import top.link.remoting.RemotingService;
+import top.link.remoting.DynamicProxy;
+import top.link.remoting.MethodCall;
 
 public class RemotingClientTest {
 	public static void main(String[] args) throws Throwable {

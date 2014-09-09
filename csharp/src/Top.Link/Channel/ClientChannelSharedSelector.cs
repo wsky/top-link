@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Taobao.Top.Link.Channel.WebSocket;
+using Top.Link.Channel.WebSocket;
 
-namespace Taobao.Top.Link.Channel
+namespace Top.Link.Channel
 {
     /// <summary>a channel pool that same uri sharing same channel
     /// </summary>

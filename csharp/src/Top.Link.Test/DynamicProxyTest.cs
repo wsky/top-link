@@ -4,15 +4,15 @@ using System.IO;
 using System.Text;
 using NUnit.Framework;
 using RemotingProtocolParser.TCP;
-using Taobao.Top.Link.Channel;
-using Taobao.Top.Link.Remoting;
-using Taobao.Top.Link.Remoting.Protocol;
-using Taobao.Top.Link.Remoting.Serialization;
-using Taobao.Top.Link.Remoting.Serialization.Json;
+using Top.Link.Channel;
+using Top.Link.Remoting;
+using Top.Link.Remoting.Protocol;
+using Top.Link.Remoting.Serialization;
+using Top.Link.Remoting.Serialization.Json;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
-namespace Taobao.Top.Link.Test
+namespace Top.Link.Test
 {
     [TestFixture]
     public class DynamicProxyTest

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace Taobao.Top.Link.Endpoints
+namespace Top.Link.Endpoints
 {
     public class SendCallback
     {

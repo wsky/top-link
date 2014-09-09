@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using Taobao.Top.Link.Channel.TCP;
-using Taobao.Top.Link.Remoting.Protocol;
-using Taobao.Top.Link.Remoting.Serialization;
-using Taobao.Top.Link.Remoting.Serialization.Json;
+using Top.Link.Channel.TCP;
+using Top.Link.Remoting.Protocol;
+using Top.Link.Remoting.Serialization;
+using Top.Link.Remoting.Serialization.Json;
 
-namespace Taobao.Top.Link.Remoting
+namespace Top.Link.Remoting
 {
     public class TcpRemotingHelper
     {

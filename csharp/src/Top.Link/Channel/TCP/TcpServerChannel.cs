@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Taobao.Top.Link.Channel.TCP
+namespace Top.Link.Channel.TCP
 {
     /// <summary>server channel bind on raw tcp, just impl an easy server
     /// </summary>

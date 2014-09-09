@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link.Channel
+namespace Top.Link.Channel
 {
     /// <summary>channel closed reason
     /// </summary>

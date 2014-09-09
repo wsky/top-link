@@ -7,7 +7,7 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 
-namespace Taobao.Top.Link.Remoting.Serialization.Json
+namespace Top.Link.Remoting.Serialization.Json
 {
     /// <summary>.net remoting formatterSink that support interope
     /// </summary>

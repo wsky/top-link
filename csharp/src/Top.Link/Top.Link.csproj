@@ -7,8 +7,8 @@
     <ProjectGuid>{4989E149-3A5D-406D-9A42-F4DC3F3950F4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Taobao.Top.Link</RootNamespace>
-    <AssemblyName>Taobao.Top.Link</AssemblyName>
+    <RootNamespace>Top.Link</RootNamespace>
+    <AssemblyName>Top.Link</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

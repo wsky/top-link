@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Taobao.Top.Link.Channel;
+using Top.Link.Channel;
 
-namespace Taobao.Top.Link.Endpoints
+namespace Top.Link.Endpoints
 {
     // Abstract network model
     // https://docs.google.com/drawings/d/1PRfzMVNGE4NKkpD9A_-QlH2PV47MFumZX8LbCwhzpQg/edit

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace Taobao.Top.Link.Remoting
+namespace Top.Link.Remoting
 {
     /// <summary>support wait until got methodReturn
     /// </summary>

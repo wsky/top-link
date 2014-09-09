@@ -6,7 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Taobao.Top.Link.Remoting.Serialization.Json
+namespace Top.Link.Remoting.Serialization.Json
 {
     /// <summary>cross-language remoting serializer, take care of type
     /// </summary>

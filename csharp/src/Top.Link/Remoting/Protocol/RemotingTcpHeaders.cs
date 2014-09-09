@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link.Remoting.Protocol
+namespace Top.Link.Remoting.Protocol
 {
     public class RemotingTcpHeaders
     {

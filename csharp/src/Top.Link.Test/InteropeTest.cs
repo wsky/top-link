@@ -4,13 +4,13 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
 using NUnit.Framework;
-using Taobao.Top.Link.Channel;
-using Taobao.Top.Link.Endpoints;
-using Taobao.Top.Link.Remoting;
-using Taobao.Top.Link.Remoting.Serialization.Json;
-using Taobao.Top.Link.Util;
+using Top.Link.Channel;
+using Top.Link.Endpoints;
+using Top.Link.Remoting;
+using Top.Link.Remoting.Serialization.Json;
+using Top.Link.Util;
 
-namespace Taobao.Top.Link.Test
+namespace Top.Link.Test
 {
     /// <summary>interoper with java server, that args[0] is return
     /// </summary>

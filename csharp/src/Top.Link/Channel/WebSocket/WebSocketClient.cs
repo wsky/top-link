@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using WebSocketSharp;
 
-namespace Taobao.Top.Link.Channel.WebSocket
+namespace Top.Link.Channel.WebSocket
 {
     /// <summary>simple websocket client helper
     /// </summary>

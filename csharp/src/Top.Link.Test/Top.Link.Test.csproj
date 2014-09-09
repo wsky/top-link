@@ -7,8 +7,8 @@
     <ProjectGuid>{061B2353-31C0-4F84-BABE-842163BCDFF9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Taobao.Top.Link.Test</RootNamespace>
-    <AssemblyName>Taobao.Top.Link.Test</AssemblyName>
+    <RootNamespace>Top.Link.Test</RootNamespace>
+    <AssemblyName>Top.Link.Test</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -55,9 +55,9 @@
       <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
       <Name>websocket-sharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Taobao.Top.Link\Taobao.Top.Link.csproj">
+    <ProjectReference Include="..\Top.Link\Top.Link.csproj">
       <Project>{4989e149-3a5d-406d-9a42-f4dc3f3950f4}</Project>
-      <Name>Taobao.Top.Link</Name>
+      <Name>Top.Link</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using RemotingProtocolParser.TCP;
 
-namespace Taobao.Top.Link.Remoting.Protocol
+namespace Top.Link.Remoting.Protocol
 {
     /// <summary>extend remoting protocol
     /// </summary>

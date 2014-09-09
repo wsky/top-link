@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 
-namespace Taobao.Top.Link.Util
+namespace Top.Link.Util
 {
     /// <summary>zip helper compatible with java version
     /// </summary>

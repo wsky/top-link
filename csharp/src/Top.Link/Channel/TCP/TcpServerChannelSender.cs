@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Taobao.Top.Link.Channel.TCP
+namespace Top.Link.Channel.TCP
 {
     /// <summary>the channel that can send message to client via raw tcp
     /// </summary>

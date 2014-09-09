@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link.Endpoints
+namespace Top.Link.Endpoints
 {
     /// <summary>for endpoints talking
     /// </summary>

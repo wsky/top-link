@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using Taobao.Top.Link.Remoting;
-using Taobao.Top.Link.Remoting.Serialization;
-using Taobao.Top.Link.Remoting.Serialization.Json;
+using Top.Link.Remoting;
+using Top.Link.Remoting.Serialization;
+using Top.Link.Remoting.Serialization.Json;
 
-namespace Taobao.Top.Link.Test
+namespace Top.Link.Test
 {
     [TestFixture]
     public class JsonSerializerTest

@@ -39,7 +39,7 @@ Serialization detail: https://github.com/wsky/top-link/issues/43
 
 C# sample:
 ```c#
-using Taobao.Top.Link.Remoting;
+using Top.Link.Remoting;
 //via websocekt
 RemotingService.Connect<TestService>("ws://localhost/").Echo("hi");
 //via tcp and .net remoting extension
@@ -79,14 +79,14 @@ assertEquals("hi", sampleService.echo("hi"));
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean name="testService" class="TestService" />
-	<bean name="server" class="com.taobao.top.link.remoting.SpringServerBean">
+	<bean name="server" class="top.link.remoting.SpringServerBean">
 		<property name="port" value="8889" />
 		<property name="path" value="api" />
 		<property name="maxMessageSize" value="1024" />
 		<property name="minBusinessThreadCount" value="20" />
 		<property name="maxBusinessThreadCount" value="200" />
 	</bean>
-	<bean class="com.taobao.top.link.remoting.ServiceBean">
+	<bean class="top.link.remoting.ServiceBean">
 		<property name="interfaceName" value="TestInterface" />
 		<property name="target">
 			<ref bean="testService" />
@@ -104,7 +104,7 @@ beanFactory.getBean("server");
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean name="test" class="com.taobao.top.link.remoting.SpringServiceProxyBean">
+	<bean name="test" class="top.link.remoting.SpringServiceProxyBean">
 		<property name="interfaceName" value="TestInterface" />
 		<property name="uri" value="ws://localhost:8889/" />
 		<property name="executionTimeout" value="5000" />
@@ -118,4 +118,4 @@ TestInterface testInterface = (TestInterface) beanFactory.getBean("test");
 assertEquals("hi", testInterface.echo("hi"));
 ```
 
-More settings sample see here: https://github.com/wsky/top-link/blob/master/java/spring-support/test/com/taobao/top/link/remoting/SpringTest.java
+More settings sample see here: https://github.com/wsky/top-link/blob/master/java/spring-support/test/top/link/remoting/SpringTest.java

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link.Remoting.Serialization.Json
+namespace Top.Link.Remoting.Serialization.Json
 {
     public class CrossLanguageSerializationFactory : ISerializationFactory
     {

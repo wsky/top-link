@@ -5,9 +5,9 @@ using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using System.Text;
 using RemotingProtocolParser.TCP;
-using Taobao.Top.Link.Channel;
+using Top.Link.Channel;
 
-namespace Taobao.Top.Link.Remoting
+namespace Top.Link.Remoting
 {
     /// <summary>proxy any type that for top-link.remoting rpc call, proxy based on .net build-in realproxy
     /// </summary>

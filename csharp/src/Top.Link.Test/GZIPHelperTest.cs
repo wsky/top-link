@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using Taobao.Top.Link.Util;
+using Top.Link.Util;
 
-namespace Taobao.Top.Link.Test
+namespace Top.Link.Test
 {
     [TestFixture]
     public class GZIPHelperTest

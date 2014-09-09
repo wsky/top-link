@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Taobao.Top.Link.Remoting
+namespace Top.Link.Remoting
 {
     /// <summary>called when method return got
     /// </summary>
