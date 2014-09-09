@@ -15,7 +15,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import top.link.DefaultLoggerFactory;
 import top.link.channel.ChannelException;
 import top.link.channel.netty.NettyClient;
 import top.link.channel.netty.NettyServerChannel;
@@ -28,7 +27,7 @@ public class NettyClientTest {
 	@BeforeClass
 	public static void beforeClass() throws URISyntaxException {
 		uri = new URI("tcp://localhost:8888/");
-		serverChannel = new NettyServerChannel(DefaultLoggerFactory.getDefault(), uri.getPort()) {
+		serverChannel = new NettyServerChannel(uri.getPort()) {
 			@Override
 			protected void preparePipeline(ChannelPipeline pipeline) {
 				pipeline.addLast("handler", new SimpleChannelUpstreamHandler());

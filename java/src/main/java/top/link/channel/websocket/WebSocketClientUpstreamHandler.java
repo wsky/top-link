@@ -14,9 +14,9 @@ import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.slf4j.Logger;
 
 import top.link.LinkException;
-import top.link.Logger;
 import top.link.Text;
 import top.link.channel.netty.NettyClientUpstreamHandler;
 

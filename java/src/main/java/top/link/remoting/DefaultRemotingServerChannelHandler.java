@@ -3,9 +3,6 @@ package top.link.remoting;
 import java.net.URI;
 import java.util.HashMap;
 
-import top.link.DefaultLoggerFactory;
-import top.link.LoggerFactory;
-
 public class DefaultRemotingServerChannelHandler extends RemotingServerChannelHandler {
 	private HashMap<String, MethodCallProcessor> services;
 

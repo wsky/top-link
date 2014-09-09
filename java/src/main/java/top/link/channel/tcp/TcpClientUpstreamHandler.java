@@ -2,8 +2,8 @@ package top.link.channel.tcp;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
+import org.slf4j.Logger;
 
-import top.link.Logger;
 import top.link.channel.netty.NettyClientUpstreamHandler;
 
 public class TcpClientUpstreamHandler extends NettyClientUpstreamHandler {

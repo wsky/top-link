@@ -7,10 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import top.link.DefaultLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import top.link.LinkException;
-import top.link.Logger;
-import top.link.LoggerFactory;
 import top.link.Text;
 import top.link.channel.ChannelException;
 import top.link.channel.ChannelSender;
@@ -29,59 +29,55 @@ public class Endpoint {
 	private ClientChannelSelector channelSelector;
 	private EndpointChannelHandler channelHandler;
 	private MessageHandler messageHandler;
-
+	
 	// in/out endpoints
 	private List<EndpointProxy> connected;
-
+	
 	public Endpoint(Identity identity) {
-		this(DefaultLoggerFactory.getDefault(), identity);
-	}
-
-	public Endpoint(LoggerFactory loggerFactory, Identity identity) {
 		this.serverChannels = new ArrayList<ServerChannel>();
 		this.connected = new ArrayList<EndpointProxy>();
-		this.logger = loggerFactory.create(this);
+		this.logger = LoggerFactory.getLogger(this.getClass());
 		this.identity = identity;
-		this.setClientChannelSelector(new ClientChannelSharedSelector(loggerFactory));
-		this.setChannelHandler(new EndpointChannelHandler(loggerFactory));
-
+		this.setClientChannelSelector(new ClientChannelSharedSelector());
+		this.setChannelHandler(new EndpointChannelHandler());
+		
 		if (this.identity == null)
 			throw new NullPointerException("identity");
 	}
-
+	
 	public Identity getIdentity() {
 		return this.identity;
 	}
-
+	
 	public void setMessageHandler(MessageHandler handler) {
 		this.messageHandler = handler;
 	}
-
+	
 	public MessageHandler getMessageHandler() {
 		return this.messageHandler;
 	}
-
+	
 	public void setChannelHandler(EndpointChannelHandler channelHandler) {
 		this.channelHandler = channelHandler;
 		this.channelHandler.setEndpoint(this);
 		for (ServerChannel channel : this.serverChannels)
 			channel.setChannelHandler(this.channelHandler);
 	}
-
+	
 	public void setClientChannelSelector(ClientChannelSelector selector) {
 		this.channelSelector = selector;
 	}
-
+	
 	public void setScheduler(Scheduler<Identity> scheduler) {
 		this.channelHandler.setScheduler(scheduler);
 	}
-
+	
 	public void bind(ServerChannel channel) {
 		channel.setChannelHandler(this.channelHandler);
 		channel.run();
 		this.serverChannels.add(channel);
 	}
-
+	
 	public void unbindAll() {
 		for (ServerChannel channel : this.serverChannels) {
 			try {
@@ -92,15 +88,15 @@ public class Endpoint {
 		}
 		this.serverChannels.clear();
 	}
-
+	
 	public Iterator<EndpointProxy> getConnected() {
 		return this.connected.iterator();
 	}
-
+	
 	public synchronized EndpointProxy getEndpoint(Identity target, URI uri) throws LinkException {
 		return this.getEndpoint(target, uri, null);
 	}
-
+	
 	// connect to target via special uri
 	public synchronized EndpointProxy getEndpoint(
 			Identity target, URI uri, Map<String, Object> extras) throws LinkException {
@@ -113,7 +109,7 @@ public class Endpoint {
 		if (extras != null)
 			content.putAll(extras);
 		msg.content = content;
-
+		
 		EndpointProxy e = this.getEndpoint(target);
 		// always clear, cached proxy will have broken channel
 		e.remove(uri);
@@ -127,11 +123,11 @@ public class Endpoint {
 		e.add(channel);
 		return e;
 	}
-
+	
 	public synchronized EndpointProxy getEndpoint(Identity target) throws LinkException {
 		if (target.equals(this.identity))
 			throw new LinkException(Text.E_ID_DUPLICATE);
-
+		
 		for (EndpointProxy e : this.connected) {
 			if (e.getIdentity() != null &&
 					e.getIdentity().equals(target))
@@ -141,11 +137,11 @@ public class Endpoint {
 		e.setIdentity(target);
 		return e;
 	}
-
+	
 	protected void send(ChannelSender sender, Message message) throws ChannelException {
 		this.channelHandler.pending(message, sender);
 	}
-
+	
 	protected Map<String, Object> sendAndWait(EndpointProxy e,
 			ChannelSender sender,
 			Message message,
@@ -161,7 +157,7 @@ public class Endpoint {
 			throw callback.getError();
 		return callback.getReturn();
 	}
-
+	
 	private EndpointProxy createProxy(String reason) {
 		EndpointProxy e = new EndpointProxy(this);
 		this.connected.add(e);

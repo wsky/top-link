@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import top.link.LoggerFactory;
-
 // https://github.com/wsky/top-link/issues/69
 // support batch processing certain type of lightweight task, avoid context switch cost 
 public class BatchedScheduler<T> extends Scheduler<T> {
@@ -13,10 +11,6 @@ public class BatchedScheduler<T> extends Scheduler<T> {
 
 	public BatchedScheduler() {
 		super();
-	}
-
-	public BatchedScheduler(LoggerFactory loggerFactory) {
-		super(loggerFactory);
 	}
 
 	@Override

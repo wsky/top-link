@@ -4,8 +4,8 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.slf4j.Logger;
 
-import top.link.Logger;
 import top.link.Text;
 import top.link.channel.ChannelContext;
 import top.link.channel.ChannelHandler;

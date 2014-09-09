@@ -1,18 +1,16 @@
 package top.link.channel;
 
-import top.link.Logger;
-import top.link.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ServerChannel {
-	protected LoggerFactory loggerFactory;
 	protected Logger logger;
 	protected ChannelHandler channelHandler;
 	protected int port;
 	protected int maxIdleTimeSeconds = 0;
 	
-	public ServerChannel(LoggerFactory factory, int port) {
-		this.loggerFactory = factory;
-		this.logger = factory.create(this);
+	public ServerChannel(int port) {
+		this.logger = LoggerFactory.getLogger(this.getClass());
 		this.port = port;
 	}
 	

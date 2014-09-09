@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Ignore;
 
 import top.link.BufferManager;
-import top.link.DefaultLoggerFactory;
 import top.link.channel.ClientChannelSharedSelector;
 import top.link.channel.ServerChannel;
 import top.link.channel.websocket.WebSocketServerChannel;
@@ -29,19 +28,20 @@ import junit.textui.ResultPrinter;
 import junit.textui.TestRunner;
 
 import com.clarkware.junitperf.LoadTest;
+
 //import com.clarkware.junitperf.TestMethodFactory;
 
 @Ignore
 public class RemotingPerf extends TestCase {
 	private static URI uri;
-
+	
 	public static void main(String[] args) throws URISyntaxException {
 		uri = new URI("ws://localhost:9000/");
 		prepareServer(uri);
-
+		
 		int user = 100, per = 10000;
 		int total = user * per;
-
+		
 		// Test testCase = new TestMethodFactory(RemotingPerf.class,
 		// "invoke_test");
 		Test testCase = new RemotingPerf("invoke_test");
@@ -59,10 +59,10 @@ public class RemotingPerf extends TestCase {
 				total, cost,
 				((float) total / (float) cost) * 1000,
 				(float) cost / (float) total));
-
+		
 		System.exit(0);
 	}
-
+	
 	private static void prepareServer(URI uri) {
 		RemotingServerChannelHandler handler = new RemotingServerChannelHandler() {
 			@Override
@@ -78,13 +78,13 @@ public class RemotingPerf extends TestCase {
 		serverChannel.setChannelHandler(handler);
 		serverChannel.run();
 	}
-
+	
 	private DynamicProxy proxy;
 	private MethodCall call;
-
+	
 	public RemotingPerf(String name) throws URISyntaxException {
 		super(name);
-
+		
 		call = new MethodCall();
 		call.MethodSignature = new Class<?>[] { String.class };
 		// BufferManager.enableDirectBuffer(true);
@@ -93,16 +93,14 @@ public class RemotingPerf extends TestCase {
 		call.Args = new Object[] { "h" };
 		// call.Args = new Object[] {
 		// "123456789012345678901234567890123456789012345678901234567890" };
-
-		RemotingClientChannelHandler handler = new RemotingClientChannelHandler(
-				DefaultLoggerFactory.getDefault(),
-				new AtomicInteger(0));
+		
+		RemotingClientChannelHandler handler = new RemotingClientChannelHandler(new AtomicInteger(0));
 		handler.setSerializationFactory(new CrossLanguageSerializationFactory());
-
+		
 		proxy = new DynamicProxy(uri, new ClientChannelSharedSelector(), handler);
 		proxy.setSerializationFormat("json");
 	}
-
+	
 	public void invoke_test() throws FormatterException, URISyntaxException,
 			RemotingException {
 		proxy.invoke(call, 100);

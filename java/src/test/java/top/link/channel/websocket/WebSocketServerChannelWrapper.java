@@ -31,7 +31,6 @@ public class WebSocketServerChannelWrapper extends WebSocketServerChannel {
 
 	protected WebSocketServerUpstreamHandler createHandler() {
 		return handlerWrapper = new WebSocketServerUpstreamHandlerWrapper(
-				this.loggerFactory,
 				this.channelHandler,
 				this.allChannels,
 				this.cumulative);

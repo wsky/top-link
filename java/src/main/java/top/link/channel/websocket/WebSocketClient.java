@@ -10,9 +10,9 @@ import org.jboss.netty.handler.codec.http.HttpResponseDecoder;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import top.link.Logger;
-import top.link.LoggerFactory;
 import top.link.Text;
 import top.link.channel.ChannelException;
 import top.link.channel.ClientChannel;
@@ -21,25 +21,25 @@ import top.link.channel.netty.NettyClient;
 
 public class WebSocketClient extends NettyClient {
 	private static WebSocketClientHandshakerFactory wsFactory = new WebSocketClientHandshakerFactory();
-
-	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int connectTimeoutMillis)
+	
+	public static ClientChannel connect(URI uri, int connectTimeoutMillis)
 			throws ChannelException {
-		Logger logger = loggerFactory.create(String.format("WebSocketClientHandler-%s", uri));
-
+		Logger logger = LoggerFactory.getLogger(String.format("WebSocketClientHandler-%s", uri));
+		
 		WebSocketClientChannel clientChannel = new WebSocketClientChannel();
 		clientChannel.setUri(uri);
-
+		
 		ConnectingChannelHandler handler = new ConnectingChannelHandler();
 		clientChannel.setChannelHandler(handler);
-
+		
 		WebSocketClientUpstreamHandler wsHandler = new WebSocketClientUpstreamHandler(logger, clientChannel);
 		ChannelPipeline pipeline = Channels.pipeline();
 		pipeline.addLast("decoder", new HttpResponseDecoder());
 		pipeline.addLast("encoder", new HttpRequestEncoder());
 		// connect
-		Channel channel = prepareAndConnect(logger, uri, 
+		Channel channel = prepareAndConnect(logger, uri,
 				pipeline, wsHandler,
-				uri.getScheme().equalsIgnoreCase("wss"), 
+				uri.getScheme().equalsIgnoreCase("wss"),
 				connectTimeoutMillis);
 		// handshake
 		try {
@@ -56,13 +56,13 @@ public class WebSocketClient extends NettyClient {
 		} catch (Exception e) {
 			throw new ChannelException(Text.WS_HANDSHAKE_ERROR, e);
 		}
-
+		
 		if (wsHandler.handshaker.isHandshakeComplete())
 			return clientChannel;
 		if (handler.error != null)
 			throw new ChannelException(Text.CONNECT_FAIL
 					+ ": " + handler.error.getMessage(), handler.error);
-
+		
 		throw new ChannelException(Text.CONNECT_TIMEOUT);
 	}
 }

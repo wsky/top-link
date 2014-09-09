@@ -1,6 +1,7 @@
 package top.link.channel.embedded;
 
-import top.link.Logger;
+import org.slf4j.Logger;
+
 import top.link.Text;
 import top.link.channel.ChannelContext;
 import top.link.channel.ChannelHandler;

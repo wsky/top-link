@@ -12,7 +12,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import top.link.DefaultLoggerFactory;
 import top.link.channel.ClientChannelPooledSelector;
 import top.link.channel.websocket.WebSocketServerChannel;
 import top.link.remoting.DefaultRemotingServerChannelHandler;
@@ -30,33 +29,33 @@ public class JsonRemotingTest {
 	private static WebSocketServerChannel serverChannel;
 	private static DynamicProxy proxy;
 	private static SerialInterface serialInterface;
-
+	
 	@BeforeClass
 	public static void init() throws URISyntaxException {
 		uri = new URI("ws://localhost:8888/json");
-
+		
 		Serializer serializer = new CrossLanguageJsonSerializer();
 		SerializationFactory serializationFactory = new CrossLanguageSerializationFactory();
-
+		
 		DefaultRemotingServerChannelHandler serverHandler = new DefaultRemotingServerChannelHandler();
 		serverHandler.setSerializationFactory(serializationFactory);
 		serverHandler.addProcessor("json", new SerialService());
 		serverChannel = new WebSocketServerChannel(uri.getPort());
 		serverChannel.setChannelHandler(serverHandler);
 		serverChannel.run();
-
-		RemotingClientChannelHandler clientHandler = new RemotingClientChannelHandler(DefaultLoggerFactory.getDefault(), new AtomicInteger(0));
+		
+		RemotingClientChannelHandler clientHandler = new RemotingClientChannelHandler(new AtomicInteger(0));
 		clientHandler.setSerializationFactory(serializationFactory);
 		proxy = new DynamicProxy(uri, new ClientChannelPooledSelector(), clientHandler);
 		proxy.setSerializationFormat(serializer.getName());
 		serialInterface = (SerialInterface) proxy.create(SerialInterface.class, uri);
 	}
-
+	
 	@AfterClass
 	public static void clear() {
 		serverChannel.stop();
 	}
-
+	
 	@Test
 	public void invoke_test() throws FormatterException, RemotingException {
 		HashMap<String, String> map1 = new HashMap<String, String>();
@@ -69,7 +68,7 @@ public class JsonRemotingTest {
 		entity.setDate(new Date());
 		entity.setMap(map2);
 		entity.setArray(new String[] { "abc" });
-
+		
 		Entity ret = serialInterface.echo("string",
 				(byte) 0,
 				(double) 0,
@@ -81,7 +80,7 @@ public class JsonRemotingTest {
 				map1,
 				entity,
 				new String[] { "abc" });
-
+		
 		assertEquals(entity.getString(), ret.getString());
 		assertEquals(entity.getLong(), ret.getLong());
 		assertEquals(entity.getDate(), ret.getDate());
@@ -89,12 +88,12 @@ public class JsonRemotingTest {
 		assertEquals(entity.getMap().get("k"), ret.getMap().get("k"));
 		assertEquals(entity.getArray()[0], ret.getArray()[0]);
 	}
-
+	
 	// @Test
 	public void simply_perf_test() {
 		Entity entity = new Entity();
 		entity.setString("hello1234567890123456789123456789hello1234567890123456789123456789");
-
+		
 		int total = 100000;
 		long begin = System.currentTimeMillis();
 		for (int i = 0; i < total; i++) {
@@ -115,7 +114,7 @@ public class JsonRemotingTest {
 				"total:%s, cost:%sms, tps:%scall/s, time:%sms", total, cost,
 				((float) total / (float) cost) * 1000,
 				(float) cost / (float) total));
-
+		
 		// java build-in
 		// total:100000, cost:110834ms, tps:902.25024call/s, time:1.10834ms
 		// json

@@ -18,7 +18,6 @@ import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
-import top.link.LoggerFactory;
 import top.link.Text;
 import top.link.channel.ServerChannel;
 
@@ -26,20 +25,20 @@ public abstract class NettyServerChannel extends ServerChannel {
 	private static NioServerSocketChannelFactory nioServerSocketChannelFactory = new NioServerSocketChannelFactory(
 			Executors.newCachedThreadPool(),
 			Executors.newCachedThreadPool());
-
+	
 	private ServerBootstrap bootstrap;
 	protected ChannelGroup allChannels;
 	protected SSLContext sslContext;
-
-	public NettyServerChannel(LoggerFactory factory, int port) {
-		super(factory, port);
+	
+	public NettyServerChannel(int port) {
+		super(port);
 		this.allChannels = new DefaultChannelGroup();
 	}
-
+	
 	public void setSSLContext(SSLContext sslContext) {
 		this.sslContext = sslContext;
 	}
-
+	
 	@Override
 	public void run() {
 		this.bootstrap = new ServerBootstrap(nioServerSocketChannelFactory);
@@ -62,7 +61,7 @@ public abstract class NettyServerChannel extends ServerChannel {
 		bootstrap.setOption("child.receiveBufferSize", 1048576);
 		bootstrap.setOption("child.tcpNoDelay", true);
 		this.prepareBootstrap(this.bootstrap);
-
+		
 		// shared timer for idle
 		final Timer timer = new HashedWheelTimer();
 		this.bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -70,7 +69,7 @@ public abstract class NettyServerChannel extends ServerChannel {
 				ChannelPipeline pipeline = Channels.pipeline();
 				if (maxIdleTimeSeconds > 0) {
 					pipeline.addLast("idleStateHandler", new IdleStateHandler(timer, 0, 0, maxIdleTimeSeconds));
-					pipeline.addLast("maxIdleHandler", new MaxIdleTimeHandler(loggerFactory, maxIdleTimeSeconds));
+					pipeline.addLast("maxIdleHandler", new MaxIdleTimeHandler(maxIdleTimeSeconds));
 				}
 				if (sslContext != null) {
 					SSLEngine sslEngine = sslContext.createSSLEngine();
@@ -84,7 +83,7 @@ public abstract class NettyServerChannel extends ServerChannel {
 		this.allChannels.add(this.bootstrap.bind(new InetSocketAddress(this.port)));
 		this.logger.info(Text.SERVER_RUN, this.port);
 	}
-
+	
 	@Override
 	public void stop() {
 		this.allChannels.close().awaitUninterruptibly();
@@ -92,9 +91,9 @@ public abstract class NettyServerChannel extends ServerChannel {
 		// this.bootstrap.releaseExternalResources();
 		this.logger.info(Text.SERVER_STOP);
 	}
-
+	
 	protected abstract void preparePipeline(ChannelPipeline pipeline);
-
+	
 	protected void prepareBootstrap(ServerBootstrap bootstrap) {
 	}
 }

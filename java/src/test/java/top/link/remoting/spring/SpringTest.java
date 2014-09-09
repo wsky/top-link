@@ -26,7 +26,7 @@ public class SpringTest {
 			+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
 			+ "<beans>"
 
-			+ "	<bean name=\"headers\" class=\"com.taobao.top.link.remoting.HandshakingHeadersBean\">"
+			+ "	<bean name=\"headers\" class=\"top.link.remoting.spring.HandshakingHeadersBean\">"
 			+ "		<property name=\"headers\">"
 			+ "			<map>"
 			+ "				<entry key=\"id\"><value>test</value></entry>"
@@ -34,8 +34,8 @@ public class SpringTest {
 			+ "		</property>"
 			+ "	</bean>"
 
-			+ "	<bean name=\"test\" class=\"com.taobao.top.link.remoting.SpringServiceProxyBean\">"
-			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.SampleInterface\" />"
+			+ "	<bean name=\"test\" class=\"top.link.remoting.spring.SpringServiceProxyBean\">"
+			+ "		<property name=\"interfaceName\" value=\"top.link.remoting.SampleInterface\" />"
 			+ "		<property name=\"uri\" value=\"ws://localhost:8889/api\" />"
 			+ "		<property name=\"executionTimeout\" value=\"5000\" />"
 			+ "		<property name=\"serialization\" value=\"json\" />"
@@ -44,12 +44,12 @@ public class SpringTest {
 			+ "		</property>"
 			+ "	</bean>"
 
-			+ "	<bean name=\"sampleService\" class=\"com.taobao.top.link.remoting.SampleService\" />"
+			+ "	<bean name=\"sampleService\" class=\"top.link.remoting.SampleService\" />"
 
-			+ "	<bean name=\"handshaker\" class=\"com.taobao.top.link.remoting.CustomHandshaker\" />"
-			+ "	<bean name=\"callContext\" class=\"com.taobao.top.link.remoting.MethodCallContextBean\" />"
+			+ "	<bean name=\"handshaker\" class=\"top.link.remoting.spring.CustomHandshaker\" />"
+			+ "	<bean name=\"callContext\" class=\"top.link.remoting.spring.MethodCallContextBean\" />"
 
-			+ "	<bean name=\"server\" class=\"com.taobao.top.link.remoting.SpringServerBean\">"
+			+ "	<bean name=\"server\" class=\"top.link.remoting.spring.SpringServerBean\">"
 			+ "		<property name=\"port\" value=\"8889\" />"
 			+ "		<property name=\"path\" value=\"api\" />"
 			+ "		<property name=\"maxMessageSize\" value=\"1024\" />"
@@ -60,8 +60,8 @@ public class SpringTest {
 			+ "		</property>"
 			+ "</bean>"
 
-			+ "	<bean class=\"com.taobao.top.link.remoting.ServiceBean\">"
-			+ "		<property name=\"interfaceName\" value=\"com.taobao.top.link.remoting.SampleInterface\" />"
+			+ "	<bean class=\"top.link.remoting.spring.ServiceBean\">"
+			+ "		<property name=\"interfaceName\" value=\"top.link.remoting.SampleInterface\" />"
 			+ "		<property name=\"target\">"
 			+ "			<ref bean=\"sampleService\" />"
 			+ "		</property>"
@@ -87,8 +87,8 @@ public class SpringTest {
 
 	@Test
 	public void get_class_test() throws ClassNotFoundException {
-		Class.forName("com.taobao.top.link.remoting.SampleInterface");
-		Class.forName("com.taobao.top.link.remoting.SampleService");
+		Class.forName("top.link.remoting.SampleInterface");
+		Class.forName("top.link.remoting.SampleService");
 	}
 
 	@Test

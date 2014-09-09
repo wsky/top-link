@@ -3,7 +3,6 @@ package top.link.endpoint;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import top.link.DefaultLoggerFactory;
 import top.link.channel.websocket.WebSocketServerChannel;
 import top.link.endpoint.DefaultIdentity;
 import top.link.endpoint.Endpoint;
@@ -14,7 +13,6 @@ import top.link.util.GZIPHelper;
 
 public class EndpointRunner {
 	public static void main(String[] args) throws URISyntaxException {
-		DefaultLoggerFactory.setDefault(true, true, true, true, true);
 		URI uri = new URI("ws://localhost:9090/");
 		Endpoint e = new Endpoint(new DefaultIdentity("echo_server"));
 		e.bind(new WebSocketServerChannel(uri.getPort()));

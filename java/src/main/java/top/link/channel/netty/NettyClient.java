@@ -15,8 +15,8 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.handler.ssl.SslHandler;
+import org.slf4j.Logger;
 
-import top.link.Logger;
 import top.link.Text;
 import top.link.channel.ChannelException;
 import top.link.channel.X509AlwaysTrustManager;

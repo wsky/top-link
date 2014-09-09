@@ -13,8 +13,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import top.link.DefaultLoggerFactory;
-import top.link.LoggerFactory;
 import top.link.channel.ChannelContext;
 import top.link.channel.ChannelException;
 import top.link.channel.ChannelHandler;
@@ -25,7 +23,6 @@ public class TcpChannelTest {
 	private static URI uri;
 	private static URI uriSsl;
 	private static TcpServerChannelWrapper serverChannelWrapper;
-	private static LoggerFactory loggerFactory = DefaultLoggerFactory.getDefault();
 	private static CountDownLatch latch = new CountDownLatch(1);
 	
 	@BeforeClass
@@ -65,20 +62,20 @@ public class TcpChannelTest {
 	
 	@Test
 	public void connect_test() throws ChannelException {
-		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uri, 100, Channels.pipeline());
+		ClientChannel clientChannel = TcpClient.connect(uri, 100, Channels.pipeline());
 		assertNotNull(clientChannel);
 	}
 	
 	@Test
 	public void ssl_test() throws ChannelException {
 		serverChannelWrapper.ssl();
-		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uriSsl, 100, Channels.pipeline());
+		ClientChannel clientChannel = TcpClient.connect(uriSsl, 100, Channels.pipeline());
 		assertNotNull(clientChannel);
 	}
 	
 	@Test
 	public void send_test() throws ChannelException, InterruptedException {
-		ClientChannel clientChannel = TcpClient.connect(loggerFactory, uri, 100, Channels.pipeline());
+		ClientChannel clientChannel = TcpClient.connect(uri, 100, Channels.pipeline());
 		byte[] data = "1234".getBytes();
 		clientChannel.send(data, 0, data.length);
 		assertTrue(latch.await(100, TimeUnit.MILLISECONDS));

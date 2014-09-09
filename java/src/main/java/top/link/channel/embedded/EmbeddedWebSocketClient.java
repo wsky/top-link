@@ -3,8 +3,9 @@ package top.link.channel.embedded;
 import java.net.URI;
 import java.util.Map;
 
-import top.link.Logger;
-import top.link.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import top.link.Text;
 import top.link.channel.ChannelException;
 import top.link.channel.ClientChannel;
@@ -16,10 +17,10 @@ import top.link.embedded.websocket.impl.WebSocketImpl;
 
 public class EmbeddedWebSocketClient {
 	private final static String[] subprotocol = new String[0];
-
-	public static ClientChannel connect(LoggerFactory loggerFactory, URI uri, int timeout) throws ChannelException {
+	
+	public static ClientChannel connect(URI uri, int timeout) throws ChannelException {
 		resetSettings();
-		Logger logger = loggerFactory.create(String.format("EmbeddedWebSocketHandler-%s", uri));
+		Logger logger = LoggerFactory.getLogger(String.format("EmbeddedWebSocketHandler-%s", uri));
 		EmbeddedWebSocketClientChannel clientChannel = new EmbeddedWebSocketClientChannel();
 		clientChannel.setUri(uri);
 		try {
@@ -43,22 +44,22 @@ public class EmbeddedWebSocketClient {
 		} catch (Exception e) {
 			throw new ChannelException(Text.CONNECT_ERROR, e);
 		}
-
+		
 		if (clientChannel.error != null)
 			throw new ChannelException(Text.WS_HANDSHAKE_ERROR, clientChannel.error);
-
+		
 		return clientChannel;
 	}
-
+	
 	// websocket-client settings
 	private static void resetSettings() {
 		// read buffer, for reading inbound bytes
 		// 32767
 		// System.setProperty("websocket.bufferSize", "0x7FFF");
-
+		
 		// outgoing queue size
 		System.setProperty("websocket.upstreamQueueSize", "10000");
-
+		
 		// dump for test
 		System.setProperty("websocket.packatdump", "0");
 	}

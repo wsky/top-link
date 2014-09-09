@@ -3,7 +3,6 @@ package top.link.remoting;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import top.link.DefaultLoggerFactory;
 import top.link.channel.ClientChannelPooledSelector;
 import top.link.channel.ClientChannelSelector;
 import top.link.remoting.DynamicProxy;
@@ -15,7 +14,7 @@ public class RemotingUtil {
 	}
 
 	public static DynamicProxy connect(URI uri, ClientChannelSelector clientChannelSelector) {
-		RemotingClientChannelHandler clientHandler = new RemotingClientChannelHandler(DefaultLoggerFactory.getDefault(), new AtomicInteger(0));
+		RemotingClientChannelHandler clientHandler = new RemotingClientChannelHandler(new AtomicInteger(0));
 		return new DynamicProxy(uri, clientChannelSelector, clientHandler);
 	}
 

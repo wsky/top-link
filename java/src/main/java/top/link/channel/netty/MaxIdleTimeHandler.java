@@ -5,9 +5,9 @@ import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.jboss.netty.handler.timeout.IdleState;
 import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
 import org.jboss.netty.handler.timeout.IdleStateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import top.link.Logger;
-import top.link.LoggerFactory;
 import top.link.Text;
 
 // IdleStateHandler.
@@ -15,12 +15,12 @@ import top.link.Text;
 public class MaxIdleTimeHandler extends IdleStateAwareChannelHandler {
 	private Logger logger;
 	private int maxIdleTimeSeconds;
-
-	public MaxIdleTimeHandler(LoggerFactory loggerFactory, int maxIdleTimeSeconds) {
-		this.logger = loggerFactory.create(this);
+	
+	public MaxIdleTimeHandler(int maxIdleTimeSeconds) {
+		this.logger = LoggerFactory.getLogger(this.getClass());
 		this.maxIdleTimeSeconds = maxIdleTimeSeconds;
 	}
-
+	
 	@Override
 	public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws InterruptedException {
 		if (e.getState() == IdleState.ALL_IDLE) {
@@ -28,7 +28,7 @@ public class MaxIdleTimeHandler extends IdleStateAwareChannelHandler {
 			this.logger.info(Text.REACH_MAX_IDLE_AND_CLOSE, this.maxIdleTimeSeconds);
 		}
 	}
-
+	
 	private void closeChannel(ChannelHandlerContext ctx, int statusCode, String reason) throws InterruptedException {
 		ctx.getChannel().write(new CloseWebSocketFrame(statusCode, reason)).sync();
 		ctx.getChannel().close();

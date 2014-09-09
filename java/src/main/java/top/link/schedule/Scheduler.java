@@ -15,10 +15,10 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import top.link.DefaultLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import top.link.LinkException;
-import top.link.Logger;
-import top.link.LoggerFactory;
 import top.link.Text;
 
 public class Scheduler<T> {
@@ -26,39 +26,35 @@ public class Scheduler<T> {
 	private Semaphore semaphore;
 	private Thread dispatcher;
 	private Timer checker;
-
+	
 	private Map<T, Queue<Runnable>> tasks;
 	private ExecutorService threadPool;
 	private Runnable rejectedTask;
-
+	
 	protected Logger logger;
 	protected int max = 100;
 	protected boolean running;
-
+	
 	public Scheduler() {
-		this(DefaultLoggerFactory.getDefault());
-	}
-
-	public Scheduler(LoggerFactory loggerFactory) {
-		this.logger = loggerFactory.create(this);
+		this.logger = LoggerFactory.getLogger(this.getClass());
 		this.lock = new Object();
 		this.semaphore = new Semaphore(0);
 		this.tasks = this.createStore();
 		this.setThreadPool(Executors.newCachedThreadPool());
 	}
-
+	
 	public void setUserMaxPendingCount(int max) {
 		this.max = max;
 	}
-
+	
 	public void setThreadPool(ExecutorService threadPool) {
 		this.threadPool = threadPool;
 	}
-
+	
 	public void start() {
 		if (this.dispatcher != null)
 			return;
-
+		
 		this.running = true;
 		this.dispatcher = new Thread(new Runnable() {
 			public void run() {
@@ -66,7 +62,7 @@ public class Scheduler<T> {
 					try {
 						semaphore.tryAcquire(1, TimeUnit.SECONDS);
 					} catch (InterruptedException e) {
-						logger.error(e);
+						logger.error(e.getMessage(), e);
 					}
 					dispatch();
 				}
@@ -76,25 +72,25 @@ public class Scheduler<T> {
 		this.dispatcher.setName(Text.SCHEDULE_DISPATCHER_NAME);
 		this.dispatcher.start();
 		this.prepareChecker(10000, 10000);
-
+		
 		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.SCHEDULE_START);
 	}
-
+	
 	public void stop() throws InterruptedException {
 		if (this.dispatcher == null)
 			return;
-
+		
 		this.stopChecker();
 		this.checker = null;
-
+		
 		this.disposeDispatcher();
 		this.dispatcher = null;
-
+		
 		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.SCHEDULE_STOP);
 	}
-
+	
 	public void schedule(T t, Runnable task) throws LinkException {
 		if (this.canRunImmediately(t, task)) {
 			try {
@@ -104,7 +100,7 @@ public class Scheduler<T> {
 				throw new LinkException(e.getMessage());
 			}
 		}
-
+		
 		Queue<Runnable> queue = this.tasks.get(t);
 		if (queue == null) {
 			synchronized (this.lock) {
@@ -112,44 +108,44 @@ public class Scheduler<T> {
 					this.tasks.put(t, queue = this.createTaskQueue(t));
 			}
 		}
-
+		
 		if (this.haveReachMaxPendingCount(t, queue, task))
 			throw new LinkException(String.format(Text.SCHEDULE_GOT_MAX, this.max));
-
+		
 		try {
 			queue.add(task);
 		} catch (Exception e) {
 			throw new LinkException(Text.SCHEDULE_TASK_REFUSED, e);
 		}
-
+		
 		// if (this.semaphore.getQueueLength() > 0)
 		this.semaphore.release();
 	}
-
+	
 	public void drop(T t) {
 		if (this.tasks.get(t) == null)
 			return;
 		this.tasks.get(t).clear();
 		this.tasks.remove(t);
 	}
-
+	
 	protected Map<T, Queue<Runnable>> createStore() {
 		return new HashMap<T, Queue<Runnable>>();
 	}
-
+	
 	protected Queue<Runnable> createTaskQueue(T t) {
 		return new ArrayBlockingQueue<Runnable>(this.max, false);
 	}
-
+	
 	protected boolean canRunImmediately(T t, Runnable task) {
 		return false;
 	}
-
+	
 	// can override here to control pending count of t
 	protected boolean haveReachMaxPendingCount(T t, Queue<Runnable> queue, Runnable task) {
 		return queue.size() >= this.max;
 	}
-
+	
 	protected final void dispatch() {
 		if (this.getRejectedTask() != null) {
 			if (this.executeTask(this.getRejectedTask()))
@@ -157,7 +153,7 @@ public class Scheduler<T> {
 			else
 				return;
 		}
-
+		
 		boolean flag;
 		int c = 0;
 		do {
@@ -169,7 +165,7 @@ public class Scheduler<T> {
 					entry = iterator.next();
 				} catch (Exception e) {
 					if (this.logger.isDebugEnabled())
-						this.logger.debug(e);
+						this.logger.debug(e.getMessage(), e);
 					// iterator got concurrent problem
 					if (e instanceof ConcurrentModificationException)
 						flag = true;
@@ -177,61 +173,61 @@ public class Scheduler<T> {
 				}
 				if (entry == null)
 					continue;
-
+				
 				Queue<Runnable> queue = entry.getValue();
 				if (queue == null)
 					continue;
-
+				
 				Runnable task = this.poll(queue);
-
+				
 				if (task == null)
 					continue;
-
+				
 				if (!this.executeTask(task)) {
 					this.setRejectedTask(task);
 					return;
 				}
-
+				
 				c++;
-
+				
 				if (!flag)
 					flag = queue.size() > 0;
 			}
 		} while (flag);
-
+		
 		if (this.logger.isDebugEnabled() && c > 0)
 			this.logger.debug(Text.SCHEDULE_TASK_DISPATCHED, c);
 	}
-
+	
 	protected boolean executeTask(Runnable task) {
 		try {
 			this.threadPool.execute(task);
 			return true;
 		} catch (RejectedExecutionException e) {
 			if (this.logger.isDebugEnabled())
-				this.logger.debug(e);
+				this.logger.debug(e.getMessage(), e);
 			return false;
 		}
 	}
-
+	
 	protected void setRejectedTask(Runnable task) {
 		this.rejectedTask = task;
 	}
-
+	
 	protected Runnable getRejectedTask() {
 		return this.rejectedTask;
 	}
-
+	
 	protected Runnable poll(Queue<Runnable> queue) {
 		return queue.poll();
 	}
-
+	
 	protected final void disposeDispatcher() throws InterruptedException {
 		this.running = false;
 		this.semaphore.release();
 		this.dispatcher.join();
 	}
-
+	
 	// necessarily?
 	protected final void prepareChecker(long delay, long period) {
 		this.stopChecker();
@@ -241,17 +237,17 @@ public class Scheduler<T> {
 			public void run() {
 				if (!running || dispatcher.isAlive())
 					return;
-				logger.fatal(Text.SCHEDULE_DISPATCHER_DOWN);
+				logger.error(Text.SCHEDULE_DISPATCHER_DOWN);
 				try {
 					stop();
 					start();
 				} catch (Exception e) {
-					logger.error(e);
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}, delay, period);
 	}
-
+	
 	protected final void stopChecker() {
 		if (this.checker == null)
 			return;

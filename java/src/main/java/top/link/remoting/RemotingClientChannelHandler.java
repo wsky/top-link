@@ -7,13 +7,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import remoting.protocol.NotSupportedException;
 import remoting.protocol.tcp.TcpContentDelimiter;
 import remoting.protocol.tcp.TcpOperations;
 import remoting.protocol.tcp.TcpTransportHeader;
 import top.link.BufferManager;
-import top.link.Logger;
-import top.link.LoggerFactory;
 import top.link.Text;
 import top.link.channel.ChannelContext;
 import top.link.channel.SimpleChannelHandler;
@@ -25,18 +26,18 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 	private AtomicInteger flagAtomic;
 	private Map<Integer, RemotingCallback> callbacks;
 	private SerializationFactory serializationFactory;
-
-	public RemotingClientChannelHandler(LoggerFactory loggerFactory, AtomicInteger flagAtomic) {
-		this.logger = loggerFactory.create(this);
+	
+	public RemotingClientChannelHandler(AtomicInteger flagAtomic) {
+		this.logger = LoggerFactory.getLogger(this.getClass());
 		this.flagAtomic = flagAtomic;
 		this.callbacks = new ConcurrentHashMap<Integer, RemotingCallback>();
 		this.serializationFactory = new DefaultSerializationFactory();
 	}
-
+	
 	public void setSerializationFactory(SerializationFactory serializationFactory) {
 		this.serializationFactory = serializationFactory;
 	}
-
+	
 	public ByteBuffer pending(RemotingCallback handler,
 			short operation,
 			HashMap<String, Object> transportHeaders,
@@ -52,7 +53,7 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 				0,
 				data.length);
 	}
-
+	
 	// act as formatter sink
 	public ByteBuffer pending(RemotingCallback handler,
 			short operation,
@@ -61,7 +62,7 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 			int dataOffset,
 			int dataLength) {
 		Integer flag = this.flagAtomic.incrementAndGet();
-
+		
 		ByteBuffer requestBuffer = BufferManager.getBuffer();
 		RemotingTcpProtocolHandle handle = new RemotingTcpProtocolHandle(requestBuffer);
 		handle.WritePreamble();
@@ -74,19 +75,19 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 		transportHeaders.put(RemotingTransportHeader.Format, handler.serializationFormat);
 		handle.WriteTransportHeaders(transportHeaders);
 		handle.WriteContent(data);
-
+		
 		handler.flag = flag;
 		this.callbacks.put(handler.flag, handler);
 		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.RPC_PENDING_CALL, flag);
-
+		
 		return requestBuffer;
 	}
-
+	
 	public void cancel(RemotingCallback callback) {
 		this.callbacks.remove(callback.flag);
 	}
-
+	
 	public void onMessage(ChannelContext context) {
 		Object msg = context.getMessage();
 		RemotingTcpProtocolHandle protocol = msg instanceof ByteBuffer ?
@@ -95,32 +96,32 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 		protocol.ReadPreamble();
 		protocol.ReadMajorVersion();
 		protocol.ReadMinorVersion();
-
+		
 		short operation = protocol.ReadOperation();
 		if (operation != TcpOperations.Reply)
 			return;
-
+		
 		protocol.ReadContentDelimiter();
 		protocol.ReadContentLength();
-
+		
 		HashMap<String, Object> transportHeaders = null;
 		try {
 			transportHeaders = protocol.ReadTransportHeaders();
 		} catch (NotSupportedException e) {
-			this.logger.error(e);
+			this.logger.error(e.getMessage(), e);
 		}
 		Object flag;
 		if (transportHeaders == null ||
 				(flag = transportHeaders.get(RemotingTransportHeader.Flag)) == null)
 			return;
-
+		
 		if (this.logger.isDebugEnabled())
 			this.logger.debug(Text.RPC_GET_RETURN, flag);
-
+		
 		RemotingCallback callback = this.callbacks.remove(flag);
 		if (callback == null)
 			return;
-
+		
 		Object statusCode = transportHeaders.get(TcpTransportHeader.StatusCode);
 		Object statusPhrase = transportHeaders.get(TcpTransportHeader.StatusPhrase);
 		if (statusCode != null &&
@@ -129,7 +130,7 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 					Text.RPC_RETURN_ERROR, statusCode, statusPhrase)));
 			return;
 		}
-
+		
 		MethodReturn methodReturn = null;
 		try {
 			methodReturn = this.serializationFactory.
@@ -139,14 +140,14 @@ public class RemotingClientChannelHandler extends SimpleChannelHandler {
 			callback.onException(e);
 			return;
 		}
-
+		
 		try {
 			callback.onMethodReturn(methodReturn);
 		} catch (Exception e) {
-			this.logger.error(e);
+			this.logger.error(e.getMessage(), e);
 		}
 	}
-
+	
 	@Override
 	public void onClosed(String reason) {
 		RemotingException error = new RemotingException(Text.RPC_CHANNEL_BROKEN);

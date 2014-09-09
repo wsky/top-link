@@ -18,16 +18,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 
-import top.link.DefaultLoggerFactory;
 import top.link.LinkException;
-import top.link.LoggerFactory;
 import top.link.Text;
 import top.link.schedule.BatchedScheduler;
 import top.link.schedule.Scheduler;
 
 public class SchedulerTest {
-	private LoggerFactory loggerFactory = new DefaultLoggerFactory(true, true, true, true, true);
-	
 	@Test
 	public void queue_test() {
 		Queue<String> queue = new ConcurrentLinkedQueue<String>();
@@ -60,7 +56,7 @@ public class SchedulerTest {
 	
 	@Test
 	public void dispatch_test() throws LinkException, InterruptedException {
-		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
+		Scheduler<String> scheduler = new Scheduler<String>();
 		final CountDownLatch latch = new CountDownLatch(10);
 		for (int i = 0; i < 10; i++)
 			scheduler.schedule("user-" + i, new Runnable() {
@@ -76,7 +72,7 @@ public class SchedulerTest {
 	@Test
 	public void dispatch_reject_test() throws LinkException, InterruptedException {
 		final Queue<Runnable> queue = new ArrayBlockingQueue<Runnable>(2, false);
-		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory) {
+		Scheduler<String> scheduler = new Scheduler<String>() {
 			@Override
 			protected Queue<Runnable> createTaskQueue(String t) {
 				assertEquals("user", t);
@@ -106,7 +102,7 @@ public class SchedulerTest {
 	@Test
 	public void start_stop_test() throws InterruptedException, LinkException {
 		final CountDownLatch latch = new CountDownLatch(2);
-		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
+		Scheduler<String> scheduler = new Scheduler<String>();
 		scheduler.start();
 		scheduler.schedule("user", new Runnable() {
 			
@@ -130,7 +126,7 @@ public class SchedulerTest {
 	@Test
 	public void checker_test() throws LinkException, InterruptedException {
 		final CountDownLatch latch = new CountDownLatch(1);
-		Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
+		Scheduler<String> scheduler = new Scheduler<String>();
 		scheduler.start();
 		scheduler.prepareChecker(1, 100);
 		scheduler.disposeDispatcher();
@@ -206,7 +202,7 @@ public class SchedulerTest {
 	
 	@Test
 	public void schedule_sequence_test() throws InterruptedException, LinkException {
-		final Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
+		final Scheduler<String> scheduler = new Scheduler<String>();
 		scheduler.setUserMaxPendingCount(10000);
 		scheduler.start();
 		int count = 10000;
@@ -228,7 +224,7 @@ public class SchedulerTest {
 	
 	@Test
 	public void schedule_threaded_test() throws InterruptedException, LinkException {
-		final Scheduler<String> scheduler = new Scheduler<String>(loggerFactory);
+		final Scheduler<String> scheduler = new Scheduler<String>();
 		scheduler.setUserMaxPendingCount(1000);
 		scheduler.start();
 		final int count = 10000;
@@ -236,7 +232,7 @@ public class SchedulerTest {
 		final CountDownLatch latch = new CountDownLatch(count * thread);
 		long begin = System.currentTimeMillis();
 		for (int i = 0; i < thread; i++) {
-			new Thread(new Runnable() {		
+			new Thread(new Runnable() {
 				public void run() {
 					for (int i = 0; i < count; i++) {
 						try {
@@ -260,7 +256,7 @@ public class SchedulerTest {
 	
 	@Test
 	public void schedule_by_type_and_batch_test() throws LinkException, InterruptedException {
-		BatchedScheduler<String> scheduler = new BatchedScheduler<String>(loggerFactory) {
+		BatchedScheduler<String> scheduler = new BatchedScheduler<String>() {
 			@Override
 			protected boolean enableBatch(Runnable task) {
 				return task instanceof Task1;

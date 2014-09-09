@@ -9,14 +9,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import remoting.protocol.NotSupportedException;
 import remoting.protocol.tcp.TcpContentDelimiter;
 import remoting.protocol.tcp.TcpOperations;
 import remoting.protocol.tcp.TcpTransportHeader;
 import top.link.BufferManager;
-import top.link.DefaultLoggerFactory;
-import top.link.Logger;
-import top.link.LoggerFactory;
 import top.link.channel.ChannelContext;
 import top.link.channel.ChannelException;
 import top.link.channel.SimpleChannelHandler;
@@ -28,45 +28,37 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 	protected Logger logger;
 	private ExecutorService threadPool;
 	private SerializationFactory serializationFactory = new DefaultSerializationFactory();
-
+	
 	public RemotingServerChannelHandler() {
-		this(DefaultLoggerFactory.getDefault());
+		this.logger = LoggerFactory.getLogger(this.getClass());
 	}
-
-	public RemotingServerChannelHandler(LoggerFactory loggerFactory) {
-		this.setLoggerFactory(loggerFactory);
-	}
-
+	
 	public void setThreadPool(ExecutorService threadPool) {
 		this.threadPool = threadPool;
 	}
-
-	public void setLoggerFactory(LoggerFactory loggerFactory) {
-		this.logger = loggerFactory.create(this);
-	}
-
+	
 	public void setSerializationFactory(SerializationFactory serializationFactory) {
 		this.serializationFactory = serializationFactory;
 	}
-
+	
 	public abstract MethodReturn onMethodCall(MethodCall methodCall, MethodCallContext callContext) throws Throwable;
-
+	
 	@SuppressWarnings("unchecked")
 	public final void onMessage(final ChannelContext context) throws ChannelException, NotSupportedException {
 		Object msg = context.getMessage();
-
+		
 		if (msg instanceof ByteBuffer || msg instanceof RemotingTcpProtocolHandle) {
 			this.onMessage(context, msg);
 			return;
 		}
-
+		
 		if (msg instanceof List<?>) {
 			for (Object buffer : (List<Object>) msg)
 				this.onMessage(context, buffer);
 			return;
 		}
 	}
-
+	
 	private void onMessage(final ChannelContext context, Object msg) throws ChannelException, NotSupportedException {
 		final RemotingTcpProtocolHandle protocol = msg instanceof ByteBuffer ?
 				new RemotingTcpProtocolHandle((ByteBuffer) msg) :
@@ -83,13 +75,13 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		Object flag = transportHeaders.get(RemotingTransportHeader.Flag);
 		transportHeaders.clear();
 		transportHeaders.put(RemotingTransportHeader.Flag, flag);
-
+		
 		// just use netty io-woker thread, count=cpucore
 		if (this.threadPool == null) {
 			this.internalOnMessage(context, callContext, protocol, operation, transportHeaders, serializer);
 			return;
 		}
-
+		
 		// dispatch to business workers
 		try {
 			this.threadPool.execute(new Runnable() {
@@ -97,7 +89,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 					try {
 						internalOnMessage(context, callContext, protocol, operation, transportHeaders, serializer);
 					} catch (ChannelException e) {
-						logger.error(e);
+						logger.error(e.getMessage(), e);
 					}
 				}
 			});
@@ -105,13 +97,13 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 			String statusPhrase = String.format(
 					"server threadpool full, threadpool maxsize is: %s",
 					((ThreadPoolExecutor) this.threadPool).getMaximumPoolSize());
-			this.logger.fatal(statusPhrase);
+			this.logger.error(statusPhrase);
 			transportHeaders.put(TcpTransportHeader.StatusCode, 500);
 			transportHeaders.put(TcpTransportHeader.StatusPhrase, statusPhrase);
 			this.reply(context, transportHeaders, null);
 		}
 	}
-
+	
 	private void internalOnMessage(ChannelContext context,
 			MethodCallContext callContext,
 			RemotingTcpProtocolHandle protocol,
@@ -125,26 +117,26 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 			methodCall = serializer.deserializeMethodCall(protocol.ReadContent());
 			methodReturn = this.onMethodCall(methodCall, callContext);
 		} catch (Throwable e) {
-			this.logger.error(e);
+			this.logger.error(e.getMessage(), e);
 			methodReturn = new MethodReturn();
 			methodReturn.Exception = e;
 		}
-
+		
 		// oneway?
 		if (operation == TcpOperations.OneWayRequest)
 			return;
-
+		
 		byte[] data = null;
 		try {
 			data = serializer.serializeMethodReturn(methodReturn);
 		} catch (FormatterException e) {
-			this.logger.error(e);
+			this.logger.error(e.getMessage(), e);
 			transportHeaders.put(TcpTransportHeader.StatusCode, 400);
 			transportHeaders.put(TcpTransportHeader.StatusPhrase, e.getMessage());
 		}
 		this.reply(context, transportHeaders, data);
 	}
-
+	
 	private void reply(ChannelContext context,
 			HashMap<String, Object> transportHeaders,
 			byte[] data) throws ChannelException {
@@ -159,7 +151,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 		handle.WriteTransportHeaders(transportHeaders);
 		if (data != null)
 			handle.WriteContent(data);
-
+		
 		responseBuffer.flip();
 		context.reply(responseBuffer, new SendHandler() {
 			public void onSendComplete(boolean success) {
@@ -167,7 +159,7 @@ public abstract class RemotingServerChannelHandler extends SimpleChannelHandler 
 			}
 		});
 	}
-
+	
 	private MethodCallContext createCallContext(ChannelContext channelContext, Map<String, Object> headers) {
 		MethodCallContext callContext = new MethodCallContext(channelContext.getSender());
 		for (Entry<String, Object> h : headers.entrySet())

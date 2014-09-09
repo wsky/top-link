@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import top.link.DefaultLoggerFactory;
 import top.link.LinkException;
 import top.link.channel.ChannelException;
 import top.link.channel.ClientChannelSharedSelector;
@@ -47,7 +46,7 @@ public class ExtensionTest {
 		e1.setChannelHandler(new CustomEndpointChannelHandler());
 		e1.bind(serverChannel);
 		// set scheduler
-		Scheduler<Identity> scheduler = new Scheduler<Identity>(new DefaultLoggerFactory(true, true, true, true, true));
+		Scheduler<Identity> scheduler = new Scheduler<Identity>();
 		scheduler.start();
 		e1.setScheduler(scheduler);
 	}

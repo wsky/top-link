@@ -28,7 +28,6 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.jboss.netty.util.CharsetUtil;
 
-import top.link.LoggerFactory;
 import top.link.Text;
 import top.link.channel.ChannelHandler;
 import top.link.channel.ChannelSender;
@@ -39,15 +38,15 @@ import top.link.channel.netty.NettyServerUpstreamHandler;
 public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 	private WebSocketServerHandshaker handshaker;
 	private boolean cumulative;
-
-	public WebSocketServerUpstreamHandler(LoggerFactory loggerFactory,
+	
+	public WebSocketServerUpstreamHandler(
 			ChannelHandler channelHandler,
 			ChannelGroup channelGroup,
 			boolean cumulative) {
-		super(loggerFactory, channelHandler, channelGroup);
+		super(channelHandler, channelGroup);
 		this.cumulative = cumulative;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
@@ -61,30 +60,30 @@ public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 			this.handleWebSocketFrame(ctx, (List<WebSocketFrame>) msg);
 		}
 	}
-
+	
 	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) {
 		this.dump(req);
-
+		
 		if (req.getMethod() != HttpMethod.GET) {
 			this.sendHttpResponse(ctx, req,
 					new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN));
 			return;
 		}
-
+		
 		this.renderServerChannelContext(req);
-
+		
 		if (this.channelHandler != null) {
 			try {
 				this.channelHandler.onConnect(this.createContext(req.getHeaders()));
 			} catch (Exception e) {
-				this.logger.error(e);
+				this.logger.error(e.getMessage(), e);
 				this.sendHttpResponse(ctx, req,
 						new DefaultHttpResponse(HttpVersion.HTTP_1_1,
 								new HttpResponseStatus(401, e.getMessage())));
 				return;
 			}
 		}
-
+		
 		String subprotocols = null;
 		boolean allowExtensions = false;
 		WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
@@ -94,11 +93,11 @@ public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 			wsFactory.sendUnsupportedWebSocketVersionResponse(ctx.getChannel());
 			return;
 		}
-
+		
 		// FIXME: maybe not finish for later work
 		this.handshaker.handshake(ctx.getChannel(),
 				req).addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
-
+		
 		if (this.cumulative)
 			// use custom decoder for cumulative
 			ctx.getPipeline().replace(WebSocket13FrameDecoder.class, "wsdecoder-custom",
@@ -106,7 +105,7 @@ public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 							allowExtensions,
 							this.handshaker.getMaxFramePayloadLength()));
 	}
-
+	
 	protected void handleWebSocketFrame(final ChannelHandlerContext ctx,
 			WebSocketFrame frame) throws Exception {
 		if (frame instanceof CloseWebSocketFrame) {
@@ -131,7 +130,7 @@ public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 		if (this.logger.isDebugEnabled())
 			this.logger.debug("unhandled frame: %s", frame);
 	}
-
+	
 	private void handleWebSocketFrame(final ChannelHandlerContext ctx,
 			List<WebSocketFrame> frames) throws Exception {
 		List<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
@@ -140,21 +139,21 @@ public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 		}
 		this.channelHandler.onMessage(this.createContext(buffers));
 	}
-
+	
 	private void sendHttpResponse(ChannelHandlerContext ctx,
 			HttpRequest req, HttpResponse res) {
 		if (res.getStatus().getCode() != 200) {
 			res.setContent(ChannelBuffers.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
 			HttpHeaders.setContentLength(res, res.getContent().readableBytes());
 		}
-
+		
 		ChannelFuture f = ctx.getChannel().write(res);
-
+		
 		if (res.getStatus().getCode() != 200) {
 			f.addListener(ChannelFutureListener.CLOSE);
 		}
 	}
-
+	
 	private void dump(HttpRequest request) {
 		if (!this.logger.isDebugEnabled())
 			return;
@@ -164,13 +163,13 @@ public class WebSocketServerUpstreamHandler extends NettyServerUpstreamHandler {
 			this.logger.debug("%s=%s", h.getKey(), h.getValue());
 		}
 	}
-
+	
 	private void renderServerChannelContext(HttpRequest request) {
 		ServerChannelSender serverChannelSender = (WebSocketServerChannelSender) this.sender;
 		for (Entry<String, String> h : request.getHeaders())
 			serverChannelSender.setContext(h.getKey(), h.getValue());
 	}
-
+	
 	@Override
 	protected ChannelSender createSender(Channel channel) {
 		return new WebSocketServerChannelSender(channel);

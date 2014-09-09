@@ -37,7 +37,6 @@ public class TcpServerChannelWrapper extends TcpServerChannel {
 	
 	protected TcpServerUpstreamHandler createHandler() {
 		return handlerWrapper = new TcpServerUpstreamHandlerWrapper(
-				this.loggerFactory,
 				this.channelHandler,
 				this.allChannels);
 	}
